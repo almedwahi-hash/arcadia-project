@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arcadia B2B Group Rate Sheet — Almaty 5D/4N</title>
+  <style>
+    :root {
+      --navy: #0f2440;
+      --navy-mid: #1a3558;
+      --gold: #c9a227;
+      --gold-soft: #f5ecd4;
+      --text: #1a1a2e;
+      --muted: #5c6b7a;
+      --border: #d8dee6;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @page {
+      size: A4;
+      margin: 14mm 16mm;
+    }
+
+    body {
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--white);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 14px;
+      border-bottom: 3px solid var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .header img {
+      height: 64px;
+      width: auto;
+    }
+
+    .brand-name {
+      font-size: 14pt;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .brand-sub {
+      font-size: 10pt;
+      font-weight: 600;
+      color: var(--navy-mid);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .header-meta {
+      text-align: right;
+      font-size: 9pt;
+      color: var(--muted);
+    }
+
+    .doc-title {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: var(--white);
+      padding: 14px 18px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .doc-title h1 {
+      font-size: 13pt;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .doc-title .sub {
+      font-size: 9.5pt;
+      opacity: 0.9;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .meta-chip {
+      background: var(--gold-soft);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 9pt;
+      color: var(--navy);
+    }
+
+    .meta-chip strong { color: var(--navy); }
+
+    h2 {
+      font-size: 11pt;
+      color: var(--navy);
+      border-left: 4px solid var(--gold);
+      padding-left: 10px;
+      margin: 18px 0 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 14px;
+      font-size: 9.5pt;
+    }
+
+    th {
+      background: var(--navy);
+      color: var(--white);
+      padding: 8px 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    tr:nth-child(even) td { background: #f8fafc; }
+
+    tr.highlight td {
+      background: var(--gold-soft);
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .program-table td:first-child {
+      font-weight: 700;
+      color: var(--navy);
+      width: 56px;
+      background: var(--gold-soft);
+    }
+
+    .program-table td:nth-child(2) { text-align: left; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .box-head {
+      background: var(--navy-mid);
+      color: var(--white);
+      padding: 8px 12px;
+      font-size: 9.5pt;
+      font-weight: 600;
+    }
+
+    .box ul {
+      list-style: none;
+      padding: 10px 12px;
+    }
+
+    .box li {
+      padding: 4px 0 4px 18px;
+      position: relative;
+      font-size: 9pt;
+      border-bottom: 1px solid #eef2f6;
+    }
+
+    .box li:last-child { border-bottom: none; }
+
+    .box.included li::before {
+      content: "\2713";
+      position: absolute;
+      left: 0;
+      color: #2d8a4e;
+      font-weight: 700;
+    }
+
+    .box.excluded li::before {
+      content: "\2715";
+      position: absolute;
+      left: 0;
+      color: #c0392b;
+      font-weight: 700;
+    }
+
+    .terms-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .term-card {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px;
+      text-align: center;
+      font-size: 8.5pt;
+    }
+
+    .term-card .val {
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--gold);
+      display: block;
+      margin: 4px 0;
+    }
+
+    .term-card .lbl { color: var(--muted); font-size: 8pt; }
+
+    .signature {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 2px solid var(--gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      page-break-inside: avoid;
+    }
+
+    .sig-block { font-size: 9pt; }
+    .sig-name { font-size: 11pt; font-weight: 700; color: var(--navy); }
+    .sig-title { color: var(--muted); margin: 4px 0 8px; }
+    .sig-contact a { color: var(--navy-mid); text-decoration: none; }
+
+    .footer-note {
+      margin-top: 12px;
+      font-size: 7.5pt;
+      color: var(--muted);
+      text-align: center;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+
+    .note {
+      font-size: 8.5pt;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .page-break { page-break-before: always; }
+
+    @media print {
+      body { background: white; }
+      .page { max-width: none; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div>
+        <div class="brand-name">Arcadia Tourism Company</div>
+        <div class="brand-sub">Licensed DMC — Kazakhstan &amp; Central Asia</div>
+      </div>
+      <img src="../arcadia-logo-512-official.png" alt="Arcadia Tours" />
+      <div class="header-meta">
+        Almaty, Kazakhstan<br />
+        arcadia-tour.com
+      </div>
+    </header>
+
+    <div class="doc-title">
+      <h1>B2B Net Group Rates — Almaty 5 Days / 4 Nights</h1>
+      <div class="sub">Ground Only &middot; June &ndash; October 2026 &middot; Min 15 pax &middot; Max 40 pax</div>
+    </div>
+
+    <div class="meta-row">
+      <span class="meta-chip"><strong>Destination:</strong> Almaty, Kazakhstan</span>
+      <span class="meta-chip"><strong>Hotel:</strong> 4-star downtown &mdash; Resident City or equivalent</span>
+      <span class="meta-chip"><strong>Season:</strong> June &ndash; October 2026</span>
+      <span class="meta-chip"><strong>Reference:</strong> {{QUOTE_REF}}</span>
+    </div>
+
+    <h2>Net B2B Tier Pricing (DBL/TWN basis)</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Pax Band</th>
+          <th>Net PP (USD)</th>
+          <th>Approx. EUR</th>
+          <th>Vehicle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>15 &ndash; 19</strong></td>
+          <td><strong>$745</strong></td>
+          <td>&euro;685</td>
+          <td>Coaster 20-seat</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>20 &ndash; 29</strong></td>
+          <td><strong>$685</strong></td>
+          <td>&euro;630</td>
+          <td>Coaster / mid-bus</td>
+        </tr>
+        <tr>
+          <td><strong>30 &ndash; 40</strong></td>
+          <td><strong>$625</strong></td>
+          <td>&euro;575</td>
+          <td>Mercedes 49-seat</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="note">
+      Source: Supabase <code>group_rates</code> &middot; KZ/Almaty/4N &middot; B2B net rates &mdash; manager approval required before distribution.
+    </p>
+
+    <div class="terms-grid">
+      <div class="term-card">
+        <span class="lbl">Minimum group</span>
+        <span class="val">15</span>
+        <span class="lbl">paying pax</span>
+      </div>
+      <div class="term-card">
+        <span class="lbl">Deposit</span>
+        <span class="val">30%</span>
+        <span class="lbl">on confirmation</span>
+      </div>
+      <div class="term-card">
+        <span class="lbl">Balance due</span>
+        <span class="val">14</span>
+        <span class="lbl">days before arrival</span>
+      </div>
+    </div>
+
+    <h2>Standard 5-Day Almaty Group Programme</h2>
+
+    <table class="program-table">
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th>Programme</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>D1</td>
+          <td>Airport meet and greet - transfer to 4-star hotel - room check-in and rest</td>
+        </tr>
+        <tr>
+          <td>D2</td>
+          <td>Medeu mountain - cable car to Shymbulak (3 stops) - scenic views and activities - halal lunch - Arbat Street walk</td>
+        </tr>
+        <tr>
+          <td>D3</td>
+          <td>Nature reserve entry (approx. $1/person) - Ma-Arsan valley riverside walk - Bear Valley (Ayusai Visit Center)</td>
+        </tr>
+        <tr>
+          <td>D4</td>
+          <td>Oi-Qaraghay resort day trip (40 km from Almaty) - recreational activities - return to city</td>
+        </tr>
+        <tr>
+          <td>D5</td>
+          <td>Green Bazaar (Zelyoni Bazar) - Rakhat chocolate factory - Kok-Tobe cable car - hotel checkout - airport transfer - end of ground services</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Optional Extra Tours (separate quote)</h2>
+    <ul style="margin:6px 0 14px 20px;font-size:9pt">
+      <li><strong>Charyn Canyon (Sharyn)</strong> - full day, approx. 3h drive each way - price on request</li>
+      <li><strong>Kolsai Lakes</strong> - full day, approx. 3h drive each way - price on request</li>
+      <li><strong>Kaindy Lake</strong> - full day extension - price on request</li>
+      <li>Other optional excursions - quote on request</li>
+    </ul>
+    <p class="note">Optional extras are not included in the standard net rates above. Confirm availability and supplement before booking.</p>
+
+    <div class="page-break"></div>
+
+    <h2>Inclusions &amp; Exclusions</h2>
+
+    <div class="two-col">
+      <div class="box included">
+        <div class="box-head">Included</div>
+        <ul>
+          <li>Daily group transport with professional driver</li>
+          <li>Licensed Arabic-speaking guide &mdash; 8 hours/day</li>
+          <li>4-star downtown Almaty hotel &mdash; DBL/TWN &mdash; 4 nights</li>
+          <li>Daily breakfast + 2 halal lunches + 2 halal dinners</li>
+          <li>Entrances: Kok-Tobe, Shymbulak / Medeu cable car (seasonal), Oi-Qaraghay resort, Bear Valley - as per standard programme above (Charyn, Kolsai, Kaindy are optional extras only)</li>
+          <li>Airport transfers and check-in assistance</li>
+          <li>24/7 WhatsApp group leader support</li>
+        </ul>
+      </div>
+      <div class="box excluded">
+        <div class="box-head">Not Included</div>
+        <ul>
+          <li>International or domestic flights</li>
+          <li>Visa fees (KZ e-visa approx. $80, or visa-free entry where applicable)</li>
+          <li>Travel insurance</li>
+          <li>Tips and gratuities</li>
+          <li>Personal expenses and beverages</li>
+          <li>Optional activities</li>
+          <li>Single room supplement ($48/night)</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>Child Policy &amp; Single Supplement</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Policy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0&ndash;1 years</td><td>Free, no bed</td></tr>
+        <tr><td>2&ndash;5 years</td><td>35% of adult rate</td></tr>
+        <tr><td>6&ndash;11 years</td><td>65% of adult rate</td></tr>
+        <tr><td>12+ years</td><td>Full adult rate</td></tr>
+        <tr><td>Single room</td><td><strong>$48 / night</strong> supplement</td></tr>
+      </tbody>
+    </table>
+
+    <footer class="signature">
+      <div class="sig-block">
+        <div class="sig-name">Mohammad Ali</div>
+        <div class="sig-title">Business Development Manager</div>
+        <div class="sig-title">Arcadia Tourism Company</div>
+        <div class="sig-contact">
+          WhatsApp: <a href="https://wa.me/77051181845">+77051181845</a><br />
+          Email: info@arcadia-tour.com<br />
+          Web: https://arcadia-tour.com/
+        </div>
+      </div>
+      <div style="text-align:right;font-size:8pt;color:var(--muted);max-width:200px">
+        <strong>10+ years</strong> &middot; 7,500+ Arabic-speaking clients served<br />
+        Ground operations: KZ &middot; RU &middot; UZ<br />
+        Groups 15&ndash;40 pax
+      </div>
+    </footer>
+
+    <div class="footer-note">
+      B2B net rates &middot; subject to availability &middot; quote valid 14 days &middot; non-exclusive partner distribution
+    </div>
+  </div>
+</body>
+</html>
