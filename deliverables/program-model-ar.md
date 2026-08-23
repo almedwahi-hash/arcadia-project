@@ -28,6 +28,8 @@
 | `deliverables/pdfs/Arcadia-B2B-Rate-Sheet-Almaty.html` | HTML ASCII للشريك |
 | `deliverables/pdfs/Arcadia-B2B-Rate-Sheet-Almaty.pdf` | PDF معتمد |
 | `deliverables/templates/pdf-group-rate-sheet-en.html` | قالب EN |
+| `deliverables/templates/b2b-ground-handling-agreement-en.html` | **قالب عقد B2B ground handling (EN)** — للتوقيع بعد LOI/اجتماع |
+| `deliverables/contracts/` | (مستقبلاً) نسخ موقّعة PDF |
 | `Database/seed_itinerary_kz_b2b_4n.sql` | إدراج `nights:4` |
 | `Database/update_group_rates_kz_b2b_4n.sql` | تحديث `includes_json` |
 
