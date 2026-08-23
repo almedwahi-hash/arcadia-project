@@ -154,18 +154,48 @@ def build_pdf(path: Path) -> None:
     )
     story.append(pt)
 
-    story.append(Paragraph("Optional Extra Tours (separate quote)", h2))
-    for item in [
-        "Charyn Canyon (Sharyn) - full day, approx. 3h drive each way - price on request",
-        "Kolsai Lakes - full day, approx. 3h drive each way - price on request",
-        "Kaindy Lake - full day extension - price on request",
-        "Other optional excursions - quote on request",
-    ]:
-        story.append(Paragraph(f"- {item}", body))
+    story.append(Paragraph("Optional Premium Day Excursions (by vehicle tier)", h2))
     story.append(
         Paragraph(
-            "Optional extras are not included in the standard net rates above. "
-            "Confirm availability and supplement before booking.",
+            "Distinctive add-ons for partners who want more than standard city programmes. "
+            "Ground transport only (net B2B add-on per person). Park entrances, picnic lunch, "
+            "and extra guide day quoted separately.",
+            muted,
+        )
+    )
+    premium = [
+        ["Destination (full day)", "15-19 pax", "20-29 pax", "30-40 pax"],
+        ["Issyk Lake (~8h)", "+$10.62", "+$7.60", "+$8.41"],
+        ["Charyn Canyon (~10h)", "+$12.29", "+$8.74", "+$9.77"],
+        ["Charyn + Kolsai (~11h)", "+$14.53", "+$9.88", "+$13.57"],
+        ["Charyn + Kolsai + Kaindy (~12h)", "+$14.53", "+$9.88", "+$13.57"],
+        ["Kapchagai Reservoir", "Individual quote", "Individual quote", "Individual quote"],
+    ]
+    pt2 = Table(premium, colWidths=[doc.width * 0.42, doc.width * 0.19, doc.width * 0.19, doc.width * 0.20])
+    pt2.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), NAVY),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+                ("FONTSIZE", (0, 0), (-1, -1), 8),
+                ("ALIGN", (0, 0), (0, -1), "LEFT"),
+                ("ALIGN", (1, 0), (-1, -1), "CENTER"),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#d8dee6")),
+                ("BACKGROUND", (0, 4), (-1, 4), colors.HexColor("#f5ecd4")),
+                ("FONTNAME", (0, 4), (-1, 4), "Helvetica-Bold"),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ]
+        )
+    )
+    story.append(pt2)
+    story.append(
+        Paragraph(
+            "Example (20-29 pax): base 5D/4N net $685 + Charyn/Kolsai/Kaindy transport add-on $9.88 = "
+            "$694.88/person before park fees and extra night if integrated into 6D/5N. "
+            "Premium add-ons are not included in standard net rates.",
             muted,
         )
     )

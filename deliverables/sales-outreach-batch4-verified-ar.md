@@ -1,11 +1,11 @@
 # حزمة outreach — الدفعة 4 (مُتحقّقة) | أركاديا السياحية
 
-> **الغرض:** 16 هدف B2B **غير مُرسل** سابقاً — بريد مُتحقّق (MX + صفحة اتصال حيث أمكن) + مسودات EN جاهزة  
+> **الغرض:** 16 هدف B2B مُتحقّقة — بريد مُتحقّق (MX + صفحة اتصال حيث أمكن) + مسودات EN · **16/16 مُرسَل**  
 > **الشركة:** أركاديا السياحية — DMC ألماتي | https://arcadia-tour.com/ | info@arcadia-tour.com | **واتساب: +77051181845**  
 > **التوقيع:** محمد علي / Mohammad Ali — Business Development Manager  
 > **PDF مرفق مقترح:** `deliverables/pdfs/Arcadia-B2B-Rate-Sheet-Almaty.pdf` (English B2B rate sheet)  
-> **آخر تحديث:** 19 يونيو 2026  
-> **حالة الإرسال:** **4/16 مُؤكَّد في Sent** (Musafir، Arooha، CTC، Regency) — **12 معلّق** · التفاصيل: `outreach-sent-log-batch4-ar.md`
+> **آخر تحديث:** 25 يونيو 2026  
+> **حالة الإرسال:** **16/16 مُؤكَّد في Sent (Zoho)** · التفاصيل: `outreach-sent-log-batch4-ar.md`
 
 ---
 
@@ -44,7 +44,7 @@
 | Seera | partnerships@seera.sa | bounce | playbook G1b |
 | Kazakh Tourism | info@qaztourism.kz | 15 يون | playbook H4 |
 
-**Batch 3 (مسودات جاهزة — مُدمجة هنا كأولوية 1–4):** Musafir, Regency, Siyana, Tailwinds — **لم تُرسل بعد**.
+**Batch 3 (مُدمجة هنا كأولوية 1–4):** Musafir, Regency, Siyana, Tailwinds — **مُرسَل (#1–4 و #5–6 ضمن 16/16)**.
 
 ---
 
@@ -52,22 +52,22 @@
 
 | # | الشركة | الدولة | البريد (verified) | الموقع | لماذا fit | طريقة التحقّق | الحالة |
 |---|--------|--------|-------------------|--------|-----------|---------------|--------|
-| 1 | **Musafir** | الإمارات | holidays@musafir.com | https://www.musafir.com/ | OTA #1 UAE — باقات KZ + Moscow — شريحة عربية | MX Google Workspace ✅ · targets U4 · batch3 | likely · **جاهز** |
-| 2 | **Arooha Leisure** | الإمارات | mail@aroohaleisure.com | https://www.aroohaleisure.com/ | KZ من دبي — visa-friendly — مجموعات | MX M365 ✅ · **contact page 19 Jun** | **verified** · جاهز |
-| 3 | **CTC Travel** | سنغافورة | enquiry@ctc.com.sg | https://ctc.com.sg/ | **12 مغادرة 2026** Grand Silk Road — Almaty segment | MX c2mail.ctc.com.sg ✅ · **contact 19 Jun** | **verified** · جاهز |
-| 4 | **Regency Travel & Tours** | قطر | tours@regencyholidays.com | https://www.regencyholidays.com/ | أكبر وكالة قطر — 30+ فرع — Russia catalog | MX Outlook ✅ · targets Q1 · batch3 | likely · **جاهز** |
-| 5 | **Siyana Travel** | الإمارات | info@siyanatours.com | https://www.siyanatours.com/ | Almaty + Tashkent/Samarkand — group packages | MX Zoho ✅ · targets U2 · batch3 | likely · **جاهز** |
-| 6 | **Tailwinds Travels** | سنغافورة | info@tailwindstravels.co | https://tailwindstravels.co/ | 12N UZ+KG+KZ — **halal options** | MX Hostinger ✅ · targets SG1 · batch3 | likely · **جاهز** |
-| 7 | **Rose Travel** | السعودية | info@rosetravel.sa | https://rosetravel.sa/ | Russia/KZ في selector — tour operator سعودي | MX Titan ✅ · **contact 19 Jun** | **verified** · جاهز |
-| 8 | **Chan Brothers Travel** | سنغافورة | inquiry@chanbrothers.com.sg | https://www.chanbrothers.com/ | TA00109 — 15D13N KZ+KG+UZ groups | MX M365 ✅ · targets SG11 | likely · جاهز |
-| 9 | **Villa Tours & Travel** | إندونيسيا | villatourstravel@yahoo.co.id | https://www.villatourstravel.com/ | 3–5 Stans Muslim rombongan — ASITA | MX Yahoo ✅ · **contact 19 Jun** (Yahoo على الموقع) | **verified** · جاهز |
-| 10 | **Kanoo Travel** | البحرين/GCC | bdm.travel@kanoo.com | https://www.kanootravel.com/ | شبكة Kanoo إقليمية — holidays outbound | MX Mimecast ✅ · targets B1/Q5/S4 | likely · جاهز |
-| 11 | **Asia Odyssey Travel** | سنغافورة | inquiry@asiaodysseytravel.com | https://www.asiaodysseytravel.com/ | CA groups 1–16 pax من Changi 2026/27 | MX Aliyun ✅ · targets SG10 | likely · جاهز |
-| 12 | **Middle East Expeditions** | الإمارات | admin@asia-expeditions.org | https://centralasiatours.ae/ | CA specialist Dubai — expedition groups | MX stableserver ✅ · targets U10 | likely · جاهز |
-| 13 | **Alghanim Travel** | الكويت | travelcare@alghanimtravel.com | https://www.alghanimtravel.com/ | أكبر موزّع سفر كويت — holidays | MX M365 ✅ · targets K1 | likely · جاهز |
-| 14 | **Al Sabah Travels** | البحرين | sales@alsabahtravel.com | https://alsabahtravel.com/ | outbound holidays — إضافة Silk Road | MX M365 ✅ · targets B2 | likely · جاهز |
-| 15 | **FTTC (Fakhri Travel)** | البحرين | info@fttc-global.com | https://www.fttc-global.com/ | مركز سفر المنامة — CIS ground | MX fttc-global.com ✅ · targets B3 | likely · جاهز |
-| 16 | **Masalamaa** | الكويت | info@masalamaa.com | https://www.masalamaa.com/ | outbound كويتي — halal Central Asia | MX mail.masalamaa.com ✅ · targets K4 | likely · جاهز |
+| 1 | **Musafir** | الإمارات | holidays@musafir.com | https://www.musafir.com/ | OTA #1 UAE — باقات KZ + Moscow — شريحة عربية | MX Google Workspace ✅ · targets U4 · batch3 | ✅ **مُرسَل** 19 يون |
+| 2 | **Arooha Leisure** | الإمارات | mail@aroohaleisure.com | https://www.aroohaleisure.com/ | KZ من دبي — visa-friendly — مجموعات | MX M365 ✅ · **contact page 19 Jun** | ✅ **مُرسَل** 19 يون |
+| 3 | **CTC Travel** | سنغافورة | enquiry@ctc.com.sg | https://ctc.com.sg/ | **12 مغادرة 2026** Grand Silk Road — Almaty segment | MX c2mail.ctc.com.sg ✅ · **contact 19 Jun** | ✅ **مُرسَل** 19 يون |
+| 4 | **Regency Travel & Tours** | قطر | tours@regencyholidays.com | https://www.regencyholidays.com/ | أكبر وكالة قطر — 30+ فرع — Russia catalog | MX Outlook ✅ · targets Q1 · batch3 | ✅ **مُرسَل** 19 يون |
+| 5 | **Siyana Travel** | الإمارات | info@siyanatours.com | https://www.siyanatours.com/ | Almaty + Tashkent/Samarkand — group packages | MX Zoho ✅ · targets U2 · batch3 | ✅ **مُرسَل** 25 يون |
+| 6 | **Tailwinds Travels** | سنغافورة | info@tailwindstravels.co | https://tailwindstravels.co/ | 12N UZ+KG+KZ — **halal options** | MX Hostinger ✅ · targets SG1 · batch3 | ✅ **مُرسَل** 25 يون |
+| 7 | **Rose Travel** | السعودية | info@rosetravel.sa | https://rosetravel.sa/ | Russia/KZ في selector — tour operator سعودي | MX Titan ✅ · **contact 19 Jun** | ✅ **مُرسَل** 25 يون |
+| 8 | **Chan Brothers Travel** | سنغافورة | inquiry@chanbrothers.com.sg | https://www.chanbrothers.com/ | TA00109 — 15D13N KZ+KG+UZ groups | MX M365 ✅ · targets SG11 | ✅ **مُرسَل** 25 يون |
+| 9 | **Villa Tours & Travel** | إندونيسيا | villatourstravel@yahoo.co.id | https://www.villatourstravel.com/ | 3–5 Stans Muslim rombongan — ASITA | MX Yahoo ✅ · **contact 19 Jun** (Yahoo على الموقع) | ✅ **مُرسَل** 25 يون |
+| 10 | **Kanoo Travel** | البحرين/GCC | bdm.travel@kanoo.com | https://www.kanootravel.com/ | شبكة Kanoo إقليمية — holidays outbound | MX Mimecast ✅ · targets B1/Q5/S4 | ✅ **مُرسَل** 25 يون |
+| 11 | **Asia Odyssey Travel** | سنغافورة | inquiry@asiaodysseytravel.com | https://www.asiaodysseytravel.com/ | CA groups 1–16 pax من Changi 2026/27 | MX Aliyun ✅ · targets SG10 | ✅ **مُرسَل** 25 يون |
+| 12 | **Middle East Expeditions** | الإمارات | admin@asia-expeditions.org | https://centralasiatours.ae/ | CA specialist Dubai — expedition groups | MX stableserver ✅ · targets U10 | ✅ **مُرسَل** 25 يون |
+| 13 | **Alghanim Travel** | الكويت | travelcare@alghanimtravel.com | https://www.alghanimtravel.com/ | أكبر موزّع سفر كويت — holidays | MX M365 ✅ · targets K1 | ✅ **مُرسَل** 25 يون |
+| 14 | **Al Sabah Travels** | البحرين | sales@alsabahtravel.com | https://alsabahtravel.com/ | outbound holidays — إضافة Silk Road | MX M365 ✅ · targets B2 | ✅ **مُرسَل** 25 يون |
+| 15 | **FTTC (Fakhri Travel)** | البحرين | info@fttc-global.com | https://www.fttc-global.com/ | مركز سفر المنامة — CIS ground | MX fttc-global.com ✅ · targets B3 | ✅ **مُرسَل** 25 يون |
+| 16 | **Masalamaa** | الكويت | info@masalamaa.com | https://www.masalamaa.com/ | outbound كويتي — halal Central Asia | MX mail.masalamaa.com ✅ · targets K4 | ✅ **مُرسَل** 25 يون |
 
 ---
 
@@ -612,4 +612,4 @@ Almaty, Kazakhstan
 
 ---
 
-*19 يونيو 2026 — 16 هدفاً · **4 مُرسل / 12 معلّق** · سجل: `outreach-sent-log-batch4-ar.md`*
+*25 يونيو 2026 — 16 هدفاً · **16/16 مُرسَل ✅** · سجل: `outreach-sent-log-batch4-ar.md`*
