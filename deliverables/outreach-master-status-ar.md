@@ -1,8 +1,8 @@
 # Outreach Master Status | أركاديا السياحية
 
-> **آخر تحديث:** 2026-07-17 05:50 Almaty (UTC+5)  
+> **آخر تحديث:** 2026-08-24 ~03:00 Almaty (UTC+5)  
 > **From:** info@arcadia-tour.com  
-> **SMTP:** ✅ Zoho `smtp.zoho.eu:465` — Batch 9 FU + Batch 10 RIGHT
+> **SMTP:** ✅ Zoho `smtp.zoho.eu:465` — Batch 11 A/B/C
 
 ---
 
@@ -98,6 +98,7 @@
 | `send_batch7_outreach.py` | `.tmp_batch7_remaining.json` | `.tmp_batch7_sent.json` |
 | `send_batch9_tier_next_followup.py` | `.tmp_batch9_tier_next_followup.json` | `.tmp_batch9_tier_next_followup_sent.json` |
 | `send_batch10_outreach.py` | `.tmp_batch10_emails.json` | `.tmp_batch10_sent.json` |
+| `send_batch11_outreach.py` | `.tmp_batch11_emails.json` | `.tmp_batch11_sent.json` |
 
 **Idempotent:** يتخطى أي email موجود في sent log — dedupe عبر `batch7_targets.collect_sent_emails()`.
 

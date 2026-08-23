@@ -1,6 +1,6 @@
 # Pipeline — Leads ساخنة | أركاديا B2B
 
-> **آخر تحديث:** 17 يوليو 2026  
+> **آخر تحديث:** 24 أغسطس 2026 — Batch 11 أُرسل (Dynasty FU + 18 NEW + 5 CLOSE FU)  
 > **الواقع:** 45+ وكالة بريد مُرسل (batch4–8) — **1 رد B2B حقيقي (Dynasty Travel SG)**  
 > **Batch 8:** 15/48 VN+UK — **عائد منخفض 0 رد** → **STOP موجة 2** · راجع `batch9-email-first-plan-ar.md`  
 > **الاستراتيجية:** **بريد + مراسلات مكتوبة + quotes** — ⛔ **لا مكالمات** · ⛔ **لا WA من رقم شخصي**  
@@ -45,6 +45,7 @@
 | **Reply §4 CORRECTED** — net + 6D/5N + PDF | ✅ **sent 2026-07-17 04:48 UTC+05**  |
 | **DMC registration form** مرفق | ☐ **اليوم** |
 | انتظار **رد بريد** — pax + dates من John | ☐ |
+| **Re-engage FU 24 أغسطس** | ✅ **sent 2026-08-24** |
 
 ---
 
