@@ -41,10 +41,16 @@ LiteSpeed Purge All + LSCache + Cloudflare (via LiteSpeed CDN) ✅
 
 ---
 
+## ✅ قرار الإدارة — Schema 7546
+
+**الإبقاء** — الرقم يعكس قاعدة عملاء حقيقية (+10 سنوات). لم يُمس.
+
+---
+
 ## ❌ ما لم يُمس (حسب قراركم)
 
 - **صفحات السياحة في أوكرانيا** — `index, follow` ✅
-- **Schema تقييمات 7546** — يحتاج قرار الإدارة
+- **Schema aggregateRating 7546** — **يبقى كما هو** ✅
 - **Rank Math** — غير مثبت
 
 ---
@@ -65,6 +71,5 @@ LiteSpeed Purge All + LSCache + Cloudflare (via LiteSpeed CDN) ✅
 
 ## الخطوة التالية (اختياري)
 
-1. قرار Schema 7546 من الإدارة  
-2. Google Search Console → Request indexing لـ offers + destinations  
-3. Cloudflare MCP من Agent جديد لمراجعة Cache/Speed
+1. Google Search Console → Request indexing لـ offers + destinations  
+2. Cloudflare MCP من Agent جديد لمراجعة Cache/Speed
