@@ -30,7 +30,9 @@
 - [x] مقال: تكلفة الصين للعائلات 2026
 - [x] تحسين Yoast + hub لمقال بولندا الموجود
 - [x] Homepage SEO hub (Snippet #23)
-- [ ] alt text للصور + outreach
+- [x] alt text للصور (Snippet #24 + 21 media IDs)
+- [x] cross-link 7 أدلة في footer (Snippet #22)
+- [ ] outreach — حزمة جاهزة: `seo-outreach-pack-ar.md`
 
 ---
 

@@ -153,6 +153,38 @@ LiteSpeed Purge All ✅ — Cloudflare CDN ✅
 
 ---
 
+## ✅ Alt Text + ربط 7 أدلة — 25 أغسطس 2026 (جولة 7)
+
+### Snippet #24 — `Arcadia Alt Text SEO Engine 2026-08-25` (active)
+
+| الميزة | التفاصيل |
+|--------|----------|
+| **ID map** | 21 صورة SEO — infographics، heroes، بطاقات برامج |
+| **Runtime filter** | يملأ alt الفارغ من المكتبة أو اسم الملف |
+| **the_content** | إصلاح `<img>` بدون alt (Elementor) |
+
+### Snippet #22 — بلوك «دلائل الأسعار والمواسم 2026»
+
+- `arcadia-all-guides-2026` — روابط cross-link للـ **7** أدلة في footer كل مقال SEO
+
+### تحقق live (7/7)
+
+| Slug | hub | guides7 | FAQ |
+|------|-----|---------|-----|
+| kazakhstan-family-trip-cost-2026 | ✅ | ✅ | ✅ |
+| best-time-visit-almaty-2026 | ✅ | ✅ | ✅ |
+| russia-family-trip-cost-2026 | ✅ | ✅ | ✅ |
+| best-time-visit-moscow-2026 | ✅ | ✅ | ✅ |
+| poland-family-trip-cost | ✅ | ✅ | ✅ |
+| uzbekistan-family-trip-cost-2026 | ✅ | ✅ | ✅ |
+| china-family-trip-cost-2026 | ✅ | ✅ | ✅ |
+
+### Outreach
+
+- `deliverables/seo-outreach-pack-ar.md` — قوالب + أهداف + KPI
+
+---
+
 **القرار (25 أغسطس 2026):** الإبقاء على `aggregateRating` — **7546 عميل** يعكس +10 سنوات عمل وقاعدة عملاء حقيقية. **لم يُحذف ولم يُعدَّل.**
 
 ---
@@ -182,4 +214,4 @@ function arcadia_seo_noindex_post_ids() { return array( 555, 559, 564 ); }
 
 ---
 
-*آخر تحقق عام: 25 أغسطس 2026 — 22:40 UTC*
+*آخر تحقق عام: 25 أغسطس 2026 — 23:10 UTC*

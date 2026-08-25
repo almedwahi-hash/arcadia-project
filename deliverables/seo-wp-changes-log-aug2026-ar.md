@@ -116,7 +116,37 @@ LiteSpeed Purge All + LSCache + Cloudflare (via LiteSpeed CDN) ✅
 
 ---
 
+## ✅ جولة 7 — Alt Text + ربط 7 أدلة (25 أغسطس 2026 — 23:30 UTC)
+
+### Snippet #24 — `Arcadia Alt Text SEO Engine 2026-08-25` (active)
+
+- خريطة alt لـ **21** صورة SEO (infographics + heroes + بطاقات برامج)
+- فلتر `wp_get_attachment_image_attributes` + `the_content` لملء alt الفارغ
+- heuristics من اسم الملف: russia, poland, uzbek, kazakh, almaty, moscow, china
+
+### Snippet #22 — تحديث
+
+- بلوك **«دلائل الأسعار والمواسم 2026»** (`arcadia-all-guides-2026`) — روابط الـ 7 أدلة في footer كل مقال
+
+### تحديث alt في المكتبة (REST)
+
+IDs: 4306, 4345, 4351, 4347, 4349, 791–798, 779, 782–783, 1862–1864, 1870, 1903, 4573, 4576
+
+### تحقق live (بعد purge + `?v=` cache-bust)
+
+```
+7/7 guides → hub + guides7 + FAQPage ✅
+media 4306 → alt: إنفوجرافيك تكلفة روسيا ✅
+pillar روسيا → alt على صور الوجهة ✅
+```
+
+### Outreach
+
+- حزمة جاهزة: `deliverables/seo-outreach-pack-ar.md`
+
+---
+
 ## الخطوة التالية (اختياري)
 
-1. Google Search Console → Request indexing لـ offers + destinations  
+1. تنفيذ outreach — 10 رسائل أسبوع 1 من الحزمة  
 2. Cloudflare MCP من Agent جديد لمراجعة Cache/Speed
