@@ -55,6 +55,19 @@ LiteSpeed Purge All + LSCache + Cloudflare (via LiteSpeed CDN) ✅
 
 ---
 
+## ✅ جولة 4 — أوزبكستان + موسكو + Homepage (25 أغسطس 2026 — 22:40 UTC)
+
+| ID | URL | ملاحظة |
+|----|-----|--------|
+| 4593 | `/uzbekistan-family-trip-cost-2026/` | جديد |
+| 4594 | `/best-time-visit-moscow-2026/` | جديد |
+| — | `/poland-family-trip-cost/` | Yoast + hub عبر Snippet #22 |
+| — | `/` | Snippet #23: meta + TravelAgency + guides hub |
+
+**Snippets:** #22 محدّث (6 slugs) · #23 جديد (Homepage SEO Hub)
+
+---
+
 ## ✅ جولة 3 — محتوى + Snippet #22 (25 أغسطس 2026 — 22:10 UTC)
 
 ### مقالات جديدة (3)
