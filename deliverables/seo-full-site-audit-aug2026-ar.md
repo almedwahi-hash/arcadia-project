@@ -289,7 +289,9 @@ Central Asia family tour
 
 - [ ] Yoast → Search Appearance: تأكيد Organization + شعار
 - [ ] تعطيل Rank Math
-- [ ] noindex دفعات المحتوى القديم (أوكرانيا/عقارات/علاج)
+- [ ] Hub أوكرانيا + بانر متوقف مؤقتاً (الصفحات السياحية/التجارية تبقى index)
+- [ ] noindex فقط: عقارات + علاج تفصيلي + old-post + search-programs
+- [ ] فصل مسار الحجز النشط عن أوكرانيا في الهيرو/القوائم
 - [ ] تحديث robots Sitemap URL
 - [ ] ربط/تأكيد Google Search Console عبر Site Kit
 - [ ] إرسال sitemap_index.xml
