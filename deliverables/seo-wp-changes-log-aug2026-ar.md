@@ -55,6 +55,15 @@ LiteSpeed Purge All + LSCache + Cloudflare (via LiteSpeed CDN) ✅
 
 ---
 
+## ✅ جولة 5–6 — GSC + الصين (25 أغسطس 2026 — 23:10 UTC)
+
+- **GSC:** المستخدم أكمل external action (sitemap + indexing)
+- **4595** `/china-family-trip-cost-2026/` — مقال الصين
+- **Snippet #22/23** محدّثان — 7 slugs + homepage hub
+- **post-sitemap.xml** — كل المقالات الجديدة ✅
+
+---
+
 ## ✅ جولة 4 — أوزبكستان + موسكو + Homepage (25 أغسطس 2026 — 22:40 UTC)
 
 | ID | URL | ملاحظة |

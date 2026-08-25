@@ -122,6 +122,37 @@ LiteSpeed Purge All ✅ — Cloudflare CDN ✅
 
 ---
 
+## ✅ GSC + مقال الصين — 25 أغسطس 2026 (جولة 5–6)
+
+### Google Search Console
+- **تم:** المستخدم أكمل تسجيل الدخول وخطوات GSC (external action ✅)
+- Sitemap: `https://arcadia-tour.com/sitemap_index.xml` (مؤكد في Yoast)
+- جميع المقالات الجديدة في `post-sitemap.xml` ✅
+
+### مقال جديد — الصين
+
+| ID | Slug | URL |
+|----|------|-----|
+| 4595 | `china-family-trip-cost-2026` | https://arcadia-tour.com/china-family-trip-cost-2026/ |
+
+### Snippets محدّثة
+- **#22:** إضافة slug الصين + 7 slugs إجمالاً
+- **#23:** رابط «تكلفة الصين للعائلات» في homepage hub
+
+### إجمالي أدلة SEO 2026 (7 مقالات)
+
+| وجهة | URL |
+|------|-----|
+| كازاخستان | `/kazakhstan-family-trip-cost-2026/` |
+| ألماتي | `/best-time-visit-almaty-2026/` |
+| روسيا | `/russia-family-trip-cost-2026/` |
+| موسكو | `/best-time-visit-moscow-2026/` |
+| أوزبكستان | `/uzbekistan-family-trip-cost-2026/` |
+| بولندا | `/poland-family-trip-cost/` |
+| الصين | `/china-family-trip-cost-2026/` |
+
+---
+
 **القرار (25 أغسطس 2026):** الإبقاء على `aggregateRating` — **7546 عميل** يعكس +10 سنوات عمل وقاعدة عملاء حقيقية. **لم يُحذف ولم يُعدَّل.**
 
 ---
