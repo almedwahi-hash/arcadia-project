@@ -64,6 +64,35 @@
 
 ---
 
+## ✅ محتوى SEO جديد + Snippet #22 — 25 أغسطس 2026 (جولة 3)
+
+### مقالات منشورة
+
+| ID | Slug | URL | الكلمة المستهدفة |
+|----|------|-----|------------------|
+| 4586 | `kazakhstan-family-trip-cost-2026` | https://arcadia-tour.com/kazakhstan-family-trip-cost-2026/ | تكلفة رحلة كازاخستان للعائلات |
+| 4587 | `best-time-visit-almaty-2026` | https://arcadia-tour.com/best-time-visit-almaty-2026/ | أفضل وقت زيارة ألماتي |
+| 4592 | `russia-family-trip-cost-2026` | https://arcadia-tour.com/russia-family-trip-cost-2026/ | تكلفة رحلة روسيا للعائلات |
+
+### Snippet #22 — `Arcadia Blog SEO Engine 2026-08-25` (active)
+
+- **FAQPage Schema** تلقائي من أسئلة h3 في المقال
+- **Hub روابط داخلية** (`arcadia-blog-seo-hub`) في footer للمقالات الثلاثة
+- **Yoast title/meta override** حسب slug (بدون الاعتماد على post ID)
+- Slugs مدعومة: `kazakhstan-family-trip-cost-2026`, `best-time-visit-almaty-2026`, `russia-family-trip-cost-2026`
+
+### تحقق live (بعد purge cache)
+
+- `/kazakhstan-family-trip-cost-2026/` → title: «تكلفة رحلة كازاخستان للعائلات 2026 | دليل الأسعار | أركاديا» ✅
+- `/best-time-visit-almaty-2026/` → FAQPage + hub + إصلاح نص عربي ✅
+- `/russia-family-trip-cost-2026/` → FAQPage + hub + في sitemap ✅
+
+### Purge Cache (جولة 3)
+
+LiteSpeed Purge All ✅ — Cloudflare CDN ✅
+
+---
+
 **القرار (25 أغسطس 2026):** الإبقاء على `aggregateRating` — **7546 عميل** يعكس +10 سنوات عمل وقاعدة عملاء حقيقية. **لم يُحذف ولم يُعدَّل.**
 
 ---
@@ -93,4 +122,4 @@ function arcadia_seo_noindex_post_ids() { return array( 555, 559, 564 ); }
 
 ---
 
-*آخر تحقق عام: 25 أغسطس 2026 — 21:42 UTC*
+*آخر تحقق عام: 25 أغسطس 2026 — 22:10 UTC*

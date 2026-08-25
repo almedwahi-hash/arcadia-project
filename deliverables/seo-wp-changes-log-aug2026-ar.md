@@ -55,6 +55,31 @@ LiteSpeed Purge All + LSCache + Cloudflare (via LiteSpeed CDN) ✅
 
 ---
 
+## ✅ جولة 3 — محتوى + Snippet #22 (25 أغسطس 2026 — 22:10 UTC)
+
+### مقالات جديدة (3)
+
+| ID | URL | فئة |
+|----|-----|-----|
+| 4586 | `/kazakhstan-family-trip-cost-2026/` | كازاخستان (15) |
+| 4587 | `/best-time-visit-almaty-2026/` | كازاخستان (15) |
+| 4592 | `/russia-family-trip-cost-2026/` | روسيا (16) |
+
+### Snippet #22
+
+`Arcadia Blog SEO Engine 2026-08-25` — FAQ schema + hub footer + Yoast override بالـ slug.
+
+### تحقق
+
+```
+/kazakhstan-family-trip-cost-2026/  → index + FAQPage + hub ✅
+/best-time-visit-almaty-2026/       → index + FAQPage + hub ✅ (نص عربي مُصلَح)
+/russia-family-trip-cost-2026/      → index + FAQPage + hub ✅ (جديد)
+/post-sitemap.xml                   → الثلاثة URLs موجودة ✅
+```
+
+---
+
 ## التحقق النهائي (25 أغسطس 2026 — 21:42 UTC)
 
 ```
