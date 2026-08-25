@@ -93,6 +93,35 @@ LiteSpeed Purge All ✅ — Cloudflare CDN ✅
 
 ---
 
+## ✅ محتوى SEO + Snippet #23 — 25 أغسطس 2026 (جولة 4)
+
+### مقالات جديدة
+
+| ID | Slug | URL |
+|----|------|-----|
+| 4593 | `uzbekistan-family-trip-cost-2026` | https://arcadia-tour.com/uzbekistan-family-trip-cost-2026/ |
+| 4594 | `best-time-visit-moscow-2026` | https://arcadia-tour.com/best-time-visit-moscow-2026/ |
+
+### Snippet #22 — محدّث
+
+- إضافة slugs: `best-time-visit-moscow-2026`, `uzbekistan-family-trip-cost-2026`, `poland-family-trip-cost`
+- ربط مقال روسيا ↔ موسكو ↔ كازاخستان
+
+### Snippet #23 — `Arcadia Homepage SEO Hub 2026-08-25` (active)
+
+- Yoast title/meta للصفحة الرئيسية
+- TravelAgency Schema (+7546 aggregateRating)
+- Hub أدلة السفر 2026 في footer (`arcadia-home-seo-hub`)
+
+### تحقق live
+
+- `/` → hub + TravelAgency schema ✅
+- `/poland-family-trip-cost/` → title محدّث + hub ✅
+- `/uzbekistan-family-trip-cost-2026/` → FAQ + hub ✅
+- `/best-time-visit-moscow-2026/` → FAQ + hub ✅
+
+---
+
 **القرار (25 أغسطس 2026):** الإبقاء على `aggregateRating` — **7546 عميل** يعكس +10 سنوات عمل وقاعدة عملاء حقيقية. **لم يُحذف ولم يُعدَّل.**
 
 ---
@@ -122,4 +151,4 @@ function arcadia_seo_noindex_post_ids() { return array( 555, 559, 564 ); }
 
 ---
 
-*آخر تحقق عام: 25 أغسطس 2026 — 22:10 UTC*
+*آخر تحقق عام: 25 أغسطس 2026 — 22:40 UTC*
