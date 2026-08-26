@@ -1,8 +1,8 @@
 # Outreach Master Status | أركاديا السياحية
 
-> **آخر تحديث:** 2026-08-24 ~03:00 Almaty (UTC+5)  
+> **آخر تحديث:** 2026-08-27 ~03:11 Almaty (UTC+5)  
 > **From:** info@arcadia-tour.com  
-> **SMTP:** ✅ Zoho `smtp.zoho.eu:465` — Batch 11 A/B/C
+> **SMTP:** ✅ Zoho `smtp.zoho.eu:465` — Batch 12 GCC (8/8)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | المؤشر | القيمة |
 |--------|--------:|
-| **إجمالي مُرسَل (فريد تقريباً)** | **~140+** |
+| **إجمالي مُرسَل (فريد تقريباً)** | **~172+** |
 | **Batch 4** | 16/16 ✅ |
 | **Batch 5** | 28/28 ✅ (browser + SMTP سابق) |
 | **GCC follow-ups** | 5/5 ✅ |
@@ -21,6 +21,8 @@
 | **إجمالي Batch 8 الفعلي** | 38/48 وصل مؤكَّد، 8 ارتد، 2 معلّق |
 | **Batch 9 — email FU** | **Hot 2 + GCC 5 + Tier NEXT 8 = 15/15 ✅** (2026-07-17 SMTP) |
 | **Batch 10 — RIGHT cold** | **18/18 ✅** (2026-07-17 05:35–05:48 · PDF · تأخير 45ث · 0 فشل) |
+| **Batch 11 — RIGHT close** | **24/24 ✅** (2026-08-24 · SMTP · PDF · 0 فشل) |
+| **Batch 12 — GCC cold** | **8/8 ✅** (2026-08-27 03:06–03:11 · SMTP · PDF · UAE/Qatar/Oman/SA/KW/BH) |
 | **Dynasty DMC form** | ⛔ ملف `.docx` غير موجود — تخطّي إرفاق · انتظر pax/dates |
 | **أسعار** | ✅ مطابقة Supabase: $745/685/625 (15–19/20–29/30–40 pax، Jun–Oct 2026) |
 
