@@ -1,6 +1,7 @@
 # Batch 12 — GCC أهداف جديدة | أركاديا
 
-> **التاريخ:** 25 أغسطس 2026  
+> **التاريخ:** 25 أغسطس 2026 — **مُرسَل 27 أغسطس 2026**  
+> **الحالة:** **8/8 ✅** SMTP · `outreach-sent-log-batch12-ar.md`  
 > **السوق:** الإمارات، قطر، عُمان، السعودية، الكويت، البحرين  
 > **النوع:** مشغّلو مجموعات / باقات KZ — **لم يُرسل لهم سابقاً** (تحقق exclude list)
 
@@ -41,12 +42,6 @@
 
 ## الإرسال
 
-```bash
-# معاينة
-python3 scripts/send_batch12_outreach.py --dry-run
-
-# إرسال (يتطلب SMTP_PASS في .env)
-python3 scripts/send_batch12_outreach.py
-```
+**✅ مكتمل 2026-08-27 03:06–03:11 Almaty** — `scripts/send_batch12_outreach.py` · ZOHO_SMTP_PASS · 0 فشل
 
 **CTA:** pax + dates → written quote ≤24h · PDF rate sheet مرفق
