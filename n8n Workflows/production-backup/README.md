@@ -17,12 +17,15 @@ n8n Workflows/production-backup/
   (أي workflow Pricing منفصل إن وُجد)
 ```
 
-## الطريقة ب — n8n API (إن وُجدت credentials)
+## الطريقة ب — n8n API (تلقائي — المفضّل)
+
+أضف secrets في Cloud Environment:
+- `N8N_API_URL` — مثل `https://YOUR-INSTANCE.app.n8n.cloud/api/v1`
+- `N8N_API_KEY` — من n8n → Settings → API
 
 ```bash
-export N8N_API_URL='https://YOUR-INSTANCE.app.n8n.cloud/api/v1'
-export N8N_API_KEY='your-api-key'
-python3 scripts/n8n_export_production.py
+# اكتشاف + export + import + tests (بدون activate production)
+python3 scripts/n8n_phase1_operational.py run-all
 ```
 
 ## بعد الرفع — تسلسل Import في n8n
