@@ -208,7 +208,10 @@ const providerMessageId = key.id ? String(key.id)
   : (tgMsg?.message_id != null ? String(tgMsg.message_id) : (j.provider_message_id || null)));
 const channel = key.remoteJid || waMsg?.id ? 'whatsapp' : (tgMsg ? 'telegram' : (j.channel || 'whatsapp'));
 const text = j.textContent || j.text || msg.text?.body || msg.body || tgMsg?.text || '';
-const messageType = data.messageType || msg.type || (tgMsg?.photo ? 'image' : 'text');
+const ALLOWED = new Set(['text','image','audio','document','location','video','sticker','unknown']);
+const TYPE_MAP = { conversation: 'text', extendedTextMessage: 'text', audioMessage: 'audio', imageMessage: 'image', documentMessage: 'document', videoMessage: 'video', stickerMessage: 'sticker' };
+const rawType = data.messageType || msg.type || (tgMsg?.photo ? 'image' : 'text');
+const messageType = TYPE_MAP[rawType] || (ALLOWED.has(rawType) ? rawType : 'unknown');
 return [{ json: {
   ...j,
   phase1: {
@@ -330,16 +333,19 @@ return [{ json: {
                 "mode": "runOnceForAllItems",
                 "jsCode": """// Phase1 — prepare outbound log AFTER successful send only
 const send = $input.first().json;
+const de = $('Decision Engine').first()?.json || {};
 const ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json
   || $('Phase1 IF Proceed (not duplicate)').first()?.json
   || {};
+const messageText = send.text || send.message || send.output || send.reply || send.body?.text
+  || send.json?.text || de.response || null;
 return [{ json: {
   lead_id: ctx.lead_id,
   customer_id: ctx.customer_id,
   conversation_id: ctx.conversation_id,
   channel: ctx.phase1?.channel || ctx.channel,
-  message_text: send.text || send.message || send.output || send.reply || send.body?.text,
-  provider_message_id: send.message_id || send.messages?.[0]?.id || null,
+  message_text: messageText,
+  provider_message_id: send.message_id || send.messages?.[0]?.id || send.key?.id || null,
   metadata: { phase1: 'outbound_after_send_success' }
 }}];""",
             },

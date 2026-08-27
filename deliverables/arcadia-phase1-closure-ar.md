@@ -22,11 +22,30 @@ Phase 1 Operational (n8n) **جزئياً مكتمل** — credentials حقنت،
 | Laila Working Copy (Laila V4 - Final) | ✅ patched + imported inactive `LN7Pr1RThjJQrAbY` |
 | Central Error Handler live test | ✅ exec `59390` → `workflow_failures` row |
 | Laila inbound scenarios (4/4 via scenario runner) | ✅ new / existing / duplicate / no provider_id |
-| Laila full E2E (pricing/send/AI failure) | ⏸️ requires Working Copy activation |
+| Laila full E2E (pricing/send/AI failure) | ✅ 4/4 via isolated webhook `laila-v4-phase1-e2e` |
 | Booking Agent | ⏸️ لم يبدأ |
 | Orchestrator | ⏸️ لم يبدأ |
 
-**القرار:** Inbound + Error Handler live ✅. لا نفعّل Working Copy production ولا نغلق Phase 1 نهائياً حتى موافقتك على تفعيل Working Copy + اختبار E2E الكامل.
+**القرار:** Inbound + Error Handler + E2E ✅. Working Copy **Inactive**. Production Cutover بانتظار موافقتك المنفصلة.
+
+---
+
+## E2E Results (27 Aug 2026 ~22:24 UTC)
+
+**Webhook معزول:** `laila-v4-phase1-e2e` — Production `laila-v4` بقي Active.
+
+| Scenario | Exec ID | Handler | Result |
+|----------|---------|---------|--------|
+| pricing_success | 59452 | — | ✅ 781 USD = quote_options |
+| manual_quote | 59457 | — | ✅ no invented price |
+| send_failure | 59462 | 59466 | ✅ no outbound + workflow_failures |
+| ai_node_failure | 59467 | 59469 | ✅ no lead corruption |
+
+**Outbound proof (mock send):** exec `59475` — outbound logged only after send success.
+
+**Counts:** lead_interactions 7→18 · workflow_failures 53→77 · agent_actions 0→5
+
+**التقرير الكامل:** `deliverables/arcadia-phase1-e2e-report-ar.md`
 
 ---
 

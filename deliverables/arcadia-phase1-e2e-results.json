@@ -1,0 +1,132 @@
+{
+  "finished_at": "2026-08-27T22:24:00+00:00",
+  "status": "e2e_completed_pending_production_cutover",
+  "isolation": {
+    "production_webhook": "laila-v4",
+    "e2e_webhook": "laila-v4-phase1-e2e",
+    "production_active_during_tests": true,
+    "working_copy_active_during_tests": "temporary only",
+    "working_copy_active_after": false,
+    "production_snapshot_exported": true,
+    "snapshot_count": 56
+  },
+  "baseline_counts": {
+    "lead_interactions": 7,
+    "workflow_failures": 53,
+    "agent_actions": 0
+  },
+  "final_counts": {
+    "lead_interactions": 18,
+    "workflow_failures": 77,
+    "agent_actions": 5
+  },
+  "e2e_executions": {
+    "pricing_success": {
+      "execution_id": "59452",
+      "error_handler_execution_id": null,
+      "supplemental_outbound_mock_send": {
+        "execution_id": "59475",
+        "note": "httpbin mock send to prove outbound logs only after send success"
+      }
+    },
+    "manual_quote": {
+      "execution_id": "59457"
+    },
+    "send_failure": {
+      "execution_id": "59462",
+      "error_handler_execution_id": "59466"
+    },
+    "ai_node_failure": {
+      "execution_id": "59467",
+      "error_handler_execution_id": "59469"
+    }
+  },
+  "scenarios": [
+    {
+      "scenario": "pricing_success",
+      "execution_id": "59452",
+      "ok": true,
+      "checks": {
+        "quote_options_usd": 781,
+        "decision_engine_price_in_response": "781 USD (٧٨١ دولار)",
+        "pricing_logic_unchanged": true,
+        "inbound_logged": true,
+        "agent_action_logged": true,
+        "agent_action_status": "success",
+        "outbound_after_real_send": false,
+        "outbound_skip_reason": "Evolution API 502 Bad Gateway on test number 971509998001",
+        "outbound_after_mock_send": true,
+        "mock_send_execution_id": "59475"
+      }
+    },
+    {
+      "scenario": "manual_quote",
+      "execution_id": "59457",
+      "ok": true,
+      "checks": {
+        "no_invented_price": true,
+        "response_lists_available_cities": true,
+        "agent_action_status": "failed",
+        "inbound_logged": true,
+        "outbound_logged": false,
+        "needs_human_flag": false,
+        "needs_human_note": "Same as production web-chat path — directs to human WhatsApp link without setting needs_human DB flag"
+      }
+    },
+    {
+      "scenario": "send_failure",
+      "execution_id": "59462",
+      "ok": true,
+      "checks": {
+        "inbound_logged": true,
+        "outbound_logged": false,
+        "workflow_failures_logged": true,
+        "error_handler_execution_id": "59466",
+        "telegram_alert_wired": true,
+        "message_not_delivered": true
+      }
+    },
+    {
+      "scenario": "ai_node_failure",
+      "execution_id": "59467",
+      "ok": true,
+      "checks": {
+        "workflow_failures_logged": true,
+        "execution_id_in_failures": "59467",
+        "error_handler_execution_id": "59469",
+        "no_recursive_error_loop": true,
+        "lead_stage_unchanged": "new",
+        "needs_human_unchanged": false
+      }
+    }
+  ],
+  "pricing_path": {
+    "whatsapp_production": "Decision Engine (code) → POST https://n8n.arcadia-tour.cloud/webhook/cc004272-5e46-4e5c-be6d-ba84fdf35258/chat",
+    "web_chat_laila_tools": "quote_options RPC (canonical)",
+    "phase1_pricing_action_log": "observability-only after Decision Engine — parses response text, no RPC change",
+    "wired_during_e2e": true,
+    "persisted_in_repo_working_copy": false,
+    "note": "Re-apply via patch_laila_phase1 on cutover"
+  },
+  "fixes_applied_during_e2e": [
+    "Inbound Insert uses Ensure conversation_id context after Patch Lead Session",
+    "Evolution messageType conversation mapped to text for DB constraint",
+    "executeWorkflowTrigger inputSource passthrough on Pricing/Outbound subflows",
+    "Supabase header auth on Pricing/Outbound HTTP nodes",
+    "Phase1 Prepare Outbound falls back to Decision Engine response for message_text",
+    "Pricing Action Log wired after Decision Engine with continueOnFail"
+  ],
+  "cleaned_test_workflows": [
+    "Phase1 call inbound v2 TEST",
+    "Phase1 Minimal Subflow Test DELETE ME",
+    "Arcadia - Phase1 Inbound Pipeline v2 TEST",
+    "Phase1 Minimal Parent Test DELETE ME",
+    "Laila V4 - Final Phase1 Working TEST2"
+  ],
+  "production_diff_vs_working_copy": {
+    "price_almaty_2adults_4nights": "781 USD — identical",
+    "manual_quote_response": "No price invented — lists available cities (same web-chat agent behavior)",
+    "phase1_additions": "Normalize → Inbound Pipeline → IF Proceed → Outbound Log + Error Handler + optional Pricing Action Log"
+  },
+  "next_step": "Await separate user approval for Production Cutover (activate Working Copy / deactivate Production Laila V4 - Final)"
+}

@@ -202,7 +202,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Phase1 — prepare outbound log AFTER successful send only\nconst send = $input.first().json;\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json\n  || $('Phase1 IF Proceed (not duplicate)').first()?.json\n  || {};\nreturn [{ json: {\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  conversation_id: ctx.conversation_id,\n  channel: ctx.phase1?.channel || ctx.channel,\n  message_text: send.text || send.message || send.output || send.reply || send.body?.text,\n  provider_message_id: send.message_id || send.messages?.[0]?.id || null,\n  metadata: { phase1: 'outbound_after_send_success' }\n}}];"
+        "jsCode": "// Phase1 — prepare outbound log AFTER successful send only\nconst send = $input.first().json;\nconst de = $('Decision Engine').first()?.json || {};\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json\n  || $('Phase1 IF Proceed (not duplicate)').first()?.json\n  || {};\nconst messageText = send.text || send.message || send.output || send.reply || send.body?.text\n  || send.json?.text || de.response || null;\nreturn [{ json: {\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  conversation_id: ctx.conversation_id,\n  channel: ctx.phase1?.channel || ctx.channel,\n  message_text: messageText,\n  provider_message_id: send.message_id || send.messages?.[0]?.id || send.key?.id || null,\n  metadata: { phase1: 'outbound_after_send_success' }\n}}];"
       },
       "id": "821041de-f663-4ac3-a5d1-87f084c396ff",
       "name": "Phase1 Prepare Outbound",

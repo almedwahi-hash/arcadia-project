@@ -583,7 +583,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { lead_id: $json.lead_id, customer_id: $json.customer_id, conversation_id: $json.conversation_id, channel: $json.phase1.channel, direction: 'inbound', role: 'user', message_type: $json.phase1.message_type, message_text: $json.phase1.message_text, provider_message_id: $json.phase1.provider_message_id, metadata: $json.phase1.metadata || {} } }}",
+        "jsonBody": "={{ (() => { const ctx = $('Ensure conversation_id').first().json; const p1 = ctx.phase1 || {}; return { lead_id: ctx.lead_id, customer_id: ctx.customer_id, conversation_id: ctx.conversation_id, channel: p1.channel, direction: 'inbound', role: 'user', message_type: p1.message_type, message_text: p1.message_text, provider_message_id: p1.provider_message_id, metadata: p1.metadata || {} }; })() }}",
         "options": {}
       },
       "id": "p1-insert-inbound",

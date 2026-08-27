@@ -1,40 +1,32 @@
 {
   "patched": true,
-  "warnings": [
-    "Pricing node not found — wire Phase1 Pricing Action Log manually after get_price"
-  ],
+  "e2e_completed_at": "2026-08-27T22:24:00+00:00",
+  "warnings": [],
   "inserted_nodes": [
     "Phase1 Normalize Inbound",
     "Arcadia - Phase1 Inbound Pipeline",
     "Phase1 IF Proceed (not duplicate)",
     "Phase1 Prepare Outbound",
-    "Arcadia - Phase1 Outbound Log"
+    "Arcadia - Phase1 Outbound Log",
+    "Phase1 Prepare Pricing Action",
+    "Arcadia - Phase1 Pricing Action Log"
   ],
   "rewired": [
     "Parse + CRM -> Normalize -> Inbound Pipeline -> IF Proceed -> Decision Engine",
+    "Decision Engine -> Prepare Pricing Action -> Pricing Action Log -> Save Response",
     "Send WhatsApp success -> Phase1 Prepare Outbound -> Outbound Log"
   ],
   "pricing_path": {
-    "nodes": [
-      {
-        "name": "Decision Engine",
-        "type": "n8n-nodes-base.code"
-      }
-    ],
-    "urls": [],
-    "rpc_calls": [],
-    "webhook_wrappers": [
-      "Decision Engine"
-    ],
-    "canonical_entry_point": "webhook wrapper: Decision Engine",
-    "notes": [
-      "Document wrapper URL; do not change calculation path in Phase 1."
-    ]
+    "nodes": [{"name": "Decision Engine", "type": "n8n-nodes-base.code"}],
+    "webhook_wrappers": ["Decision Engine -> web chat Laila webhook"],
+    "canonical_entry_point": "quote_options (via web chat Laila tools)",
+    "phase1_observability": "Phase1 Prepare Pricing Action parses Decision Engine response — no RPC change"
   },
-  "source_nodes": {
-    "ai_agent": "Decision Engine",
-    "send_node": "Send WhatsApp",
-    "pricing_node": null,
-    "first_after_trigger_before_patch": "Respond 200"
+  "e2e_execution_ids": {
+    "pricing_success": "59452",
+    "manual_quote": "59457",
+    "send_failure": "59462",
+    "ai_node_failure": "59467",
+    "outbound_mock_send_proof": "59475"
   }
 }
