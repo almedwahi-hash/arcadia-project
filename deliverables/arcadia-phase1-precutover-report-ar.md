@@ -145,9 +145,9 @@ wa_smoke_aifail_20260827223433  inbound ✅
 
 ```bash
 POST https://api.arcadia-tour.cloud/message/sendText/h
-apikey: 863E50B69702-4B1F-B00F-45E76B267DBE
+apikey: [REDACTED — rotate in Easypanel/Evolution]
 number: 380936582617  (manager phone)
-→ HTTP 502 Bad Gateway (HTML "Not Found" page)
+→ HTTP 502 Bad Gateway (HTML Easypanel "Not Found" page)
 ```
 
 ### النتيجة
