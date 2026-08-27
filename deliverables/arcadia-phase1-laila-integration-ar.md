@@ -30,12 +30,17 @@ n8n Workflows/Arcadia - Laila Telegram V5.json
 ## 2. Idempotency — provider_message_id
 
 ```
-قبل أي معالجة:
-  IF provider_message_id present:
+قبل أي معالجة — فقط إذا provider_message_id موجود وغير فارغ:
+  IF provider_message_id IS NOT NULL AND trim(provider_message_id) <> '':
     SELECT 1 FROM lead_interactions
     WHERE channel = $channel AND provider_message_id = $id
     IF exists → STOP (duplicate webhook — no AI, no reply)
+  ELSE:
+    تابع المعالجة (لا dedupe)
 ```
+
+**في n8n:** استخدم IF node قبل AI — لا تعتمد على EXCEPTION فقط.
+بديل SQL: `INSERT ... ON CONFLICT DO NOTHING` ثم تحقق إن `interaction_id` رجع.
 
 **WhatsApp:** `messages[0].id`  
 **Telegram:** `message.message_id` + chat id في metadata
