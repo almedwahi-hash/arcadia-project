@@ -1,0 +1,113 @@
+{
+  "name": "Arcadia - Phase1 Outbound Log",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "p1-out-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst required = ['lead_id', 'conversation_id', 'channel'];\nfor (const k of required) {\n  if (!j[k]) {\n    return [{ json: { logged: false, skip_reason: `missing_${k}` } }];\n  }\n}\nconst messageText = j.message_text ?? j.reply_text ?? j.text ?? j.output ?? null;\nif (!messageText) {\n  return [{ json: { logged: false, skip_reason: 'missing_message_text' } }];\n}\nreturn [{ json: {\n  lead_id: j.lead_id,\n  customer_id: j.customer_id || null,\n  conversation_id: j.conversation_id,\n  channel: j.channel,\n  message_text: String(messageText),\n  provider_message_id: j.provider_message_id ? String(j.provider_message_id) : null,\n  metadata: j.metadata || { phase1: 'outbound_after_send_success' }\n}}];"
+      },
+      "id": "p1-out-prepare",
+      "name": "Prepare Outbound Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "can-log",
+              "leftValue": "={{ $json.lead_id !== undefined && $json.message_text !== undefined }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-out-if-can-log",
+      "name": "IF Can Log Outbound",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/lead_interactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Prefer", "value": "return=representation" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lead_id: $json.lead_id, customer_id: $json.customer_id, conversation_id: $json.conversation_id, channel: $json.channel, direction: 'outbound', role: 'assistant', message_type: 'text', message_text: $json.message_text, provider_message_id: $json.provider_message_id, metadata: $json.metadata }) }}",
+        "options": {}
+      },
+      "id": "p1-out-insert",
+      "name": "Insert Outbound Interaction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 120]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { logged: true } }];"
+      },
+      "id": "p1-out-success",
+      "name": "Outbound Logged",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 120]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { logged: false, skip_reason: $json.skip_reason || 'invalid_payload' } }];"
+      },
+      "id": "p1-out-skip",
+      "name": "Outbound Skipped",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 320]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [[{ "node": "Prepare Outbound Payload", "type": "main", "index": 0 }]]
+    },
+    "Prepare Outbound Payload": {
+      "main": [[{ "node": "IF Can Log Outbound", "type": "main", "index": 0 }]]
+    },
+    "IF Can Log Outbound": {
+      "main": [
+        [{ "node": "Insert Outbound Interaction", "type": "main", "index": 0 }],
+        [{ "node": "Outbound Skipped", "type": "main", "index": 0 }]
+      ]
+    },
+    "Insert Outbound Interaction": {
+      "main": [[{ "node": "Outbound Logged", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 1 outbound logging AFTER successful send only. Wire from Laila success branch — NOT from send failure / error branch."
+  }
+}

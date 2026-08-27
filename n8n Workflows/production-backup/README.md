@@ -1,8 +1,8 @@
 # Production Workflow Export — مطلوب قبل تعديل Laila
 
-**الحالة:** ⚠️ **لم يُرفع export الإنتاج بعد**
+**الحالة:** ⚠️ **لم يُرفع export الإنتاج بعد** (Cloud Agent لا يملك وصول n8n مباشر)
 
-## المطلوب من المالك / n8n
+## الطريقة أ — Export يدوي (n8n UI)
 
 1. افتح n8n → Workflows
 2. لكل workflow Active يحتوي "Arcadia" أو "Laila":
@@ -11,22 +11,41 @@
 
 ```
 n8n Workflows/production-backup/
-  Arcadia - Laila Telegram V5.2026-08-27.json   ← إلزامي قبل أي تعديل
-  Arcadia - Follow-up Cron (3h-24h).json
-  Arcadia - Admin Commands.json
-  (أي workflow Arcadia آخر Active)
+  Arcadia - Laila Telegram V5.2026-08-27.json   ← إلزامي
+  Arcadia - Follow-up Cron (3h-24h).2026-08-27.json
+  Arcadia - Admin Commands.2026-08-27.json
+  (أي workflow Pricing منفصل إن وُجد)
 ```
 
-4. انسخ النسخة الحالية إلى:
-```
-n8n Workflows/Arcadia - Laila Telegram V5.json
+## الطريقة ب — n8n API (إن وُجدت credentials)
+
+```bash
+export N8N_API_URL='https://YOUR-INSTANCE.app.n8n.cloud/api/v1'
+export N8N_API_KEY='your-api-key'
+python3 scripts/n8n_export_production.py
 ```
 
-## بعد الرفع
+## بعد الرفع — تسلسل Import في n8n
 
-- [ ] تأكيد مسار Pricing Engine (RPC vs webhook)
-- [ ] تطبيق `deliverables/arcadia-phase1-laila-integration-ar.md`
-- [ ] تعيين Error Workflow → `Arcadia - Central Error Handler.json`
+1. `Arcadia - Central Error Handler.json` (**بدون** errorWorkflow على نفسه)
+2. `Arcadia - Phase1 Inbound Pipeline.json`
+3. `Arcadia - Phase1 Outbound Log.json`
+4. `Arcadia - Phase1 Pricing Action Log.json`
+5. شغّل:
+   ```bash
+   python3 scripts/patch_laila_phase1.py
+   ```
+6. Import `Arcadia - Laila Telegram V5 Phase1 Working.json`
+7. Wire Execute Workflow nodes → sub-workflows المستوردة
+8. Error Handler على Follow-up + Admin:
+   ```bash
+   python3 scripts/patch_workflow_error_handler.py --all-backups
+   ```
+9. اختبار Error Handler: `Arcadia - Phase1 Error Handler Test.json` (مرة واحدة ثم disable)
+
+## Pricing canonical entry point
+
+**`quote_options`** — لا تستخدم `quote_package` مباشرة (overload ambiguity في Postgres).
 
 ---
 

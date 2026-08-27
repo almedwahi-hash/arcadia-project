@@ -1,0 +1,113 @@
+{
+  "name": "Arcadia - Phase1 Pricing Action Log",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "p1-price-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst actionType = j.action_type || 'get_price';\nif (actionType !== 'get_price') {\n  return [{ json: { logged: false, skip_reason: 'not_important_event' } }];\n}\nconst status = j.status || (j.manual_quote || j.error ? 'failed' : 'success');\nconst output = j.output_summary\n  || (j.final_price_usd != null ? `final_price_usd=${j.final_price_usd}` : null)\n  || j.error\n  || j.manual_quote_reason\n  || j.reason\n  || null;\nreturn [{ json: {\n  agent_name: 'sales',\n  action_type: 'get_price',\n  lead_id: j.lead_id || null,\n  customer_id: j.customer_id || null,\n  source_channel: j.source_channel || j.channel || null,\n  input_summary: (j.input_summary || j.pricing_input || '').slice(0, 500) || null,\n  output_summary: output ? String(output).slice(0, 500) : null,\n  status: status === 'failed' || status === 'fail' ? 'failed' : 'success',\n  metadata: j.metadata || { phase1: 'pricing_action' }\n}}];"
+      },
+      "id": "p1-price-prepare",
+      "name": "Prepare Pricing Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "has-lead",
+              "leftValue": "={{ $json.lead_id !== undefined && $json.lead_id !== null }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-price-if-lead",
+      "name": "IF Has lead_id",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/agent_actions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Prefer", "value": "return=representation" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ agent_name: $json.agent_name, action_type: $json.action_type, lead_id: $json.lead_id, customer_id: $json.customer_id, source_channel: $json.source_channel, input_summary: $json.input_summary, output_summary: $json.output_summary, status: $json.status, metadata: $json.metadata }) }}",
+        "options": {}
+      },
+      "id": "p1-price-insert",
+      "name": "Insert agent_actions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 120]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { logged: true } }];"
+      },
+      "id": "p1-price-done",
+      "name": "Pricing Action Logged",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 120]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { logged: false, skip_reason: $json.skip_reason || 'missing_lead_id' } }];"
+      },
+      "id": "p1-price-skip",
+      "name": "Pricing Action Skipped",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 320]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [[{ "node": "Prepare Pricing Action", "type": "main", "index": 0 }]]
+    },
+    "Prepare Pricing Action": {
+      "main": [[{ "node": "IF Has lead_id", "type": "main", "index": 0 }]]
+    },
+    "IF Has lead_id": {
+      "main": [
+        [{ "node": "Insert agent_actions", "type": "main", "index": 0 }],
+        [{ "node": "Pricing Action Skipped", "type": "main", "index": 0 }]
+      ]
+    },
+    "Insert agent_actions": {
+      "main": [[{ "node": "Pricing Action Logged", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Logs agent_actions for get_price success/failure only. Does NOT change pricing RPC logic — wire after existing pricing node in Laila."
+  }
+}

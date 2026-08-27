@@ -1,0 +1,472 @@
+{
+  "name": "Arcadia - Phase1 Inbound Pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "p1-inbound-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst p = j.phase1 || {};\nconst phone = String(p.phone || j.phone || '').trim();\nif (!phone) {\n  return [{ json: { proceed: false, stop_reason: 'missing_phone', phase1: p } }];\n}\nconst providerMessageId = p.provider_message_id ? String(p.provider_message_id).trim() : null;\nreturn [{ json: {\n  ...j,\n  phase1: {\n    phone,\n    channel: p.channel || j.channel || 'whatsapp',\n    provider_message_id: providerMessageId || null,\n    message_text: p.message_text ?? j.text ?? null,\n    message_type: p.message_type || 'text',\n    metadata: p.metadata || {}\n  },\n  has_provider_id: !!(providerMessageId && providerMessageId.length > 0)\n}}];"
+      },
+      "id": "p1-inbound-prepare",
+      "name": "Phase1 Prepare Inbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "has-provider-id",
+              "leftValue": "={{ $json.has_provider_id }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-if-has-provider-id",
+      "name": "IF Has provider_message_id",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/lead_interactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "channel", "value": "=eq.{{ $json.phase1.channel }}" },
+            { "name": "provider_message_id", "value": "=eq.{{ $json.phase1.provider_message_id }}" },
+            { "name": "select", "value": "interaction_id" },
+            { "name": "limit", "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p1-dedupe-check",
+      "name": "Dedupe Check (pre-insert)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 200],
+      "notes": "Pre-check before AI — UNIQUE index is secondary race protection only."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.first().json;\nconst prev = $('Phase1 Prepare Inbound').first().json;\nconst duplicate = Array.isArray(rows) && rows.length > 0;\nif (duplicate) {\n  return [{ json: { ...prev, proceed: false, stop_reason: 'duplicate_provider_message_id' } }];\n}\nreturn [{ json: { ...prev, proceed: true } }];"
+      },
+      "id": "p1-eval-dedupe",
+      "name": "Evaluate Dedupe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "proceed-check",
+              "leftValue": "={{ $json.proceed }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-if-proceed-after-dedupe",
+      "name": "IF Proceed After Dedupe",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nreturn [{ json: { ...j, proceed: true } }];"
+      },
+      "id": "p1-skip-dedupe",
+      "name": "Skip Dedupe (no provider id)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 420]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/customers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone", "value": "=eq.{{ $json.phase1.phone }}" },
+            { "name": "select", "value": "customer_id,phone" },
+            { "name": "limit", "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p1-get-customer",
+      "name": "Get Customer By Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.first().json;\nconst ctx = $('IF Proceed After Dedupe').first()?.json || $('Skip Dedupe (no provider id)').first()?.json || $('Phase1 Prepare Inbound').first().json;\nlet customerId = null;\nif (Array.isArray(rows) && rows[0]?.customer_id) customerId = rows[0].customer_id;\nreturn [{ json: { ...ctx, customer_id: customerId, need_create_customer: !customerId } }];"
+      },
+      "id": "p1-parse-customer",
+      "name": "Parse Customer Lookup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "need-customer",
+              "leftValue": "={{ $json.need_create_customer }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-if-create-customer",
+      "name": "IF Create Customer",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1760, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/customers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Prefer", "value": "return=representation" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ phone: $json.phase1.phone }) }}",
+        "options": {}
+      },
+      "id": "p1-create-customer",
+      "name": "Create Customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const row = Array.isArray($input.first().json) ? $input.first().json[0] : $input.first().json;\nconst ctx = $('Parse Customer Lookup').first().json;\nconst customerId = row?.customer_id || ctx.customer_id;\nreturn [{ json: { ...ctx, customer_id: customerId } }];"
+      },
+      "id": "p1-merge-customer",
+      "name": "Merge Customer Id",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone", "value": "=eq.{{ $json.phase1.phone }}" },
+            { "name": "select", "value": "lead_id,customer_id,conversation_id,phone" },
+            { "name": "limit", "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "p1-get-lead",
+      "name": "Get Lead By Phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2420, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.first().json;\nconst ctx = $('Merge Customer Id').first().json;\nlet lead = Array.isArray(rows) && rows[0] ? rows[0] : null;\nreturn [{ json: { ...ctx, lead, need_create_lead: !lead } }];"
+      },
+      "id": "p1-parse-lead",
+      "name": "Parse Lead Lookup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2640, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "need-lead",
+              "leftValue": "={{ $json.need_create_lead }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-if-create-lead",
+      "name": "IF Create Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2860, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Prefer", "value": "return=representation" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ phone: $json.phase1.phone, customer_id: $json.customer_id, source: $json.phase1.channel, stage: 'new' }) }}",
+        "options": {}
+      },
+      "id": "p1-create-lead",
+      "name": "Create Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3080, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const created = Array.isArray($input.first().json) ? $input.first().json[0] : $input.first().json;\nconst ctx = $('Parse Lead Lookup').first().json;\nconst lead = created?.lead_id ? created : ctx.lead;\nreturn [{ json: { ...ctx, lead } }];"
+      },
+      "id": "p1-merge-lead",
+      "name": "Merge Lead Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst lead = j.lead || {};\nlet conversationId = lead.conversation_id || null;\nlet patchLead = false;\nif (!conversationId) {\n  conversationId = crypto.randomUUID();\n  patchLead = true;\n}\nconst patchBody = {};\nif (patchLead) patchBody.conversation_id = conversationId;\nif (!lead.customer_id && j.customer_id) patchBody.customer_id = j.customer_id;\nreturn [{ json: {\n  ...j,\n  lead_id: lead.lead_id,\n  customer_id: j.customer_id || lead.customer_id,\n  conversation_id: conversationId,\n  patch_lead: patchLead || Object.keys(patchBody).length > 0,\n  patch_body: patchBody\n}}];"
+      },
+      "id": "p1-ensure-conversation",
+      "name": "Ensure conversation_id",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3520, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "patch-lead",
+              "leftValue": "={{ $json.patch_lead }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "p1-if-patch-lead",
+      "name": "IF Patch Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3740, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads?lead_id=eq.{{ $json.lead_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Prefer", "value": "return=representation" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.patch_body) }}",
+        "options": {}
+      },
+      "id": "p1-patch-lead",
+      "name": "Patch Lead Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3960, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/lead_interactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Prefer", "value": "return=representation" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lead_id: $json.lead_id, customer_id: $json.customer_id, conversation_id: $json.conversation_id, channel: $json.phase1.channel, direction: 'inbound', role: 'user', message_type: $json.phase1.message_type, message_text: $json.phase1.message_text, provider_message_id: $json.phase1.provider_message_id, metadata: $json.phase1.metadata || {} }) }}",
+        "options": {}
+      },
+      "id": "p1-insert-inbound",
+      "name": "Insert Inbound Interaction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [4180, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const ctx = $('Ensure conversation_id').first().json;\nreturn [{ json: {\n  ...ctx,\n  proceed: true,\n  stop_reason: null\n}}];"
+      },
+      "id": "p1-inbound-output",
+      "name": "Inbound Pipeline Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [4400, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{ json: { proceed: false, stop_reason: $json.stop_reason || 'duplicate_provider_message_id' } }];"
+      },
+      "id": "p1-stop-duplicate",
+      "name": "Stop Duplicate Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 80]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [[{ "node": "Phase1 Prepare Inbound", "type": "main", "index": 0 }]]
+    },
+    "Phase1 Prepare Inbound": {
+      "main": [[{ "node": "IF Has provider_message_id", "type": "main", "index": 0 }]]
+    },
+    "IF Has provider_message_id": {
+      "main": [
+        [{ "node": "Dedupe Check (pre-insert)", "type": "main", "index": 0 }],
+        [{ "node": "Skip Dedupe (no provider id)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Dedupe Check (pre-insert)": {
+      "main": [[{ "node": "Evaluate Dedupe", "type": "main", "index": 0 }]]
+    },
+    "Evaluate Dedupe": {
+      "main": [[{ "node": "IF Proceed After Dedupe", "type": "main", "index": 0 }]]
+    },
+    "IF Proceed After Dedupe": {
+      "main": [
+        [{ "node": "Get Customer By Phone", "type": "main", "index": 0 }],
+        [{ "node": "Stop Duplicate Output", "type": "main", "index": 0 }]
+      ]
+    },
+    "Skip Dedupe (no provider id)": {
+      "main": [[{ "node": "Get Customer By Phone", "type": "main", "index": 0 }]]
+    },
+    "Get Customer By Phone": {
+      "main": [[{ "node": "Parse Customer Lookup", "type": "main", "index": 0 }]]
+    },
+    "Parse Customer Lookup": {
+      "main": [[{ "node": "IF Create Customer", "type": "main", "index": 0 }]]
+    },
+    "IF Create Customer": {
+      "main": [
+        [{ "node": "Create Customer", "type": "main", "index": 0 }],
+        [{ "node": "Merge Customer Id", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Customer": {
+      "main": [[{ "node": "Merge Customer Id", "type": "main", "index": 0 }]]
+    },
+    "Merge Customer Id": {
+      "main": [[{ "node": "Get Lead By Phone", "type": "main", "index": 0 }]]
+    },
+    "Get Lead By Phone": {
+      "main": [[{ "node": "Parse Lead Lookup", "type": "main", "index": 0 }]]
+    },
+    "Parse Lead Lookup": {
+      "main": [[{ "node": "IF Create Lead", "type": "main", "index": 0 }]]
+    },
+    "IF Create Lead": {
+      "main": [
+        [{ "node": "Create Lead", "type": "main", "index": 0 }],
+        [{ "node": "Merge Lead Row", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Lead": {
+      "main": [[{ "node": "Merge Lead Row", "type": "main", "index": 0 }]]
+    },
+    "Merge Lead Row": {
+      "main": [[{ "node": "Ensure conversation_id", "type": "main", "index": 0 }]]
+    },
+    "Ensure conversation_id": {
+      "main": [[{ "node": "IF Patch Lead", "type": "main", "index": 0 }]]
+    },
+    "IF Patch Lead": {
+      "main": [
+        [{ "node": "Patch Lead Session", "type": "main", "index": 0 }],
+        [{ "node": "Insert Inbound Interaction", "type": "main", "index": 0 }]
+      ]
+    },
+    "Patch Lead Session": {
+      "main": [[{ "node": "Insert Inbound Interaction", "type": "main", "index": 0 }]]
+    },
+    "Insert Inbound Interaction": {
+      "main": [[{ "node": "Inbound Pipeline Output", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 1 inbound: provider_message_id dedupe pre-check, customer/lead upsert, conversation_id reuse, inbound lead_interactions BEFORE AI. Import before Laila Phase1 Working copy."
+  }
+}
