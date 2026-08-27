@@ -1,0 +1,12 @@
+# Secrets — SMTP/Zoho credentials loaded by scripts/outreach_smtp_common.py
+.env
+
+# Runtime outreach state written by the send scripts
+.tmp_*.json
+.zoho-chrome-profile/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
