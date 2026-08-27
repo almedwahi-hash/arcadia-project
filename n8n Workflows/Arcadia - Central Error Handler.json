@@ -1,0 +1,146 @@
+{
+  "name": "Arcadia - Central Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const err = $input.first().json;\nconst execution = err.execution || {};\nconst workflow = err.workflow || {};\nconst node = err.trigger?.error?.node || {};\n\nconst severity = (err.trigger?.error?.message || '').match(/critical|payment|refund/i) ? 'critical' : 'error';\n\nreturn [{\n  json: {\n    workflow_name: workflow.name || 'unknown',\n    workflow_id: String(workflow.id || ''),\n    execution_id: String(execution.id || ''),\n    node_name: node.name || err.trigger?.error?.node?.name || null,\n    agent_name: workflow.name?.includes('Laila') ? 'sales' : (workflow.name?.includes('Follow') ? 'cs' : 'system'),\n    source_channel: $json.source_channel || null,\n    lead_id: $json.lead_id || null,\n    booking_id: $json.booking_id || null,\n    severity,\n    error_message: (err.trigger?.error?.message || 'unknown error').slice(0, 2000),\n    payload: {\n      execution_url: execution.url,\n      last_node: execution.lastNodeExecuted,\n      mode: execution.mode,\n      raw: err\n    },\n    retry_count: 0,\n    status: 'open'\n  }\n}];"
+      },
+      "id": "normalize-error",
+      "name": "Normalize Error Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/workflow_failures",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}"
+      },
+      "id": "insert-failure",
+      "name": "Insert workflow_failures",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "notes": "Configure Supabase credential (service_role). Set SUPABASE_URL env."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "critical-check",
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "if-critical",
+      "name": "IF Critical or Error",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ADMIN_CHAT_ID }}",
+        "text": "=⚠️ Arcadia Workflow Error\n\nWorkflow: {{ $json.workflow_name }}\nNode: {{ $json.node_name }}\nSeverity: {{ $json.severity }}\n\n{{ $json.error_message }}\n\nExecution: {{ $json.payload.execution_url || 'n/a' }}"
+      },
+      "id": "telegram-alert",
+      "name": "Telegram Admin Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [880, -80],
+      "notes": "Set TELEGRAM_ADMIN_CHAT_ID + Telegram credential"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalize Error Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Error Payload": {
+      "main": [
+        [
+          {
+            "node": "Insert workflow_failures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert workflow_failures": {
+      "main": [
+        [
+          {
+            "node": "IF Critical or Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Critical or Error": {
+      "main": [
+        [
+          {
+            "node": "Telegram Admin Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "description": "Central error workflow for all Arcadia n8n workflows. Logs to Supabase workflow_failures and alerts Telegram admin. Assign as Error Workflow in Laila V5, Follow-up Cron, Admin Commands, etc."
+  },
+  "tags": [
+  ]
+}
