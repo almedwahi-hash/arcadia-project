@@ -1,0 +1,525 @@
+{
+  "updatedAt": "2026-07-03T00:16:17.466Z",
+  "createdAt": "2026-07-03T00:13:27.913Z",
+  "id": "G9x8t1Eua6vVKon2",
+  "name": "Arcadia SEO Cleanup (temp)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "arcadia-seo-cleanup-run",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "id": "fbbf3f9a-fdda-4493-a90a-695b470422ec",
+      "name": "Webhook",
+      "webhookId": "ffa50fb6-1b47-478e-aba4-00497d8d3b39"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://187.77.64.14/wp-json/wp/v2/categories?per_page=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        300
+      ],
+      "id": "86951c6b-e24e-4993-b2cf-9db16bc86582",
+      "name": "Fetch Categories",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [4379, 4375, 4153, 3996, 3984].map(id => ({ json: { post_id: id } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        100
+      ],
+      "id": "880863be-1d0d-4a5c-9a49-f4fe43ebb8cc",
+      "name": "Plan Trash"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.post_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"status\":\"trash\"}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "id": "66ba89b8-49de-4cfb-8a1b-c869d8fd914e",
+      "name": "Trash Post",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const KEEP = [\n  { id: 4381, country: 'كازاخستان' },\n  { id: 4372, country: 'روسيا' },\n  { id: 4151, country: 'روسيا' },\n  { id: 3993, country: 'كازاخستان' },\n  { id: 3986, country: 'بولندا' },\n];\nreturn KEEP.map(k => ({ json: k }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "id": "bac3c2dd-cec3-4875-bfd7-d519978a26ec",
+      "name": "Plan Get Keep"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.id }}?_embed=wp:featuredmedia,wp:term",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        300
+      ],
+      "id": "5bce2352-028c-4e96-88e3-f493e0eb107a",
+      "name": "Get Keep Post",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const CAT_MAP = {\n  'كازاخستان': ['كازاخستان','Kazakhstan','kazakhstan'],\n  'روسيا': ['روسيا','Russia','russia'],\n  'بولندا': ['بولندا','Poland','poland'],\n  'أوزبكستان': ['أوزبكستان','Uzbekistan'],\n  'الصين': ['الصين','China','china'],\n};\n\nfunction stripHtml(s) { return String(s||'').replace(/<[^>]+>/g,'').trim(); }\nfunction matchCat(categories, country) {\n  const names = CAT_MAP[country] || [country];\n  for (const c of categories) for (const n of names)\n    if (c.name.toLowerCase()===n.toLowerCase()||c.slug.toLowerCase()===n.toLowerCase()) return c;\n  for (const c of categories) for (const n of names)\n    if (c.name.toLowerCase().includes(n.toLowerCase())) return c;\n  return null;\n}\n\nconst categoriesRaw = $('Fetch Categories').all().map(i => i.json);\nconst categories = Array.isArray(categoriesRaw[0]) ? categoriesRaw[0] : categoriesRaw;\nconst keepMeta = {};\nfor (const item of $('Plan Get Keep').all()) keepMeta[item.json.id] = item.json.country;\n\nconst updates = [];\nconst alts = [];\nconst russia = { id: 4372, keep: false, reason: '', words_est: 0, slug: '' };\n\nfor (const item of $input.all()) {\n  const post = item.json;\n  const pid = post.id;\n  const country = keepMeta[pid];\n  if (!country) continue;\n\n  if (pid === 4372) {\n    const words = stripHtml(post.content?.rendered||'').split(/\\s+/).filter(Boolean).length;\n    const isDup = /-\\d+$/.test(post.slug||'');\n    russia.words_est = words;\n    russia.slug = post.slug;\n    russia.keep = !isDup && words > 1500;\n    russia.reason = russia.keep ? 'محتوى SEO روسي قوي بدون تكرار' : 'ضعيف أو مكرر';\n    if (!russia.keep) continue;\n  }\n\n  const title = stripHtml(post.title?.rendered);\n  const cat = matchCat(categories, country);\n  const body = {};\n  const applied = [];\n\n  if (cat && !(post.categories||[]).includes(cat.id)) {\n    body.categories = [cat.id, ...(post.categories||[]).filter(c=>c!==cat.id)];\n    applied.push('category→'+cat.name);\n  } else if (cat) applied.push('category_ok:'+cat.name);\n\n  if (post.status !== 'publish') { body.status = 'publish'; applied.push('status→publish'); }\n\n  if (Object.keys(body).length) updates.push({ json: { post_id: pid, body, title, country, applied, url: post.link } });\n\n  const mediaId = post.featured_media || 0;\n  if (mediaId) {\n    const desired = title.includes(country) ? title : title + ' — ' + country;\n    alts.push({ json: { media_id: mediaId, alt_text: desired, post_id: pid } });\n  }\n}\n\nreturn [\n  { json: { phase: 'updates', items: updates.map(u => u.json) } },\n  { json: { phase: 'alts', items: alts.map(a => a.json) } },\n  { json: { phase: 'meta', russia_weather_decision: russia } },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ],
+      "id": "8d55b622-10c5-491f-bfec-8be46844cbbb",
+      "name": "Build Updates"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pack = $input.all().find(i => i.json.phase === 'updates');\nreturn (pack?.json.items || []).map(u => ({ json: u }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        200
+      ],
+      "id": "b46bf764-8e6e-4b1f-9371-0be6349a4a43",
+      "name": "Plan Post Updates"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.post_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json.body) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        200
+      ],
+      "id": "f4e8eb68-c423-4e23-b5d9-fafee7947eba",
+      "name": "Apply Post Update",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const all = $('Build Updates').all();\nconst altPack = all.find(i => i.json.phase === 'alts');\nreturn (altPack?.json.items || []).map(a => ({ json: a }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1430,
+        300
+      ],
+      "id": "e88a48cd-f333-45d0-9edf-8288dacae934",
+      "name": "Plan Alt Updates"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/media/{{ $json.media_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ alt_text: $json.alt_text }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ],
+      "id": "4758eaa7-b679-42f6-bc30-176cc25ada7b",
+      "name": "Apply Alt Text",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function stripHtml(s) { return String(s||'').replace(/<[^>]+>/g,'').trim(); }\n\nconst trashed = [];\nfor (const item of $('Trash Post').all()) {\n  const p = item.json;\n  trashed.push({ id: p.id, success: p.status === 'trash', status: p.status, title: stripHtml(p.title?.rendered) });\n}\n\nconst kept = [];\nfor (const item of $('Apply Post Update').all()) {\n  const p = item.json;\n  const plan = $('Plan Post Updates').all().find(x => x.json.post_id === p.id);\n  kept.push({\n    id: p.id,\n    url: p.link,\n    title: stripHtml(p.title?.rendered),\n    country: plan?.json.country,\n    applied: plan?.json.applied || [],\n  });\n}\n\n// posts that needed no post-level update but were fetched\nconst meta = $('Build Updates').all().find(i => i.json.phase === 'meta')?.json || {};\nconst russia = meta.russia_weather_decision || null;\n\nconst getKeep = $('Plan Get Keep').all().map(i => i.json.id);\nconst updatedIds = kept.map(k => k.id);\nfor (const item of $('Get Keep Post').all()) {\n  const p = item.json;\n  if (updatedIds.includes(p.id)) continue;\n  if (p.id === 4372 && russia && !russia.keep) continue;\n  if (!getKeep.includes(p.id)) continue;\n  kept.push({ id: p.id, url: p.link, title: stripHtml(p.title?.rendered), applied: ['no_post_update_needed'] });\n}\n\nconst altApplied = [];\nfor (const item of $('Apply Alt Text').all()) {\n  altApplied.push({ media_id: item.json.id, post_id: $('Apply Alt Text').all().find(x=>x.json.id===item.json.id)?.json?.post_id, alt_set: !!item.json.alt_text });\n}\n\nfor (const k of kept) {\n  const alt = altApplied.find(a => $('Plan Alt Updates').all().some(p => p.json.post_id === k.id && p.json.media_id === a.media_id));\n  if (alt) k.applied = [...(k.applied||[]), 'alt_text_set'];\n}\n\nreturn [{ json: {\n  credential: 'n8n:WordPress Arcadia',\n  trashed,\n  kept,\n  russia_weather_decision: russia,\n  originals_checked: [2254,2235,2248,2266,2244].map(id => ({ id, note: 'not touched' })),\n  errors: [],\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1650,
+        300
+      ],
+      "id": "2bc71378-51db-4522-bd6a-580bbde52c18",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        300
+      ],
+      "id": "986bf84b-e46c-44bf-b88f-6ab8f03e026c",
+      "name": "Respond"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Categories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Categories": {
+      "main": [
+        [
+          {
+            "node": "Plan Trash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Trash": {
+      "main": [
+        [
+          {
+            "node": "Trash Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trash Post": {
+      "main": [
+        [
+          {
+            "node": "Plan Get Keep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Get Keep": {
+      "main": [
+        [
+          {
+            "node": "Get Keep Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Keep Post": {
+      "main": [
+        [
+          {
+            "node": "Build Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Updates": {
+      "main": [
+        [
+          {
+            "node": "Plan Post Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Post Updates": {
+      "main": [
+        [
+          {
+            "node": "Apply Post Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Post Update": {
+      "main": [
+        [
+          {
+            "node": "Plan Alt Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Alt Updates": {
+      "main": [
+        [
+          {
+            "node": "Apply Alt Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Alt Text": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "5ccc81bb-191a-435d-b5ee-0baeb8f69cf1",
+  "versionCounter": 21,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-07-03T00:13:27.916Z",
+      "createdAt": "2026-07-03T00:13:27.916Z",
+      "role": "workflow:owner",
+      "workflowId": "G9x8t1Eua6vVKon2",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

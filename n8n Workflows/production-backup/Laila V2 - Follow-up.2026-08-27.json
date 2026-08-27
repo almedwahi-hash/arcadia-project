@@ -1,0 +1,297 @@
+{
+  "updatedAt": "2026-08-27T21:56:40.033Z",
+  "createdAt": "2026-04-16T21:22:18.170Z",
+  "id": "iZoFgFoLNZqhfTZt",
+  "name": "Laila V2 - Follow-up",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "f263d27c-241f-4feb-8ee5-9cbfc7c83947",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "leads"
+      },
+      "id": "26a31940-5b5a-45da-881e-d0de1dd7c570",
+      "name": "Get Pending Follow-ups",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z3Tj165JyWLHjSYI",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = $input.all().map(i => i.json);\nconst now = new Date();\nconst hour = now.getUTCHours();\n\n// Don't send between 11PM - 8AM\nif (hour >= 23 || hour < 8) {\n  return [];\n}\n\nconst results = [];\n\nfor (const lead of leads) {\n  if (!lead.phone || !lead.stage) continue;\n  \n  let message = '';\n  let newStage = '';\n  let nextFollowup = null;\n  const name = lead.name || 'عزيزي العميل';\n  const dest = lead.destination || '';\n  \n  switch (lead.stage) {\n    case 'offered':\n      message = `مرحباً ${name}، قدرت تشوف العرض؟ لو عندك أي سؤال أنا موجودة 😊`;\n      newStage = 'follow_1';\n      // Next follow-up in 1 day\n      nextFollowup = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();\n      break;\n      \n    case 'follow_1':\n      message = `أهلاً ${name}، العرض لا زال متاح حالياً. الأسعار تتغير حسب التوفر والموسم — تحب نثبت لك الحجز؟ 😊`;\n      newStage = 'follow_2';\n      // Next follow-up in 3 days\n      nextFollowup = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();\n      break;\n      \n    case 'follow_2':\n      message = `مرحباً ${name}، عندنا عرض خاص هالأسبوع${dest ? ' على ' + dest : ''}. تحب أعرض لك التفاصيل؟ 🎁`;\n      newStage = 'follow_3';\n      nextFollowup = null; // No more automatic follow-ups\n      break;\n  }\n  \n  if (message) {\n    results.push({\n      json: {\n        phone: lead.phone,\n        message: message,\n        newStage: newStage,\n        nextFollowup: nextFollowup,\n        lead_id: lead.lead_id\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "id": "63d8ac77-b4c1-41b2-8764-e358d92045d8",
+      "name": "Build Follow-up Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"{{ $json.phone }}\",\n  \"text\": {{ JSON.stringify($json.message) }}\n}",
+        "options": {}
+      },
+      "id": "da22410d-7c9c-44aa-8631-118be19a2b67",
+      "name": "Send Follow-up WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filterType": "string",
+        "filterString": "phone=eq.{{ $json.phone }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $json.newStage }}"
+            },
+            {
+              "fieldValue": "={{ $json.nextFollowup || null }}"
+            },
+            {
+              "fieldValue": "={{ new Date().toISOString() }}"
+            },
+            {
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "5ab19ba6-f852-4899-857d-a59ae88de3b3",
+      "name": "Update Lead Stage",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z3Tj165JyWLHjSYI",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "conversations"
+      },
+      "id": "8311c341-b32d-4f00-85e8-5b51925e3a3e",
+      "name": "Save Follow-up Message",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        192
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "z3Tj165JyWLHjSYI",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Add 5 minute delay between messages to avoid spam\nconst waitMs = 5 * 60 * 1000; // 5 minutes\nawait new Promise(resolve => setTimeout(resolve, waitMs));\nreturn $input.all();"
+      },
+      "id": "fb38088d-ec1b-41b5-bcbc-e91b236592e6",
+      "name": "5min Delay",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        544,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Follow-ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Follow-ups": {
+      "main": [
+        [
+          {
+            "node": "Build Follow-up Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Follow-up Messages": {
+      "main": [
+        [
+          {
+            "node": "5min Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5min Delay": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Follow-up WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Stage",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save Follow-up Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "59ul6YkPVThk7e4U",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "33b3eb34-0083-49a7-87a1-d29594dc9a1e",
+  "versionCounter": 4,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-16T21:22:18.172Z",
+      "createdAt": "2026-04-16T21:22:18.172Z",
+      "role": "workflow:owner",
+      "workflowId": "iZoFgFoLNZqhfTZt",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

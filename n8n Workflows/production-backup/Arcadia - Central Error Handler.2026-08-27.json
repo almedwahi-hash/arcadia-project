@@ -1,5 +1,10 @@
 {
+  "updatedAt": "2026-08-27T21:59:01.556Z",
+  "createdAt": "2026-08-27T21:55:48.514Z",
+  "id": "59ul6YkPVThk7e4U",
   "name": "Arcadia - Central Error Handler",
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {},
@@ -15,7 +20,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const err = $input.first().json;\nconst wfName = (err.workflow?.name || '').trim();\n// Anti-recursion: only skip errors originating from this handler workflow itself\nif (/^Arcadia - Central Error Handler$/i.test(wfName)) {\n  return [];\n}\nreturn [{ json: err }];"
+        "jsCode": "const err = $input.first().json;\nconst wfName = err.workflow?.name || '';\n// Anti-recursion: never handle errors from this workflow itself\nif (/central error handler|error handler test/i.test(wfName)) {\n  return [];\n}\nreturn [{ json: err }];"
       },
       "id": "anti-recursion-guard",
       "name": "Anti-Recursion Guard",
@@ -43,7 +48,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/workflow_failures",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/workflow_failures",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
@@ -57,7 +62,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ $json }}"
+        "jsonBody": "={{ JSON.stringify($json) }}"
       },
       "id": "insert-failure",
       "name": "Insert workflow_failures",
@@ -68,8 +73,7 @@
         0
       ],
       "continueOnFail": true,
-      "notes": "Configure Supabase credential (service_role). Set SUPABASE_URL env. continueOnFail avoids recursive error loop if INSERT fails.",
-      "alwaysOutputData": true
+      "notes": "Configure Supabase credential (service_role). Set SUPABASE_URL env. continueOnFail avoids recursive error loop if INSERT fails."
     },
     {
       "parameters": {
@@ -135,11 +139,72 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "meta": {
-    "templateCredsSetupCompleted": false,
-    "description": "Central error workflow. Logs workflow_failures + Telegram alert. NO errorWorkflow on this workflow itself. Anti-recursion guard stops loops. Assign as Error Workflow in Laila V5, Follow-up Cron, Admin Commands, Pricing."
-  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "9c61d037-bfa0-494a-ac27-e5016b66a18f",
+  "versionCounter": 5,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T21:55:48.520Z",
+      "createdAt": "2026-08-27T21:55:48.520Z",
+      "role": "workflow:owner",
+      "workflowId": "59ul6YkPVThk7e4U",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
   "tags": []
 }

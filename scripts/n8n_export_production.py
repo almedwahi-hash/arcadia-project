@@ -21,6 +21,7 @@ import urllib.error
 import urllib.request
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = ROOT / "n8n Workflows" / "production-backup"
@@ -38,12 +39,28 @@ def api_get(base: str, key: str, path: str) -> dict | list:
         return json.loads(resp.read().decode("utf-8"))
 
 
+def normalize_n8n_api_base(raw_url: str) -> str:
+    url = raw_url.strip().rstrip("/")
+    if url.endswith("/api/v1"):
+        return url
+    idx = url.find("/api/v1")
+    if idx != -1:
+        return url[: idx + len("/api/v1")]
+    parsed = urlparse(url)
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}/api/v1"
+    return url
+
+
 def main() -> int:
-    base = os.environ.get("N8N_API_URL", "").strip()
+    raw = os.environ.get("N8N_API_URL", "").strip()
     key = os.environ.get("N8N_API_KEY", "").strip()
-    if not base or not key:
+    if not raw or not key:
         print("Set N8N_API_URL and N8N_API_KEY environment variables.", file=sys.stderr)
         return 1
+    base = normalize_n8n_api_base(raw)
+    if base != raw.rstrip("/"):
+        print(f"Using n8n REST base: {base}", file=sys.stderr)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     try:

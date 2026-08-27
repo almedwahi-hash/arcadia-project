@@ -37,13 +37,13 @@ SUBFLOW_OUTBOUND = "Arcadia - Phase1 Outbound Log"
 SUBFLOW_PRICING = "Arcadia - Phase1 Pricing Action Log"
 ERROR_HANDLER = "Arcadia - Central Error Handler"
 
-AI_AGENT_NAMES = {"AI Agent", "Laila Agent", "OpenAI", "Sales Agent", "Laila"}
+AI_AGENT_NAMES = {"AI Agent", "Laila Agent", "OpenAI", "Sales Agent", "Laila", "Decision Engine"}
 SEND_NODE_NAMES = {
     "Send Message",
     "WhatsApp Send",
+    "Send WhatsApp",
     "Telegram Send",
     "Reply to Customer",
-    "Send WhatsApp",
     "Send Telegram",
 }
 PRICING_NODE_NAMES = {
@@ -187,16 +187,28 @@ def patch_workflow(wf: dict) -> tuple[dict, dict]:
             "mode": "runOnceForAllItems",
             "jsCode": """// Phase1 — normalize inbound (no prompt / stage changes)
 const j = $input.first().json;
-const body = j.body || j;
+const raw = $('WhatsApp Webhook').first()?.json || $('Telegram Trigger').first()?.json || {};
+const body = raw.body || raw;
+const data = body.data || body;
+const key = data.key || {};
 const waMsg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-const tgMsg = j.message || body.message;
+const tgMsg = raw.message || body.message;
 const msg = waMsg || tgMsg || body.messages?.[0] || {};
-const phone = String(msg.from || tgMsg?.chat?.id || body.from?.id || j.phone || j.chat_id || '').trim();
-const providerMessageId = waMsg?.id ? String(waMsg.id)
-  : (tgMsg?.message_id != null ? String(tgMsg.message_id) : null);
-const channel = waMsg?.id ? 'whatsapp' : (tgMsg ? 'telegram' : (j.channel || 'whatsapp'));
-const text = msg.text?.body || msg.body || tgMsg?.text || j.text || '';
-const messageType = msg.type || (tgMsg?.photo ? 'image' : 'text');
+const phone = String(
+  j.phone
+  || key.remoteJid?.replace('@s.whatsapp.net', '').replace('@g.us', '')
+  || msg.from
+  || tgMsg?.chat?.id
+  || body.from?.id
+  || j.chat_id
+  || ''
+).trim();
+const providerMessageId = key.id ? String(key.id)
+  : (waMsg?.id ? String(waMsg.id)
+  : (tgMsg?.message_id != null ? String(tgMsg.message_id) : (j.provider_message_id || null)));
+const channel = key.remoteJid || waMsg?.id ? 'whatsapp' : (tgMsg ? 'telegram' : (j.channel || 'whatsapp'));
+const text = j.textContent || j.text || msg.text?.body || msg.body || tgMsg?.text || '';
+const messageType = data.messageType || msg.type || (tgMsg?.photo ? 'image' : 'text');
 return [{ json: {
   ...j,
   phase1: {
@@ -205,7 +217,7 @@ return [{ json: {
     channel,
     message_text: text,
     message_type: messageType,
-    metadata: { raw_channel: channel, normalized_at: new Date().toISOString() }
+    metadata: { raw_channel: channel, normalized_at: new Date().toISOString(), source: 'phase1_normalize' }
   }
 }}];""",
         },
@@ -218,54 +230,99 @@ return [{ json: {
     out["nodes"].append(norm_node)
     meta["inserted_nodes"].append(norm_node["name"])
 
-    inbound_exec = make_execute_workflow_node(SUBFLOW_INBOUND, 420, 300)
-    out["nodes"].append(inbound_exec)
-    meta["inserted_nodes"].append(inbound_exec["name"])
+    # Prefer inserting after existing Parse/Normalize node if present
+    parse_node = find_node_by_names(out, {"Parse + CRM", "Normalize"})
+    insert_after = parse_node["name"] if parse_node else None
 
-    if_proceed = {
-        "parameters": {
-            "conditions": {
-                "options": {"caseSensitive": True, "typeValidation": "strict"},
-                "conditions": [
-                    {
-                        "id": "proceed-check",
-                        "leftValue": "={{ $json.proceed }}",
-                        "rightValue": True,
-                        "operator": {"type": "boolean", "operation": "true"},
-                    }
-                ],
-                "combinator": "and",
+    if insert_after and parse_node:
+        norm_node["position"] = [parse_node["position"][0] + 180, parse_node["position"][1]]
+        inbound_exec = make_execute_workflow_node(SUBFLOW_INBOUND, parse_node["position"][0] + 400, parse_node["position"][1])
+        out["nodes"].append(inbound_exec)
+        meta["inserted_nodes"].append(inbound_exec["name"])
+        if_proceed = {
+            "parameters": {
+                "conditions": {
+                    "options": {"caseSensitive": True, "typeValidation": "strict"},
+                    "conditions": [
+                        {
+                            "id": "proceed-check",
+                            "leftValue": "={{ $json.proceed }}",
+                            "rightValue": True,
+                            "operator": {"type": "boolean", "operation": "true"},
+                        }
+                    ],
+                    "combinator": "and",
+                },
+                "options": {},
             },
-            "options": {},
-        },
-        "id": nid(),
-        "name": "Phase1 IF Proceed (not duplicate)",
-        "type": "n8n-nodes-base.if",
-        "typeVersion": 2,
-        "position": [640, 300],
-    }
-    out["nodes"].append(if_proceed)
-    meta["inserted_nodes"].append(if_proceed["name"])
-
-    conns.setdefault("Phase1 Normalize Inbound", {"main": [[{"node": SUBFLOW_INBOUND, "type": "main", "index": 0}]]})
-    conns[SUBFLOW_INBOUND] = {"main": [[{"node": "Phase1 IF Proceed (not duplicate)", "type": "main", "index": 0}]]}
-
-    if ai_node:
-        conns["Phase1 IF Proceed (not duplicate)"] = {
-            "main": [[{"node": ai_node["name"], "type": "main", "index": 0}], []]
+            "id": nid(),
+            "name": "Phase1 IF Proceed (not duplicate)",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [parse_node["position"][0] + 620, parse_node["position"][1]],
         }
+        out["nodes"].append(if_proceed)
+        meta["inserted_nodes"].append(if_proceed["name"])
+        old_targets = conns.get(insert_after, {}).get("main", [[]])
+        next_node = old_targets[0][0]["node"] if old_targets and old_targets[0] else (ai_node["name"] if ai_node else None)
+        conns[insert_after] = {"main": [[{"node": "Phase1 Normalize Inbound", "type": "main", "index": 0}]]}
+        conns["Phase1 Normalize Inbound"] = {"main": [[{"node": SUBFLOW_INBOUND, "type": "main", "index": 0}]]}
+        conns[SUBFLOW_INBOUND] = {"main": [[{"node": "Phase1 IF Proceed (not duplicate)", "type": "main", "index": 0}]]}
+        if next_node:
+            conns["Phase1 IF Proceed (not duplicate)"] = {
+                "main": [[{"node": next_node, "type": "main", "index": 0}], []]
+            }
+        meta["rewired"].append(f"{insert_after} -> Normalize -> Inbound Pipeline -> IF Proceed -> {next_node}")
+    else:
+        inbound_exec = make_execute_workflow_node(SUBFLOW_INBOUND, 420, 300)
+        out["nodes"].append(inbound_exec)
+        meta["inserted_nodes"].append(inbound_exec["name"])
 
-    triggers = (
-        find_nodes_by_type_suffix(out, "webhook")
-        + find_nodes_by_type_suffix(out, "telegramTrigger")
-        + find_nodes_by_type_suffix(out, "whatsAppTrigger")
-    )
-    for t in triggers:
-        tname = t["name"]
-        old_target = conns.get(tname, {}).get("main", [[]])[0][0]["node"] if conns.get(tname, {}).get("main", [[]]) and conns[tname]["main"][0] else None
-        conns[tname] = {"main": [[{"node": "Phase1 Normalize Inbound", "type": "main", "index": 0}]]}
-        if old_target:
-            meta["rewired"].append(f"{tname} -> Phase1 Normalize Inbound (was -> {old_target})")
+        if_proceed = {
+            "parameters": {
+                "conditions": {
+                    "options": {"caseSensitive": True, "typeValidation": "strict"},
+                    "conditions": [
+                        {
+                            "id": "proceed-check",
+                            "leftValue": "={{ $json.proceed }}",
+                            "rightValue": True,
+                            "operator": {"type": "boolean", "operation": "true"},
+                        }
+                    ],
+                    "combinator": "and",
+                },
+                "options": {},
+            },
+            "id": nid(),
+            "name": "Phase1 IF Proceed (not duplicate)",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [640, 300],
+        }
+        out["nodes"].append(if_proceed)
+        meta["inserted_nodes"].append(if_proceed["name"])
+
+        conns.setdefault("Phase1 Normalize Inbound", {"main": [[{"node": SUBFLOW_INBOUND, "type": "main", "index": 0}]]})
+        conns[SUBFLOW_INBOUND] = {"main": [[{"node": "Phase1 IF Proceed (not duplicate)", "type": "main", "index": 0}]]}
+
+        if ai_node:
+            conns["Phase1 IF Proceed (not duplicate)"] = {
+                "main": [[{"node": ai_node["name"], "type": "main", "index": 0}], []]
+            }
+
+        triggers = (
+            find_nodes_by_type_suffix(out, "webhook")
+            + find_nodes_by_type_suffix(out, "telegramTrigger")
+            + find_nodes_by_type_suffix(out, "whatsAppTrigger")
+            + find_nodes_by_type_suffix(out, "chatTrigger")
+        )
+        for t in triggers:
+            tname = t["name"]
+            old_target = conns.get(tname, {}).get("main", [[]])[0][0]["node"] if conns.get(tname, {}).get("main", [[]]) and conns[tname]["main"][0] else None
+            conns[tname] = {"main": [[{"node": "Phase1 Normalize Inbound", "type": "main", "index": 0}]]}
+            if old_target:
+                meta["rewired"].append(f"{tname} -> Phase1 Normalize Inbound (was -> {old_target})")
 
     if send_node:
         prepare_outbound = {
@@ -348,7 +405,7 @@ return [{ json: {
     settings["errorWorkflow"] = ERROR_HANDLER
     settings["executionOrder"] = settings.get("executionOrder", "v1")
 
-    base_name = out.get("name") or "Arcadia - Laila Telegram V5"
+    base_name = out.get("name") or "Laila Production"
     if "Phase1 Working" not in base_name:
         out["name"] = base_name + " Phase1 Working"
 

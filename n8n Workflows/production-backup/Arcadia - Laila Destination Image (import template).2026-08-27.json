@@ -1,0 +1,277 @@
+{
+  "updatedAt": "2026-08-27T21:56:28.970Z",
+  "createdAt": "2026-07-01T23:24:46.811Z",
+  "id": "Q0080shi2HWYVSsR",
+  "name": "Arcadia - Laila Destination Image (import template)",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "arcadia-laila-destination-image",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-laila-image",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "arcadia-laila-destination-image"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst rawText = (body.message || body.text || body.user_message || '').trim();\nconst phone = body.phone || body.from || null;\n\nlet dest = body.destination || null;\nlet code = (body.dest_code || body.destination_code || 'KZ').toUpperCase();\n\nconst CITY_MAP = {\n  'almaty': ['Almaty', 'KZ'],\n  'astana': ['Astana', 'KZ'], 'nursultan': ['Astana', 'KZ'],\n  'tashkent': ['Tashkent', 'UZ'],\n  'samarkand': ['Samarkand', 'UZ'],\n  'bishkek': ['Bishkek', 'KG']\n};\n\nif (!dest && rawText) {\n  const lower = rawText.toLowerCase();\n  for (const [key, [city, c]] of Object.entries(CITY_MAP)) {\n    if (lower.includes(key)) {\n      dest = city;\n      code = c;\n      break;\n    }\n  }\n}\n\nconst VISUAL_RE = /(picture|photo|image|show me|see|visual|\\u0635\\u0648\\u0631\\u0629|\\u0635\\u0648\\u0631|\\u0634\\u0648\\u0641|\\u0639\\u0631\\u0636)/iu;\nconst explicitToolCall = !!(body.destination && (body.dest_code || body.destination_code));\nconst wantsVisual = body.force === true || body.generate_image === true || explicitToolCall || VISUAL_RE.test(rawText);\n\nif (!dest) dest = 'Almaty';\n\nconst regions = { KZ: 'Kazakhstan', UZ: 'Uzbekistan', KG: 'Kyrgyzstan', TJ: 'Tajikistan' };\nconst region = regions[code] || 'Central Asia';\nconst prompt = body.prompt || `Professional travel marketing photo of ${dest}, ${region}, mountain skyline, golden hour, photorealistic tourism brochure, no text, no watermark`;\n\nreturn [{\n  json: {\n    phone,\n    destination: dest,\n    dest_code: code,\n    prompt,\n    wants_visual: wantsVisual,\n    user_message: rawText,\n    skip: !wantsVisual && !body.force\n  }\n}];"
+      },
+      "id": "parse-laila-request",
+      "name": "Parse Laila Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-should-generate",
+      "name": "Should Generate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, skipped: true, reason: 'No visual intent detected - Laila should reply with text only' } }}",
+        "options": {}
+      },
+      "id": "respond-skip",
+      "name": "Respond Skip",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/flux/schnell",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.prompt }}\",\n  \"image_size\": \"landscape_4_3\",\n  \"num_images\": 1,\n  \"enable_safety_checker\": true\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "fal-laila-image",
+      "name": "Fal Generate Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        240
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wvIvnVPgtK6IANGR",
+          "name": "Arcadia Fal API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fal = $input.first().json;\nconst prev = $('Parse Laila Request').first().json;\nconst url = fal.images?.[0]?.url;\nif (!url) throw new Error('No image URL from Fal');\n\nconst cityAr = { Almaty: '??????', Astana: '??????', Tashkent: '?????', Samarkand: '??????', Bishkek: '???kek' }[prev.destination] || prev.destination;\n\nreturn [{\n  json: {\n    ok: true,\n    destination: prev.destination,\n    destination_ar: cityAr,\n    dest_code: prev.dest_code,\n    image_url: url,\n    whatsapp_caption: `??? ${cityAr} - Arcadia Tours\\n${url}`,\n    laila_reply_hint: `???? ??????: \"???? ???? ${cityAr}!\" ?? ???? ?????? ?? ???? ??????`,\n    model: 'fal-ai/flux/schnell',\n    phone: prev.phone\n  }\n}];"
+      },
+      "id": "format-laila-response",
+      "name": "Format Laila Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-laila-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        240
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Laila Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Laila Request": {
+      "main": [
+        [
+          {
+            "node": "Should Generate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Generate?": {
+      "main": [
+        [
+          {
+            "node": "Fal Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fal Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Format Laila Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Laila Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "a7ac71d5-d88a-480f-a160-36227d438ef2",
+  "versionCounter": 19,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-07-01T23:24:46.813Z",
+      "createdAt": "2026-07-01T23:24:46.813Z",
+      "role": "workflow:owner",
+      "workflowId": "Q0080shi2HWYVSsR",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

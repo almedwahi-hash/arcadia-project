@@ -1,0 +1,671 @@
+{
+  "updatedAt": "2026-07-02T23:42:35.971Z",
+  "createdAt": "2026-07-02T00:37:19.467Z",
+  "id": "4xx4gHfxOTb4g41s",
+  "name": "Arcadia — Fal Image → Supabase → WordPress",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "arcadia-fal-wp-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-wp-sync",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "arcadia-fal-wp-sync"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst dest = body.destination || 'Almaty';\nconst code = (body.dest_code || 'KZ').toUpperCase();\n\n// Map to WP page IDs — keep in sync with config/destinations.json\nconst WP_MAP = {\n  almaty: { page_id: 755, alt_ar: 'جبال ألماتي كازاخستان - أركاديا السياحية', name: 'Almaty' },\n  astana: { page_id: 755, alt_ar: 'أبراج أستانا كازاخستان - أركاديا السياحية', name: 'Astana' },\n  kazakhstan: { page_id: 755, alt_ar: 'سياحة في كازاخستان ألماتي - أركاديا السياحية', name: 'Kazakhstan' },\n  tashkent: { page_id: 157, alt_ar: 'طشقند أوزبكستان - أركاديا السياحية', name: 'Tashkent' },\n  samarkand: { page_id: 157, alt_ar: 'ساحة ريجستان سمرقند - أركاديا السياحية', name: 'Samarkand' },\n  uzbekistan: { page_id: 157, alt_ar: 'سياحة في سمرقند وبخارى - أركاديا السياحية', name: 'Uzbekistan' },\n  russia: { page_id: 153, alt_ar: 'سياحة في موسكو وسانت بطرسبرغ - أركاديا السياحية', name: 'Russia' },\n  poland: { page_id: 155, alt_ar: 'سياحة في بولندا كراكوف ووارسو - أركاديا السياحية', name: 'Poland' },\n  china: { page_id: 3359, alt_ar: 'سياحة في الصين مع مرافق عربي - أركاديا السياحية', name: 'China' },\n};\n\nconst key = dest.toLowerCase().replace(/[^a-z]/g, '');\nconst mapped = WP_MAP[key] || WP_MAP.almaty;\nconst regions = { KZ: 'Kazakhstan', UZ: 'Uzbekistan', KG: 'Kyrgyzstan', RU: 'Russia', PL: 'Poland', CN: 'China' };\nconst region = regions[code] || 'Central Asia';\nconst prompt = body.prompt || `Professional travel marketing photo of ${mapped.name}, ${region}, golden hour, photorealistic, no text, no watermark`;\nconst skipWp = Boolean(body.skip_wp);\nconst skipSupabase = Boolean(body.skip_supabase);\n\nreturn [{ json: {\n  destination: mapped.name,\n  dest_code: code,\n  prompt,\n  wp_page_id: body.wp_page_id || mapped.page_id,\n  image_alt_ar: mapped.alt_ar,\n  skip_wp: skipWp,\n  skip_supabase: skipSupabase,\n  image_url: body.image_url || null\n}}];"
+      },
+      "id": "build-request",
+      "name": "Build Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-url",
+              "leftValue": "={{ $json.image_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-has-url",
+      "name": "Has image_url?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/flux/schnell",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"{{ $json.prompt }}\",\n  \"image_size\": \"landscape_4_3\",\n  \"num_images\": 1,\n  \"enable_safety_checker\": true\n}",
+        "options": {}
+      },
+      "id": "fal-generate",
+      "name": "Fal Generate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        420
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wvIvnVPgtK6IANGR",
+          "name": "Arcadia Fal API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prev = $('Build Request').first().json;\nconst fal = $input.first().json;\nconst url = prev.image_url || fal.images?.[0]?.url;\nif (!url) throw new Error('No image URL');\nreturn [{ json: { ...prev, image_url: url, width: fal.images?.[0]?.width, height: fal.images?.[0]?.height } }];"
+      },
+      "id": "resolve-url",
+      "name": "Resolve Image URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.image_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "download-image",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prev = $('Resolve Image URL').first().json;\nconst item = $input.first();\nconst binary = item.binary?.data;\nif (!binary) throw new Error('No binary image data');\nconst slug = prev.destination.toLowerCase().replace(/[^a-z0-9]+/g, '-');\nconst fileName = `${slug}-hero.jpg`;\nreturn [{ json: { ...prev, supabase_object: `destinations/${fileName}` }, binary: { data: binary } }];"
+      },
+      "id": "prep-upload",
+      "name": "Prep Upload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-sb",
+              "leftValue": "={{ $json.skip_supabase }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-supabase",
+      "name": "Upload Supabase?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://xfibcjhshpmqkrhlpsoa.supabase.co/storage/v1/object/generated-media/{{ $json.supabase_object }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            },
+            {
+              "name": "x-upsert",
+              "value": "true"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "supabase-upload",
+      "name": "Supabase Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CONFIGURE_SUPABASE",
+          "name": "Supabase service role (Authorization Bearer + apikey)"
+        }
+      },
+      "notes": "Replace YOUR_PROJECT_REF with Supabase project ref from dashboard"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prev = $('Prep Upload').first().json;\nconst sbUrl = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/storage/v1/object/public/generated-media/' + prev.supabase_object;\nreturn [{ json: { ...prev, supabase_url: sbUrl }, binary: $('Prep Upload').first().binary }];"
+      },
+      "id": "after-supabase",
+      "name": "After Supabase",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2220,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const prev = $('Prep Upload').first().json;\nreturn [{ json: { ...prev, supabase_url: null }, binary: $('Prep Upload').first().binary }];"
+      },
+      "id": "skip-supabase-pass",
+      "name": "Skip Supabase Pass",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-wp",
+              "leftValue": "={{ $json.skip_wp }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-wp",
+      "name": "Sync WordPress?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://arcadia-tour.com/wp-json/wp/v2/media",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename=\"{{ $json.destination.toLowerCase() }}-hero.jpg\""
+            },
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "wp-upload-media",
+      "name": "WP Upload Media",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2660,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      },
+      "notes": "Credential: Authorization = Basic base64(user:app_password). Or use existing WordPress Arcadia credential."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://arcadia-tour.com/wp-json/wp/v2/pages/{{ $('Prep Upload').first().json.wp_page_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"featured_media\": {{ $json.id }}, \"meta\": { \"arcadia_hero_cdn_url\": \"{{ $('Prep Upload').first().json.supabase_url || $('Prep Upload').first().json.image_url }}\", \"arcadia_hero_media_id\": \"{{ $json.id }}\", \"arcadia_hero_alt_ar\": \"{{ $('Prep Upload').first().json.image_alt_ar }}\" } }",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "id": "wp-set-featured",
+      "name": "WP Set Featured",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prep Upload').first().json;\nconst media = $('WP Upload Media').first().json;\nconst page = $input.first().json;\nreturn [{ json: {\n  ok: true,\n  destination: prep.destination,\n  wp_page_id: prep.wp_page_id,\n  image_url: prep.image_url,\n  supabase_url: prep.supabase_url,\n  wp_media_id: media.id,\n  wp_media_url: media.source_url,\n  wp_page_link: page.link,\n  image_alt_ar: prep.image_alt_ar\n}}];"
+      },
+      "id": "format-wp-response",
+      "name": "Format WP Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        200
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prep Upload').first().json;\nreturn [{ json: {\n  ok: true,\n  destination: prep.destination,\n  image_url: prep.image_url,\n  supabase_url: prep.supabase_url,\n  wp_skipped: true,\n  note: 'Pass skip_wp:false to attach featured image'\n}}];"
+      },
+      "id": "format-no-wp",
+      "name": "Format No WP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        400
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        3320,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Request": {
+      "main": [
+        [
+          {
+            "node": "Has image_url?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has image_url?": {
+      "main": [
+        [
+          {
+            "node": "Resolve Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fal Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fal Generate": {
+      "main": [
+        [
+          {
+            "node": "Resolve Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Image URL": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Prep Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Upload": {
+      "main": [
+        [
+          {
+            "node": "Upload Supabase?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Supabase?": {
+      "main": [
+        [
+          {
+            "node": "Supabase Upload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Supabase Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Upload": {
+      "main": [
+        [
+          {
+            "node": "After Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "After Supabase": {
+      "main": [
+        [
+          {
+            "node": "Sync WordPress?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Supabase Pass": {
+      "main": [
+        [
+          {
+            "node": "Sync WordPress?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync WordPress?": {
+      "main": [
+        [
+          {
+            "node": "WP Upload Media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format No WP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WP Upload Media": {
+      "main": [
+        [
+          {
+            "node": "WP Set Featured",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WP Set Featured": {
+      "main": [
+        [
+          {
+            "node": "Format WP Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format WP Response": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format No WP": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "3c4350a0-5662-4fbb-9a02-fb7071120d22",
+  "versionCounter": 24,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-07-02T00:37:19.469Z",
+      "createdAt": "2026-07-02T00:37:19.469Z",
+      "role": "workflow:owner",
+      "workflowId": "4xx4gHfxOTb4g41s",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

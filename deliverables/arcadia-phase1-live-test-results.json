@@ -1,0 +1,57 @@
+{
+  "finished_at": "2026-08-27T22:07:14.691996+00:00",
+  "status": "partial_closure_pending_user_approval",
+  "error_handler_test": {
+    "test_execution_id": "59389",
+    "error_handler_execution_id": "59390",
+    "error_handler_execution_status": "success"
+  },
+  "laila_inbound_scenarios": [
+    {
+      "scenario": "new_customer",
+      "ok": true,
+      "execution_id": "59391"
+    },
+    {
+      "scenario": "existing_customer",
+      "ok": true,
+      "execution_id": "59393"
+    },
+    {
+      "scenario": "duplicate_whatsapp",
+      "ok": true,
+      "execution_id": "59395",
+      "stop_reason": "duplicate_provider_message_id"
+    },
+    {
+      "scenario": "missing_provider_id",
+      "ok": true,
+      "execution_id": "59397"
+    },
+    {
+      "scenario": "pricing_success",
+      "ok": null,
+      "note": "Requires Laila Working Copy activation"
+    },
+    {
+      "scenario": "manual_quote",
+      "ok": null,
+      "note": "Requires Laila Working Copy activation"
+    },
+    {
+      "scenario": "send_failure",
+      "ok": null,
+      "note": "Requires Laila Working Copy activation"
+    },
+    {
+      "scenario": "ai_node_failure",
+      "ok": null,
+      "note": "Requires Laila Working Copy activation"
+    }
+  ],
+  "notes": [
+    "Central Error Handler active; test workflows deactivated after run",
+    "Laila V4 Working Copy remains INACTIVE pending user approval",
+    "Pricing path: Decision Engine webhook to web chat Laila; quote_options canonical RPC on web chat tools"
+  ]
+}

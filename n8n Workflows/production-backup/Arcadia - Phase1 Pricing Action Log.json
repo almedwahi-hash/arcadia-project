@@ -1,5 +1,10 @@
 {
+  "updatedAt": "2026-08-27T21:59:06.859Z",
+  "createdAt": "2026-08-27T21:55:53.885Z",
+  "id": "cexPtUwwgao3Abtd",
   "name": "Arcadia - Phase1 Pricing Action Log",
+  "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {},
@@ -60,7 +65,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/agent_actions",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/agent_actions",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
@@ -74,7 +79,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { agent_name: $json.agent_name, action_type: $json.action_type, lead_id: $json.lead_id, customer_id: $json.customer_id, source_channel: $json.source_channel, input_summary: $json.input_summary, output_summary: $json.output_summary, status: $json.status, metadata: $json.metadata } }}",
+        "jsonBody": "={{ JSON.stringify({ agent_name: $json.agent_name, action_type: $json.action_type, lead_id: $json.lead_id, customer_id: $json.customer_id, source_channel: $json.source_channel, input_summary: $json.input_summary, output_summary: $json.output_summary, status: $json.status, metadata: $json.metadata }) }}",
         "options": {}
       },
       "id": "p1-price-insert",
@@ -84,8 +89,7 @@
       "position": [
         660,
         120
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
@@ -171,9 +175,72 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "errorWorkflow": "Arcadia - Central Error Handler"
+    "errorWorkflow": "Arcadia - Central Error Handler",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "meta": {
-    "description": "Logs agent_actions for get_price success/failure only. Does NOT change pricing RPC logic — wire after existing pricing node in Laila."
-  }
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "63c06a5a-52a4-4956-937d-d8b44bec6190",
+  "versionCounter": 3,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T21:55:53.888Z",
+      "createdAt": "2026-08-27T21:55:53.888Z",
+      "role": "workflow:owner",
+      "workflowId": "cexPtUwwgao3Abtd",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
 }

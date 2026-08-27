@@ -1,12 +1,15 @@
 {
+  "updatedAt": "2026-08-27T21:59:03.607Z",
+  "createdAt": "2026-08-27T21:55:50.177Z",
+  "id": "nztIELsQqVpdDVua",
   "name": "Arcadia - Phase1 Inbound Pipeline",
+  "active": false,
+  "isArchived": false,
   "nodes": [
     {
-      "parameters": {
-        "inputSource": "passthrough"
-      },
+      "parameters": {},
       "id": "p1-inbound-trigger",
-      "name": "When Executed by Another Workflow",
+      "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
@@ -62,7 +65,9 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/lead_interactions",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/lead_interactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -84,24 +89,7 @@
             }
           ]
         },
-        "options": {},
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        }
+        "options": {}
       },
       "id": "p1-dedupe-check",
       "name": "Dedupe Check (pre-insert)",
@@ -111,13 +99,12 @@
         660,
         200
       ],
-      "notes": "Pre-check before AI — UNIQUE index is secondary race protection only.",
-      "alwaysOutputData": true
+      "notes": "Pre-check before AI — UNIQUE index is secondary race protection only."
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const rows = $input.first().json;\nconst prev = $('Phase1 Prepare Inbound').first().json;\nconst duplicate = (Array.isArray(rows) && rows.length > 0) || !!(rows && rows.interaction_id);\nif (duplicate) {\n  return [{ json: { ...prev, proceed: false, stop_reason: 'duplicate_provider_message_id' } }];\n}\nreturn [{ json: { ...prev, proceed: true } }];"
+        "jsCode": "const rows = $input.first().json;\nconst prev = $('Phase1 Prepare Inbound').first().json;\nconst duplicate = Array.isArray(rows) && rows.length > 0;\nif (duplicate) {\n  return [{ json: { ...prev, proceed: false, stop_reason: 'duplicate_provider_message_id' } }];\n}\nreturn [{ json: { ...prev, proceed: true } }];"
       },
       "id": "p1-eval-dedupe",
       "name": "Evaluate Dedupe",
@@ -176,7 +163,9 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/customers",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/customers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -194,24 +183,7 @@
             }
           ]
         },
-        "options": {},
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        }
+        "options": {}
       },
       "id": "p1-get-customer",
       "name": "Get Customer By Phone",
@@ -220,13 +192,12 @@
       "position": [
         1320,
         300
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const rows = $input.first().json;\nconst ctx = $('Phase1 Prepare Inbound').first().json;\nlet customerId = null;\nif (Array.isArray(rows) && rows[0]?.customer_id) customerId = rows[0].customer_id;\nelse if (rows?.customer_id) customerId = rows.customer_id;\nreturn [{ json: { ...ctx, customer_id: customerId, need_create_customer: !customerId } }];"
+        "jsCode": "const rows = $input.first().json;\nconst ctx = $('IF Proceed After Dedupe').first()?.json || $('Skip Dedupe (no provider id)').first()?.json || $('Phase1 Prepare Inbound').first().json;\nlet customerId = null;\nif (Array.isArray(rows) && rows[0]?.customer_id) customerId = rows[0].customer_id;\nreturn [{ json: { ...ctx, customer_id: customerId, need_create_customer: !customerId } }];"
       },
       "id": "p1-parse-customer",
       "name": "Parse Customer Lookup",
@@ -271,31 +242,21 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/customers",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/customers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Prefer",
               "value": "return=representation"
-            },
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { phone: $json.phase1.phone } }}",
+        "jsonBody": "={{ JSON.stringify({ phone: $json.phase1.phone }) }}",
         "options": {}
       },
       "id": "p1-create-customer",
@@ -305,8 +266,7 @@
       "position": [
         1980,
         200
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
@@ -325,7 +285,9 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/leads",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -343,24 +305,7 @@
             }
           ]
         },
-        "options": {},
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        }
+        "options": {}
       },
       "id": "p1-get-lead",
       "name": "Get Lead By Phone",
@@ -369,13 +314,12 @@
       "position": [
         2420,
         300
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const rows = $input.first().json;\nconst ctx = $('Merge Customer Id').first().json;\nlet lead = null;\nif (Array.isArray(rows) && rows[0]) lead = rows[0];\nelse if (rows?.lead_id) lead = rows;\nreturn [{ json: { ...ctx, lead, need_create_lead: !lead } }];"
+        "jsCode": "const rows = $input.first().json;\nconst ctx = $('Merge Customer Id').first().json;\nlet lead = Array.isArray(rows) && rows[0] ? rows[0] : null;\nreturn [{ json: { ...ctx, lead, need_create_lead: !lead } }];"
       },
       "id": "p1-parse-lead",
       "name": "Parse Lead Lookup",
@@ -420,31 +364,21 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/leads",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Prefer",
               "value": "return=representation"
-            },
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { phone: $json.phase1.phone, customer_id: $json.customer_id, source: $json.phase1.channel, stage: 'new' } }}",
+        "jsonBody": "={{ JSON.stringify({ phone: $json.phase1.phone, customer_id: $json.customer_id, source: $json.phase1.channel, stage: 'new' }) }}",
         "options": {}
       },
       "id": "p1-create-lead",
@@ -454,8 +388,7 @@
       "position": [
         3080,
         200
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
@@ -474,7 +407,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const j = $input.first().json;\nconst lead = j.lead || {};\nlet conversationId = lead.conversation_id || null;\nlet patchLead = false;\nfunction uuidv4() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\nif (!conversationId) {\n  conversationId = uuidv4();\n  patchLead = true;\n}\nconst patchBody = {};\nif (patchLead) patchBody.conversation_id = conversationId;\nif (!lead.customer_id && j.customer_id) patchBody.customer_id = j.customer_id;\nreturn [{ json: {\n  ...j,\n  lead_id: lead.lead_id,\n  customer_id: j.customer_id || lead.customer_id,\n  conversation_id: conversationId,\n  patch_lead: patchLead || Object.keys(patchBody).length > 0,\n  patch_body: patchBody\n}}];"
+        "jsCode": "const j = $input.first().json;\nconst lead = j.lead || {};\nlet conversationId = lead.conversation_id || null;\nlet patchLead = false;\nif (!conversationId) {\n  conversationId = crypto.randomUUID();\n  patchLead = true;\n}\nconst patchBody = {};\nif (patchLead) patchBody.conversation_id = conversationId;\nif (!lead.customer_id && j.customer_id) patchBody.customer_id = j.customer_id;\nreturn [{ json: {\n  ...j,\n  lead_id: lead.lead_id,\n  customer_id: j.customer_id || lead.customer_id,\n  conversation_id: conversationId,\n  patch_lead: patchLead || Object.keys(patchBody).length > 0,\n  patch_body: patchBody\n}}];"
       },
       "id": "p1-ensure-conversation",
       "name": "Ensure conversation_id",
@@ -519,31 +452,21 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/leads?lead_id=eq.' + $json.lead_id }}",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/leads?lead_id=eq.{{ $json.lead_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Prefer",
               "value": "return=representation"
-            },
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ $json.patch_body }}",
+        "jsonBody": "={{ JSON.stringify($json.patch_body) }}",
         "options": {}
       },
       "id": "p1-patch-lead",
@@ -553,37 +476,26 @@
       "position": [
         3960,
         200
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
         "method": "POST",
-        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/lead_interactions",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/lead_interactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Prefer",
               "value": "return=representation"
-            },
-            {
-              "name": "apikey",
-              "value": "eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Authorization",
-              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { lead_id: $json.lead_id, customer_id: $json.customer_id, conversation_id: $json.conversation_id, channel: $json.phase1.channel, direction: 'inbound', role: 'user', message_type: $json.phase1.message_type, message_text: $json.phase1.message_text, provider_message_id: $json.phase1.provider_message_id, metadata: $json.phase1.metadata || {} } }}",
+        "jsonBody": "={{ JSON.stringify({ lead_id: $json.lead_id, customer_id: $json.customer_id, conversation_id: $json.conversation_id, channel: $json.phase1.channel, direction: 'inbound', role: 'user', message_type: $json.phase1.message_type, message_text: $json.phase1.message_text, provider_message_id: $json.phase1.provider_message_id, metadata: $json.phase1.metadata || {} }) }}",
         "options": {}
       },
       "id": "p1-insert-inbound",
@@ -593,8 +505,7 @@
       "position": [
         4180,
         300
-      ],
-      "alwaysOutputData": true
+      ]
     },
     {
       "parameters": {
@@ -626,7 +537,7 @@
     }
   ],
   "connections": {
-    "When Executed by Another Workflow": {
+    "Execute Workflow Trigger": {
       "main": [
         [
           {
@@ -895,9 +806,72 @@
   },
   "settings": {
     "executionOrder": "v1",
-    "errorWorkflow": "59ul6YkPVThk7e4U"
+    "errorWorkflow": "Arcadia - Central Error Handler",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
-  "meta": {
-    "description": "Phase 1 inbound: provider_message_id dedupe pre-check, customer/lead upsert, conversation_id reuse, inbound lead_interactions BEFORE AI. Import before Laila Phase1 Working copy."
-  }
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "ce7d677f-6561-4f02-8e7e-27c5428af289",
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T21:55:50.181Z",
+      "createdAt": "2026-08-27T21:55:50.181Z",
+      "role": "workflow:owner",
+      "workflowId": "nztIELsQqVpdDVua",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
 }

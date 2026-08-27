@@ -1,53 +1,40 @@
 {
   "patched": true,
   "warnings": [
-    "Pricing node TOOL:get_price had no downstream — wire manually after Pricing Action Log"
+    "Pricing node not found — wire Phase1 Pricing Action Log manually after get_price"
   ],
   "inserted_nodes": [
     "Phase1 Normalize Inbound",
     "Arcadia - Phase1 Inbound Pipeline",
     "Phase1 IF Proceed (not duplicate)",
     "Phase1 Prepare Outbound",
-    "Arcadia - Phase1 Outbound Log",
-    "Phase1 Prepare Pricing Action",
-    "Arcadia - Phase1 Pricing Action Log"
+    "Arcadia - Phase1 Outbound Log"
   ],
   "rewired": [
-    "WhatsApp Webhook -> Phase1 Normalize Inbound (was -> AI Agent)",
-    "Telegram Trigger -> Phase1 Normalize Inbound (was -> AI Agent)",
-    "Send Message success -> Phase1 Prepare Outbound -> Outbound Log"
+    "Parse + CRM -> Normalize -> Inbound Pipeline -> IF Proceed -> Decision Engine",
+    "Send WhatsApp success -> Phase1 Prepare Outbound -> Outbound Log"
   ],
   "pricing_path": {
     "nodes": [
       {
-        "name": "TOOL:get_price",
-        "type": "n8n-nodes-base.httpRequest"
-      },
-      {
-        "name": "Phase1 Prepare Pricing Action",
+        "name": "Decision Engine",
         "type": "n8n-nodes-base.code"
-      },
-      {
-        "name": "Arcadia - Phase1 Pricing Action Log",
-        "type": "n8n-nodes-base.executeWorkflow"
       }
     ],
-    "urls": [
-      "TOOL:get_price"
+    "urls": [],
+    "rpc_calls": [],
+    "webhook_wrappers": [
+      "Decision Engine"
     ],
-    "rpc_calls": [
-      "quote_options"
-    ],
-    "webhook_wrappers": [],
-    "canonical_entry_point": "quote_options",
+    "canonical_entry_point": "webhook wrapper: Decision Engine",
     "notes": [
-      "Keep quote_options as canonical — quote_package has overload ambiguity in Postgres."
+      "Document wrapper URL; do not change calculation path in Phase 1."
     ]
   },
   "source_nodes": {
-    "ai_agent": "AI Agent",
-    "send_node": "Send Message",
-    "pricing_node": "TOOL:get_price",
-    "first_after_trigger_before_patch": "AI Agent"
+    "ai_agent": "Decision Engine",
+    "send_node": "Send WhatsApp",
+    "pricing_node": null,
+    "first_after_trigger_before_patch": "Respond 200"
   }
 }

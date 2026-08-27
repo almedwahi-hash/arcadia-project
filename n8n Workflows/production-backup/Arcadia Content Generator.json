@@ -1,0 +1,426 @@
+{
+  "updatedAt": "2026-07-02T23:42:35.036Z",
+  "createdAt": "2026-03-30T20:46:57.070Z",
+  "id": "kwvgnGUzi6kAz0em",
+  "name": "Arcadia Content Generator",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "cron-main",
+      "name": "Daily Cron 8AM",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-gen-run",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        180
+      ],
+      "id": "wh-trigger",
+      "name": "Manual Trigger",
+      "webhookId": "content-gen-run"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.item.json;\nconst body = input.body || input;\nconst overrideDest = body.destination || body.country || body.dest || '';\n\n\nif (overrideDest) {\n  const destConfig = {\n    'كازاخستان': { gradient: 'linear-gradient(180deg,#2980b9,#1a5276 40%,#0f1a2e)', ua: true, en: 'Kazakhstan' },\n    'روسيا':     { gradient: 'linear-gradient(180deg,#1a2744,#162038 40%,#0f1a2e)', ua: false, en: 'Russia' },\n    'بولندا':    { gradient: 'linear-gradient(180deg,#1a6b3c,#1a3c34 40%,#0f1a2e)', ua: true, en: 'Poland' },\n    'أوزبكستان': { gradient: 'linear-gradient(180deg,#4a2366,#2c1a44 40%,#0f1a2e)', ua: true, en: 'Uzbekistan' },\n  };\n  const cfg = destConfig[overrideDest] || destConfig['كازاخستان'];\n  return [{ json: {\n    destination: overrideDest,\n    content_type: 'scenic',\n    badge: '📸 Fal Poster',\n    gradient: cfg.gradient,\n    show_ua_phone: cfg.ua,\n    platform: 'instagram',\n    dest_en: cfg.en,\n  }}];\n}\n\nconst schedule = [\n  { day: 6, destination: 'كازاخستان', content_type: 'offer',       badge: '💰 عرض خاص'            },\n  { day: 0, destination: 'روسيا',     content_type: 'did_you_know', badge: '🧠 هل تعلم؟'            },\n  { day: 1, destination: 'بولندا',    content_type: 'travel_tip',   badge: '✈️ نصيحة سفر'           },\n  { day: 2, destination: 'أوزبكستان', content_type: 'scenic',       badge: '📸 جمال الطبيعة'         },\n  { day: 3, destination: 'كازاخستان', content_type: 'offer',        badge: '💰 عرض خاص'            },\n  { day: 4, destination: 'كازاخستان', content_type: 'interactive',  badge: '💬 سؤال للجمهور'         },\n  { day: 5, destination: 'روسيا',     content_type: 'services',     badge: '🌟 خدماتنا'             },\n];\n\nconst inp = $input.item.json.body || $input.item.json;\nconst overrideCountry = inp.destination || inp.country || inp.dest || '';\nif (overrideCountry) {\n  const cfg = destConfig[overrideCountry] || destConfig['كازاخستان'];\n  return [{ json: {\n    destination: overrideCountry,\n    content_type: inp.content_type || 'scenic',\n    badge: inp.badge || '📸 بوستر Fal',\n    gradient: cfg.gradient,\n    show_ua_phone: cfg.ua,\n    platform: 'instagram',\n  }}];\n}\n\nconst today = new Date().getDay();\nconst slot = schedule.find(s => s.day === today) || schedule[0];\n\n// Destinations config\nconst destConfig = {\n  'كازاخستان': { gradient: 'linear-gradient(180deg,#2980b9,#1a5276 40%,#0f1a2e)', ua: true  },\n  'روسيا':     { gradient: 'linear-gradient(180deg,#1a2744,#162038 40%,#0f1a2e)', ua: false },\n  'بولندا':    { gradient: 'linear-gradient(180deg,#1a6b3c,#1a3c34 40%,#0f1a2e)', ua: true  },\n  'أوزبكستان': { gradient: 'linear-gradient(180deg,#4a2366,#2c1a44 40%,#0f1a2e)', ua: true  },\n};\nconst cfg = destConfig[slot.destination] || destConfig['كازاخستان'];\n\nreturn [{ json: {\n  destination: slot.destination,\n  content_type: slot.content_type,\n  badge: slot.badge,\n  gradient: cfg.gradient,\n  show_ua_phone: cfg.ua,\n  platform: 'instagram',\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        0
+      ],
+      "id": "pick-1",
+      "name": "Pick Destination & Type"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$input.item.json, price_context: '' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        0
+      ],
+      "id": "fetch-simple",
+      "name": "Fetch Price from Supabase"
+    },
+    {
+      "parameters": {
+        "model": "models/gemini-1.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        260,
+        200
+      ],
+      "id": "gemini-cap",
+      "name": "Gemini Pro Caption",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "OKaZN82yvYGLYQXY",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=أنت مدير محتوى سياحي إبداعي لشركة أركاديا للسياحة.\n\nالوجهة: {{ $json.destination }}\nنوع المحتوى: {{ $json.content_label }}\n{{ $json.price_context ? 'السعر المرجعي: ' + $json.price_context : '' }}\nاليوم في الأسبوع: {{ $json.day_name || 'عشوائي' }}\n\nاختر mode واحد بشكل عشوائي من: offer / discovery / info / hook / luxury\n\nقواعد كل mode:\n- offer: يشمل سعر + CTA قوي (احجز الآن) + إحساس بالفرصة\n- discovery: بدون سعر + نص عاطفي + تجربة وإحساس + CTA ناعم (اكتشف معنا)\n- info: معلومة مفيدة أو حقيقة عن الوجهة + نبرة تعليمية + بدون سعر\n- hook: سؤال أو فضول في العنوان (هل تعلم؟ / ليش؟ / ماذا لو؟) + بدون سعر\n- luxury: نص مختصر وراقٍ + بدون سعر + بدون CTA أحياناً + إحساس بالحصرية\n\nأرجع JSON فقط بدون أي نص خارجه:\n{\n  \"mode\": \"اختر: offer | discovery | info | hook | luxury\",\n  \"title\": \"اسم الوجهة بالعربي\",\n  \"subtitle\": \"جملة واحدة تعبّر عن روح الـ mode المختار\",\n  \"highlight\": \"عبارة للصندوق الأصفر — فارغة في luxury و hook\",\n  \"price\": \"السعر إذا كان offer فقط — فارغ في باقي الـ modes\",\n  \"cta\": \"نص الزر — فارغ في luxury أحياناً وفي info\",\n  \"caption_ar\": \"نص Instagram 3-4 أسطر متناسق مع الـ mode، emoji مناسبة، لا تأشيرات\",\n  \"hashtags\": \"#{{ $json.destination }}_السياحة #أركاديا_للسياحة #سفر #{{ $json.dest_en }}\",\n  \"image_prompt\": \"Ultra realistic cinematic [وصف مشهد حقيقي ومميز من {{ $json.dest_en }} يناسب الـ mode]، dramatic lighting، golden hour، 8k wide angle، professional travel photography، no text، no watermark، clean sky، sharp details\"\n}\n\nمهم: لا تكرر نفس الـ mode مرتين متتاليتين. النص يجب أن يكون مختلفاً وجذاباً كل مرة.",
+        "options": {
+          "systemMessage": "أنت مدير محتوى سياحي إبداعي لأركاديا. وجهاتنا: كازاخستان، روسيا، بولندا، أوزبكستان فقط. أرجع JSON فقط. لا تذكر تأشيرات."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        260,
+        0
+      ],
+      "id": "write-cap",
+      "name": "Write Caption"
+    },
+    {
+      "id": "parse-caption-v3",
+      "name": "Parse Caption JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\nconst raw = $input.item.json.text || $input.item.json.response || '';\nlet d = {};\ntry { const m = raw.match(/\\{[\\s\\S]*\\}/); if(m) d = JSON.parse(m[0]); } catch(e) {}\n\nconst pick = $('Pick Destination & Type').item.json;\nconst dest = d.destination || pick.destination || 'كازاخستان';\nconst mode = d.mode || 'discovery';\n\nreturn [{ json: {\n  destination:  dest,\n  mode:         mode,\n  title:        d.title        || dest,\n  subtitle:     d.subtitle     || '',\n  highlight:    (mode === 'luxury' || mode === 'hook') ? '' : (d.highlight || ''),\n  price:        mode === 'offer' ? (d.price || '') : '',\n  cta:          (mode === 'info' || (mode === 'luxury' && !d.cta)) ? '' : (d.cta || ''),\n  caption_ar:   d.caption_ar   || '',\n  hashtags:     d.hashtags     || '',\n  country:      pick.dest_en   || 'Destination',\n  image_prompt: d.image_prompt || ('Ultra realistic cinematic ' + (pick.dest_en||'destination') + ' landscape, golden hour, 8K, no text, no watermark'),\n}}];\n"
+      }
+    },
+    {
+      "id": "bip1",
+      "name": "Build Image Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\nconst p = $input.item.json;\nlet prompt = p.image_prompt || '';\nconst kws = ['ultra realistic','8k','no text','no watermark'];\nkws.forEach(k=>{ if(!prompt.toLowerCase().includes(k.replace(' ',''))) prompt+=', '+k; });\nif(prompt.split(' ').length < 20)\n  prompt += ', cinematic lighting, golden hour, wide angle, sharp details, professional travel photography';\n\n// Mode-based prompt enhancement\nconst mode = p.mode || 'discovery';\nconst modeExtra = {\n  offer:     ', vibrant colors, energetic atmosphere, sunny bright',\n  discovery: ', mysterious atmosphere, dreamy light, breathtaking view',\n  info:      ', clear daylight, sharp architectural details, informative scene',\n  hook:      ', surprising unusual angle, dramatic composition, eye-catching',\n  luxury:    ', ultra premium minimalist, perfect composition, magazine cover quality'\n};\nif(modeExtra[mode]) prompt += modeExtra[mode];\n\nreturn [{ json: { ...p, image_prompt: prompt.trim() } }];\n"
+      }
+    },
+    {
+      "id": "gen-poster-final",
+      "name": "Generate & Send Poster",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://187.77.64.14:3002/generate",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  dest:         $json.destination,\n  title:        $json.title        || $json.destination,\n  subtitle:     $json.subtitle     || '',\n  highlight:    $json.highlight    || '',\n  price:        $json.price        || '',\n  cta:          $json.cta          || '',\n  country:      $json.country      || 'Destination',\n  mode:         $json.mode         || 'discovery',\n  image_prompt: $json.image_prompt,\n  caption:      ($json.caption_ar  || '') + '\\n\\n' + ($json.hashtags || ''),\n  chat_id:      493831958\n}) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/arcadia-fal-image",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"destination\": $json.country || $json.destination, \"dest_code\": ({ \"كازاخستان\":\"KZ\",\"روسيا\":\"RU\",\"بولندا\":\"PL\",\"أوزبكستان\":\"UZ\" })[$json.destination] || \"KZ\", \"prompt\": $json.image_prompt, \"chat_id\": 493831958 } }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "8f509373-473e-453a-9441-478febc1144d",
+      "name": "Fal Poster Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        300
+      ],
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $('Build Image Prompt').item.json;\nconst fal = $input.item.json;\nconst url = fal.image_url;\nif (!url) throw new Error('No Fal image_url');\nconst lines = [\n  p.title ? '🖼️ <b>' + p.title + '</b>' : '',\n  p.subtitle || '',\n  p.highlight ? '✨ ' + p.highlight : '',\n  p.price ? '💰 ' + p.price : '',\n  p.cta ? '👉 ' + p.cta : '',\n  '',\n  p.caption_ar || '',\n  p.hashtags || ''\n].filter(Boolean);\nreturn [{ json: {\n  chat_id: 493831958,\n  photo: url,\n  caption: lines.join('\\n'),\n  destination: p.destination,\n  mode: p.mode || 'discovery'\n}}];"
+      },
+      "id": "71ac9406-fc45-4af4-96e5-739d79accec5",
+      "name": "Format Poster Telegram",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendPhoto",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"chat_id\": $json.chat_id, \"photo\": $json.photo, \"caption\": $json.caption, \"parse_mode\": \"HTML\" } }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "ad3e21a6-dab3-48e3-be19-cb915ffe44be",
+      "name": "Send Poster Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2040,
+        300
+      ],
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Build Image Prompt').item.json;\nconst fal = $input.item.json;\nconst caption = ((prep.caption_ar || '') + '\\n\\n' + (prep.hashtags || '')).trim();\nreturn [{ json: {\n  image_url: fal.image_url,\n  caption: caption.slice(0, 1024),\n  chat_id: 493831958,\n  destination: prep.destination,\n  title: prep.title || prep.destination,\n  ok: !!fal.image_url\n}}];"
+      },
+      "id": "3b6a3b7f-ca3a-447e-8f2e-d1c38cb0ded3",
+      "name": "Merge Poster Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        300
+      ],
+      "disabled": false
+    }
+  ],
+  "connections": {
+    "Daily Cron 8AM": {
+      "main": [
+        [
+          {
+            "node": "Pick Destination & Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pick Destination & Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Destination & Type": {
+      "main": [
+        [
+          {
+            "node": "Fetch Price from Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Price from Supabase": {
+      "main": [
+        [
+          {
+            "node": "Write Caption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Pro Caption": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Caption",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Caption": {
+      "main": [
+        [
+          {
+            "node": "Parse Caption JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Caption JSON": {
+      "main": [
+        [
+          {
+            "node": "Build Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "Fal Poster Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fal Poster Image": {
+      "main": [
+        [
+          {
+            "node": "Merge Poster Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Poster Telegram": {
+      "main": [
+        [
+          {
+            "node": "Send Poster Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Poster Data": {
+      "main": [
+        [
+          {
+            "node": "Send Poster Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Daily Cron 8AM": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "pinData": null,
+  "versionId": "b2148223-709b-4b38-8bfe-dd0137b174f6",
+  "versionCounter": 105,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-03-30T20:46:57.072Z",
+      "createdAt": "2026-03-30T20:46:57.072Z",
+      "role": "workflow:owner",
+      "workflowId": "kwvgnGUzi6kAz0em",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

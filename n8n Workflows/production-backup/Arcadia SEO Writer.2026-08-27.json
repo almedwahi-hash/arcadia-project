@@ -1,0 +1,1030 @@
+{
+  "updatedAt": "2026-08-24T13:05:49.000Z",
+  "createdAt": "2026-03-30T17:23:48.854Z",
+  "id": "cs4mxROtYBnSaPHr",
+  "name": "Arcadia SEO Writer",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 999,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 3,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cron-1",
+      "name": "Weekly Cron",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const triggerData = $input.item.json;\nconst body = triggerData.body || triggerData;\nconst with_image = body.with_image !== false;\n\nconst rawCountry = (\n  body.country ??\n  triggerData.country ??\n  triggerData.query?.country ??\n  ''\n).toString().trim();\n\nconst countryMap = {\n  'كازاخستان':'كازاخستان','Kazakhstan':'كازاخستان','kazakhstan':'كازاخستان','kz':'كازاخستان','KZ':'كازاخستان',\n  'روسيا':'روسيا','Russia':'روسيا','russia':'روسيا','ru':'روسيا','RU':'روسيا',\n  'بولندا':'بولندا','Poland':'بولندا','poland':'بولندا','pl':'بولندا','PL':'بولندا',\n  'أوزبكستان':'أوزبكستان','Uzbekistan':'أوزبكستان','uzbekistan':'أوزبكستان','uz':'أوزبكستان','UZ':'أوزبكستان',\n  'الصين':'الصين','China':'الصين','china':'الصين','cn':'الصين','CN':'الصين','صين':'الصين',\n};\n\nconst dest = countryMap[rawCountry] || countryMap[rawCountry.toLowerCase()] || '';\nif (!dest) {\n  throw new Error(`❌ الدولة مطلوبة أو غير معروفة: \"${rawCountry || '(فارغ)'}\" — استخدم: كازاخستان، روسيا، بولندا، أوزبكستان، الصين`);\n}\n\nconst pool = {\n  'كازاخستان': [\n    { kw: \"أفضل فنادق ألماتي 2026\",             slug: \"best-hotels-almaty-2026\" },\n    { kw: \"السياحة الشتوية في كازاخستان\",        slug: \"winter-tourism-kazakhstan\" },\n    { kw: \"تأشيرة كازاخستان للسعوديين 2026\",     slug: \"kazakhstan-visa-saudi-2026\" },\n    { kw: \"أكل كازاخستاني تقليدي يجب تجربته\",    slug: \"kazakhstan-traditional-food\" },\n    { kw: \"مناطق طبيعية في كازاخستان خفية\",       slug: \"hidden-nature-kazakhstan\" },\n    { kw: \"تكلفة رحلة كازاخستان أسبوع كامل\",     slug: \"kazakhstan-week-trip-cost\" },\n    { kw: \"بحيرة كولساي كازاخستان رحلة يومية\",   slug: \"kolsai-lake-day-trip\" },\n    { kw: \"ألماتي مدينة الجبال والتسوق\",          slug: \"almaty-mountains-shopping\" },\n    { kw: \"متحف كازاخستان القومي نور سلطان\",      slug: \"national-museum-nur-sultan\" },\n    { kw: \"رحلة كازاخستان للعائلات والأطفال\",     slug: \"kazakhstan-family-children-trip\" },\n  ],\n  'روسيا': [\n    { kw: \"السياحة في سانت بطرسبرغ دليل شامل\",  slug: \"st-petersburg-complete-guide\" },\n    { kw: \"متحف الأرميتاج سانت بطرسبرغ\",         slug: \"hermitage-museum-visit\" },\n    { kw: \"الليالي البيضاء في روسيا\",             slug: \"white-nights-russia\" },\n    { kw: \"أرخص وقت للسفر إلى روسيا 2026\",      slug: \"cheapest-time-travel-russia-2026\" },\n    { kw: \"الحي الأحمر موسكو للسياح العرب\",       slug: \"red-square-arab-tourists\" },\n    { kw: \"تكلفة المعيشة في موسكو للسياح\",        slug: \"moscow-living-cost-tourists\" },\n    { kw: \"مطاعم عربية وحلال في موسكو\",           slug: \"halal-arabic-restaurants-moscow\" },\n    { kw: \"رحلة موسكو سانت بطرسبرغ بالقطار\",     slug: \"moscow-stpetersburg-train-trip\" },\n    { kw: \"حدائق موسكو السياحية والترفيهية\",      slug: \"moscow-parks-tourism\" },\n    { kw: \"الطقس في روسيا شهر بشهر للسياح\",      slug: \"russia-weather-month-by-month\" },\n  ],\n  'بولندا': [\n    { kw: \"أفضل مطاعم وارسو للعرب والحلال\",      slug: \"warsaw-halal-restaurants-arabs\" },\n    { kw: \"السياحة في كراكوف دليل شامل\",          slug: \"krakow-complete-guide\" },\n    { kw: \"مخيمات الشتاء في زاكوباني بولندا\",     slug: \"zakopane-winter-camps-poland\" },\n    { kw: \"تكلفة رحلة بولندا للعائلات\",           slug: \"poland-family-trip-cost\" },\n    { kw: \"أسواق الكريسماس في وارسو\",             slug: \"warsaw-christmas-markets\" },\n    { kw: \"تأشيرة شنغن من بولندا للخليج\",         slug: \"schengen-visa-poland-gulf\" },\n    { kw: \"قلعة واويل التاريخية كراكوف\",           slug: \"wawel-castle-krakow-guide\" },\n    { kw: \"منتجعات الجبال في جنوب بولندا\",        slug: \"mountain-resorts-south-poland\" },\n    { kw: \"مدينة غدانسك بولندا السياحية\",          slug: \"gdansk-poland-tourism\" },\n    { kw: \"السفر من السعودية إلى بولندا 2026\",    slug: \"saudi-to-poland-travel-2026\" },\n  ],\n  'الصين': [\n    { kw: \"كانتون فير 2026 دليل شامل للمشترين العرب\",      slug: \"canton-fair-2026-arab-buyers-guide\" },\n    { kw: \"كيف تزور المصانع في الصين دليل المستورد\",        slug: \"visit-factories-china-importer-guide\" },\n    { kw: \"السياحة في قوانزو دليل كامل للعرب\",              slug: \"tourism-guangzhou-guide-2026\" },\n    { kw: \"أفضل مدن الصين السياحية للعرب 2026\",             slug: \"best-china-cities-arab-tourists-2026\" },\n    { kw: \"تطبيقات الصين الضرورية WeChat وAlipay\",          slug: \"essential-china-apps-wechat-alipay\" },\n    { kw: \"VPN في الصين أفضل الخيارات 2026\",               slug: \"vpn-china-best-options-2026\" },\n    { kw: \"شنغهاي للسياح العرب دليل شامل 2026\",             slug: \"shanghai-arab-tourists-guide\" },\n    { kw: \"بكين المدينة المحرمة والسياحة التاريخية\",         slug: \"beijing-forbidden-city-historical-tourism\" },\n    { kw: \"تأشيرة الصين للسعوديين والخليجيين 2026\",         slug: \"china-visa-saudi-gulf-2026\" },\n    { kw: \"تكلفة رحلة الصين أسبوع برنامج مقترح\",            slug: \"china-week-trip-cost-itinerary\" },\n  ],\n  'أوزبكستان': [\n    { kw: \"سمرقند عاصمة طريق الحرير\",             slug: \"samarkand-silk-road-capital\" },\n    { kw: \"بخارى التاريخية دليل السياحة الشامل\",  slug: \"bukhara-historical-tourism-guide\" },\n    { kw: \"مهرجان نوروز في أوزبكستان\",             slug: \"nowruz-festival-uzbekistan\" },\n    { kw: \"تكلفة السياحة في أوزبكستان للخليج\",    slug: \"uzbekistan-tourism-cost-gulf\" },\n    { kw: \"أشهر الأكلات الأوزبكية التقليدية\",      slug: \"uzbek-traditional-food-dishes\" },\n    { kw: \"خيوة مدينة التاريخ المحفوظ\",            slug: \"khiva-preserved-historical-city\" },\n    { kw: \"تأشيرة أوزبكستان للسعوديين والإماراتيين\", slug: \"uzbekistan-visa-saudi-uae\" },\n    { kw: \"طشقند العاصمة السياحية الحديثة دليل شامل\", slug: \"tashkent-modern-capital-tourism\" },\n    { kw: \"رحلة أوزبكستان 7 أيام برنامج مقترح\",   slug: \"uzbekistan-7-days-itinerary\" },\n    { kw: \"أفضل فنادق سمرقند وبخارى 2026\",        slug: \"best-hotels-samarkand-bukhara-2026\" },\n  ]\n};\n\nconst enMap = {'كازاخستان':'Kazakhstan','روسيا':'Russia','بولندا':'Poland','أوزبكستان':'Uzbekistan','الصين':'China'};\nconst whatsappMap = {\n  'كازاخستان': { number: '+7 705 118 1845', link: 'https://wa.me/77051181845' },\n  'روسيا':     { number: '+7 705 118 1845', link: 'https://wa.me/77051181845' },\n  'بولندا':    { number: '+48 576 677 6035', link: 'https://wa.me/485766776035' },\n  'أوزبكستان': { number: '+7 705 118 1845', link: 'https://wa.me/77051181845' },\n  'الصين':     { number: '+86 189 2316 6757', link: 'https://wa.me/8618923166757' },\n};\nconst internalLinksMap = {\n  'كازاخستان': ['https://arcadia-tour.com/almaty-guide/|دليل ألماتي الشامل','https://arcadia-tour.com/destinations/|وجهاتنا السياحية','https://arcadia-tour.com/offers-bookings/|برامج كازاخستان وأسعارها'],\n  'روسيا': ['https://arcadia-tour.com/moscow-guide/|دليل موسكو الشامل','https://arcadia-tour.com/saint-petersburg-guide/|دليل سانت بطرسبرغ الشامل','https://arcadia-tour.com/destinations/|وجهاتنا السياحية','https://arcadia-tour.com/offers-bookings/|برامج روسيا وأسعارها'],\n  'بولندا': ['https://arcadia-tour.com/poland-guide/|دليل بولندا الشامل','https://arcadia-tour.com/destinations/|وجهاتنا السياحية','https://arcadia-tour.com/offers-bookings/|برامج بولندا وأسعارها'],\n  'أوزبكستان': ['https://arcadia-tour.com/why-travel-to-uzbekistan/|لماذا تختار السياحة في أوزبكستان؟','https://arcadia-tour.com/destinations/|وجهاتنا السياحية','https://arcadia-tour.com/offers-bookings/|برامج أوزبكستان وأسعارها'],\n  'الصين': ['https://arcadia-tour.com/china-main/|السياحة في الصين 2026','https://arcadia-tour.com/yiwu-market-guide/|دليل سوق ييوu للتجار العرب','https://arcadia-tour.com/guangzhou-guide/|دليل قوانزو الشامل','https://arcadia-tour.com/destinations/|وجهاتنا السياحية'],\n};\n\nconst topics = pool[dest];\nconst usedSlugs = new Set();\nconst usedBaseSlugs = new Set();\nconst baseSlug = (s) => String(s || '').replace(/-\\d+$/, '');\ntry {\n  const wpAuth = 'Basic YWRtaW46ejdRa2JwR0JwdHRXb0huZkh3TVRnN2k3';\n  // Fetch WordPress slugs using https module (available in n8n Code sandbox)\n  const https = require('https');\n  const wpGet = (page) => new Promise((resolve) => {\n    const url = `https://187.77.64.14/wp-json/wp/v2/posts?per_page=100&status=publish,draft,private&_fields=slug&page=${page}`;\n    const req = https.get(url, {\n      headers: {\n        'Authorization': wpAuth,\n        'Host': 'wordpress-arcadia-wp.f2rger.easypanel.host',\n        'Accept': 'application/json',\n      },\n      rejectUnauthorized: false,\n      timeout: 8000,\n    }, (res) => {\n      let body = '';\n      res.on('data', d => body += d);\n      res.on('end', () => {\n        try { resolve(JSON.parse(body)); } catch { resolve([]); }\n      });\n    });\n    req.on('error', () => resolve([]));\n    req.on('timeout', () => { req.destroy(); resolve([]); });\n  });\n  for (let page = 1; page <= 6; page++) {\n    const res = await wpGet(page);\n    if (!Array.isArray(res) || res.length === 0) break;\n    res.forEach(p => {\n      if (!p.slug) return;\n      usedSlugs.add(p.slug);\n      usedBaseSlugs.add(baseSlug(p.slug));\n    });\n    if (res.length < 100) break;\n  }\n} catch (e) {\n  // WP slug check failed - continue with empty set (will check again at slug validation step)\n  console.log('WP slug fetch skipped:', e.message);\n}\n\nconst slugTaken = (slug) => usedSlugs.has(slug) || usedBaseSlugs.has(slug) || usedBaseSlugs.has(baseSlug(slug));\nconst available = topics.filter(t => !slugTaken(t.slug));\nif (available.length === 0) {\n  throw new Error(`❌ كل مواضيع ${dest} منشورة مسبقاً — لا slug متاح بدون تكرار`);\n}\nconst picked = available[Math.floor(Math.random() * available.length)];\nconst links = (internalLinksMap[dest] || []).map(l => {\n  const parts = l.split('|');\n  return `<a href=\"${parts[0]}\">${parts[1]}</a>`;\n}).join('\\n');\nconst wa = whatsappMap[dest] || { number: '+7 705 118 1845', link: 'https://wa.me/77051181845' };\n\nreturn [{ json: {\n  with_image,\n  requested_country: dest,\n  requested_country_raw: rawCountry,\n  kw: picked.kw,\n  slug: picked.slug,\n  dest,\n  en: enMap[dest],\n  internalLinks: links,\n  whatsapp: wa.number,\n  whatsappLink: wa.link,\n  availableCount: available.length,\n  usedSlugsCount: usedSlugs.size,\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "kw-1",
+      "name": "Pick Keyword"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        440,
+        200
+      ],
+      "id": "gemini-1",
+      "name": "Gemini Pro",
+      "credentials": {
+        "openAiApi": {
+          "id": "E9P1ujh2ilR3XsG5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=اكتب مقالة SEO احترافية ومتعمّقة باللغة العربية الفصحى عن {{ $json.dest }}.\nالكلمة المفتاحية الرئيسية: {{ $json.kw }}\n\n━━━ قواعد صارمة ━━━\n- اكتب فقط عن {{ $json.dest }} ولا تذكر دول أخرى إطلاقاً\n- الطول: 2000-2500 كلمة (مقالة شاملة ومعمّقة)\n- ابدأ بـ <h1> يضم الكلمة المفتاحية وعنوان جذّاب\n- استخدم <h2> و<h3> لكل قسم\n- استخدم أرقاماً وتفاصيل دقيقة (أسعار تقريبية، مسافات، مواعيد)\n- الأسلوب: خبير ومتمكن، معلومات حقيقية وتفصيلية\n\n━━━ الروابط الداخلية المطلوبة ━━━\nأضف هذه الروابط بشكل طبيعي داخل النص (3-5 على الأقل):\n{{ $json.internalLinks }}\n\n━━━ هيكل المقالة (إلزامي) ━━━\n<h1>[الكلمة المفتاحية — عنوان جذّاب]</h1>\n<h2>مقدمة: لماذا {{ $json.dest }}؟</h2>\n(hook قوي، 200 كلمة، معلومة مفاجئة أو رقم مثير)\n\n<h2>[العنوان الرئيسي للموضوع]</h2>\n(600 كلمة، استخدم h3 للتفاصيل)\n\n<h2>دليل عملي خطوة بخطوة</h2>\n(نصائح حصرية ومحددة لا تجدها في أي موقع آخر)\n\n<h2>الأسعار والميزانية بالتفصيل</h2>\n(أرقام واقعية بالريال/الدولار، قارن بين الخيارات)\n\n<h2>أسئلة شائعة</h2>\n(3-5 أسئلة يطرحها السائح العربي مع إجابات دقيقة)\n\n<h2>احجز رحلتك مع أركاديا</h2>\nاكتب 2-3 جمل عن خبرة أركاديا في {{ $json.dest }} مع إدراج الروابط الداخلية بشكل طبيعي.\nاختم بـ:\n<p>للحجز والاستفسار تواصل مع مكتب أركاديا المتخصص في {{ $json.dest }} عبر واتساب: <a href=\"{{ $json.whatsappLink }}\">{{ $json.whatsapp }}</a></p>\n\nأرجع HTML فقط: <h1><h2><h3><p><ul><li><strong><a href=\"...\"> بدون markdown أو تعليقات.",
+        "options": {
+          "systemMessage": "أنت كاتب محتوى متخصص لشركة أركاديا للسياحة. الشركة تعمل فقط في: كازاخستان، روسيا (موسكو/سانت بطرسبورغ)، بولندا (وارسو)، أوزبكستان (سمرقند/طشقند). إذا طُلب منك الكتابة عن بولندا، اكتب عن بولندا فقط. إذا طُلب كازاخستان، اكتب عن كازاخستان فقط. لا تذكر أي دولة أخرى مطلقاً تحت أي ظرف."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "write-1",
+      "name": "Write Article"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst article = $('Write Article').item.json.text || '';\nconst kw_data = $('Pick Keyword').item.json;\n\n// Extract H1 title\nconst h1match = article.match(/<h1[^>]*>(.*?)<\\/h1>/i);\nlet title = h1match ? h1match[1].replace(/<[^>]+>/g,'').trim() : '';\nif (!title) title = kw_data.kw + ' — دليل أركاديا السياحي';\n\n// Build excerpt from first <p>\nconst pMatch = article.match(/<p>(.*?)<\\/p>/is);\nconst excerpt = pMatch ? pMatch[1].replace(/<[^>]+>/g,'').slice(0,200).trim() : '';\n\nconst seoTitle   = title + ' | أركاديا للسياحة';\nconst metaDesc   = (excerpt || title).slice(0,155);\n\nreturn [{ json: {\n  title,\n  content: article,\n  excerpt,\n  slug: kw_data.slug,\n  keyword: kw_data.kw,\n  destination: kw_data.dest,\n  seoTitle,\n  metaDesc,\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "prep-1",
+      "name": "Prepare Post"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://187.77.64.14/wp-json/wp/v2/posts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"title\":{{ JSON.stringify($json.title) }},\"content\":{{ JSON.stringify($json.content) }},\"status\":\"draft\",\"slug\":{{ JSON.stringify($json.slug) }},\"excerpt\":{{ JSON.stringify($json.excerpt) }},\"featured_media\":{{ $json.featuredMediaId || 0 }},\"meta\":{\"_yoast_wpseo_title\":{{ JSON.stringify($json.seoTitle) }},\"_yoast_wpseo_metadesc\":{{ JSON.stringify($json.metaDesc) }},\"_yoast_wpseo_focuskw\":{{ JSON.stringify($json.keyword) }}}}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "wp-draft",
+      "name": "Create WP Draft",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst post = $('Create WP Draft').item.json;\nconst prep = $('Prepare Post').item.json;\nreturn [{ json: {\n  wp_post_id: post.id,\n  title: prep.title,\n  keyword: prep.keyword,\n  destination: prep.destination,\n  edit_url: 'https://wordpress-arcadia-wp.f2rger.easypanel.host/wp-admin/post.php?post=' + post.id + '&action=edit'\n}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "merge-1",
+      "name": "Merge Post Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  chat_id: 493831958,\n  text: \"✍️ مقالة SEO جاهزة للمراجعة\\n\\n📌 \" + $json.title + \"\\n🔑 \" + $json.keyword + \"\\n🌍 \" + $json.destination + \"\\n\\nاضغط لنشر أو حذف — بدون قيود وقت 👇\",\n  reply_markup: JSON.stringify({\n    inline_keyboard: [[\n      { text: \"✅ نشر المقالة\", url: \"https://n8n.arcadia-tour.cloud/webhook/seo-article-approval?action=approve&post_id=\" + $json.wp_post_id },\n      { text: \"❌ حذف المسودة\", url: \"https://n8n.arcadia-tour.cloud/webhook/seo-article-approval?action=reject&post_id=\" + $json.wp_post_id }\n    ]]\n  })\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        0
+      ],
+      "id": "tg-notify",
+      "name": "Notify Telegram",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "seo-article-approval",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "id": "approval-wh",
+      "name": "Approval Webhook",
+      "webhookId": "605824b2-2651-4589-95b3-811abbb0a233"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst q = $input.item.json.query || {};\nconst action = q.action || '';\nconst post_id = q.post_id || '';\nreturn [{ json: { action, post_id } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        300
+      ],
+      "id": "parse-action",
+      "name": "Parse Action"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        300
+      ],
+      "id": "if-approve",
+      "name": "Approve or Reject?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.post_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "{\"status\":\"publish\"}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        200
+      ],
+      "id": "wp-publish",
+      "name": "Publish Post",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.post_id }}?force=true",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        400
+      ],
+      "id": "wp-delete",
+      "name": "Delete Draft",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"chat_id\": 493831958, \"text\": \"=\\u2705 *\\u062a\\u0645 \\u0646\\u0634\\u0631 \\u0627\\u0644\\u0645\\u0642\\u0627\\u0644\\u0629 \\u0628\\u0646\\u062c\\u0627\\u062d!*\\n\\n\\ud83d\\udd17 https://wordpress-arcadia-wp.f2rger.easypanel.host/?p={{ $('Publish Post').item.json.id }}\", \"parse_mode\": \"HTML\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        200
+      ],
+      "id": "tg-published",
+      "name": "Confirm Published",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"chat_id\": 493831958, \"text\": \"\\ud83d\\uddd1 \\u062a\\u0645 \\u062d\\u0630\\u0641 \\u0627\\u0644\\u0645\\u0633\\u0648\\u062f\\u0629.\", \"parse_mode\": \"HTML\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        400
+      ],
+      "id": "tg-deleted",
+      "name": "Confirm Deleted",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        300
+      ],
+      "id": "respond-1",
+      "name": "Respond"
+    },
+    {
+      "parameters": {
+        "jsCode": "const article = $('Write Article').item.json.text || '';\nconst kw_data = $('Pick Keyword').item.json;\nconst dest = kw_data.dest;\nconst destEn = kw_data.en;\nconst requested = kw_data.requested_country || dest;\n\nconst forbidden = ['جورجيا','Georgia','الأردن','Jordan','تركيا','Turkey','مصر','Egypt',\n  'الإمارات','UAE','السعودية','Saudi','لبنان','Lebanon','المغرب','Morocco',\n  'إيطاليا','Italy','فرنسا','France','إسبانيا','Spain','ألمانيا','Germany'];\n\nconst titleMatch = article.match(/<h1[^>]*>(.*?)<\\/h1>/i);\nconst title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g,'').trim() : '';\n\nconst hasForbidden = forbidden.some(f => title.includes(f) || article.slice(0,500).includes(f));\nconst hasDestination = article.includes(dest) || article.includes(destEn);\n\nif (hasForbidden || !hasDestination) {\n  throw new Error(`❌ Gemini كتب عن دولة خاطئة! العنوان: ${title} | المطلوب: ${dest}`);\n}\n\nconst wrongCountries = ['كازاخستان','Kazakhstan','روسيا','Russia','بولندا','Poland','أوزبكستان','Uzbekistan','الصين','China']\n  .filter(c => c !== dest && c !== destEn && (title.includes(c) || article.slice(0,800).includes(c)));\n\nif (wrongCountries.length > 0 && requested) {\n  throw new Error(`❌ المقال يذكر ${wrongCountries[0]} بينما المطلوب ${requested} — راجع Pick Keyword / المدخلات`);\n}\n\nreturn [{ json: { ...$input.item.json, validated_country: dest, requested_country: requested } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "validate-1",
+      "name": "Validate Destination"
+    },
+    {
+      "id": "fetch-pexels-img",
+      "name": "Generate Fal.ai Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1100,
+        500
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://fal.run/fal-ai/flux/dev",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Key b49bc922-80b0-48c7-99be-fead3e2e884c:3cd9eb2e1e71a89172423e59683fa1f8"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ {\n  prompt: $('Generate Image Prompt').item.json.text,\n  image_size: 'landscape_4_3',\n  num_inference_steps: 8\n} }}",
+        "options": {},
+        "specifyBody": "json"
+      },
+      "disabled": true
+    },
+    {
+      "id": "pick-and-download",
+      "name": "Extract Fal.ai URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        500
+      ],
+      "parameters": {
+        "jsCode": "\nconst images = $input.item.json.images || [];\nconst prepData = $('Prepare Post').item.json;\nif (!images.length) {\n  return [{ json: { ...prepData, pexelsUrl: '', featuredMediaId: 0 }}];\n}\nconst imageUrl = images[0].url;\nreturn [{ json: { ...prepData, pexelsUrl: imageUrl, imageAlt: prepData.keyword || 'Arcadia Travel' }}];\n"
+      },
+      "disabled": true
+    },
+    {
+      "id": "dl-image-bin",
+      "name": "Download Image Binary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1500,
+        500
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.pexelsUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "disabled": true
+    },
+    {
+      "id": "upload-wp-media",
+      "name": "Upload to WP Media",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1700,
+        500
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://187.77.64.14/wp-json/wp/v2/media",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YWRtaW46TExJZnNwaDFQQ043YXNFZVMwZHZwQXB2"
+            },
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename=\"photo-{{ Date.now() }}.jpg\""
+            },
+            {
+              "name": "Content-Type",
+              "value": "image/jpeg"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "disabled": true
+    },
+    {
+      "id": "merge-media-id",
+      "name": "Merge Media ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        500
+      ],
+      "parameters": {
+        "jsCode": "\nconst prepData = $('Extract Fal.ai URL').item.json;\nconst mediaId = $input.item.json.id || 0;\nreturn [{ json: { ...prepData, featuredMediaId: mediaId } }];\n"
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seo-manual-run",
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "manual-trigger-1",
+      "name": "Manual Trigger",
+      "webhookId": "db4201c8-820a-4e42-bd29-370dbcb52686"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        860,
+        700
+      ],
+      "id": "img-gemini-1",
+      "name": "Gemini Image Prompt",
+      "credentials": {
+        "openAiApi": {
+          "id": "E9P1ujh2ilR3XsG5",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a single professional English image prompt for an AI image generator (Fal.ai FLUX).\n\nArticle info:\n- Title: {{ $json.title }}\n- Keyword: {{ $json.keyword }}\n- Destination: {{ $json.destination }}\n- Article excerpt: {{ $json.content.replace(/<[^>]+>/g, ' ').substring(0, 300) }}\n\nRules:\n- English only\n- Professional travel photography style\n- Be specific: describe the scene, lighting, mood, colors\n- If article is about family trips or hotels → include happy tourists\n- If about landmarks/cities → focus on the place itself\n- If about food/culture → show that aspect\n- High quality: add 'professional photography, travel magazine, 8K, sharp focus, golden hour lighting'\n- Output ONLY the image prompt — no explanation, no quotes, no extra text",
+        "options": {
+          "systemMessage": "You are a professional AI image prompt engineer specializing in travel photography. Always output only the image prompt, nothing else."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        860,
+        500
+      ],
+      "id": "img-chain-1",
+      "name": "Generate Image Prompt",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/arcadia-fal-article-image",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"destination\": $json.destination, \"keyword\": $json.keyword, \"title\": $json.title, \"with_image\": $json.with_image !== false } }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "f922e870-3499-4514-a5ab-c53b6e354aed",
+      "name": "Fal Article Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const prep = $('Prepare Post').item.json;\nconst fal = $input.item.json;\nreturn [{ json: {\n  ...prep,\n  featuredMediaId: fal.featuredMediaId || 0,\n  imageAlt: fal.imageAlt || prep.keyword,\n  fal_image_url: fal.image_url || null\n}}];"
+      },
+      "id": "de0f4548-9f12-4df0-abb0-5203e1f9b656",
+      "name": "Merge Fal Media ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "disabled": false
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts?slug={{ $('Prepare Post').item.json.slug }}&status=publish,draft,pending,private,future&_fields=id,slug,status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        770,
+        0
+      ],
+      "id": "f7a8f948-b0f4-4dd8-8642-b4acfc1739f3",
+      "name": "Check Slug Exists",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "isvpER3ODuxP1Usn",
+          "name": "WordPress Arcadia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const posts = $input.all().flatMap(i => Array.isArray(i.json) ? i.json : [i.json]).filter(p => p && p.id);\nconst prep = $('Prepare Post').item.json;\nconst slug = prep.slug;\nif (posts.length) {\n  const p = posts[0];\n  throw new Error(`❌ slug \"${slug}\" موجود مسبقاً (post #${p.id}, status=${p.status}) — لن يُنشأ نسخة -2. حدّث المقال الأصلي أو اختر keyword جديد.`);\n}\nreturn [{ json: prep }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "8e4d0ebf-598a-43f3-b56e-521f0a98d786",
+      "name": "Reject Duplicate Slug"
+    }
+  ],
+  "connections": {
+    "Weekly Cron": {
+      "main": [
+        [
+          {
+            "node": "Pick Keyword",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Keyword": {
+      "main": [
+        [
+          {
+            "node": "Write Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Article": {
+      "main": [
+        [
+          {
+            "node": "Validate Destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Post": {
+      "main": [
+        [
+          {
+            "node": "Fal Article Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create WP Draft": {
+      "main": [
+        [
+          {
+            "node": "Merge Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Post Data": {
+      "main": [
+        [
+          {
+            "node": "Notify Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approval Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Action": {
+      "main": [
+        [
+          {
+            "node": "Approve or Reject?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve or Reject?": {
+      "main": [
+        [
+          {
+            "node": "Publish Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Post": {
+      "main": [
+        [
+          {
+            "node": "Confirm Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Draft": {
+      "main": [
+        [
+          {
+            "node": "Confirm Deleted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Published": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Deleted": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Article",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Destination": {
+      "main": [
+        [
+          {
+            "node": "Prepare Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload to WP Media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to WP Media": {
+      "main": [
+        [
+          {
+            "node": "Merge Media ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Media ID": {
+      "main": [
+        [
+          {
+            "node": "Create WP Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pick Keyword",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Fal.ai Image": {
+      "main": [
+        [
+          {
+            "node": "Extract Fal.ai URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Fal.ai URL": {
+      "main": [
+        [
+          {
+            "node": "Download Image Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Fal.ai Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Image Prompt": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Image Prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fal Article Image": {
+      "main": [
+        [
+          {
+            "node": "Merge Fal Media ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Fal Media ID": {
+      "main": [
+        [
+          {
+            "node": "Create WP Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Slug Exists": {
+      "main": [
+        [
+          {
+            "node": "Reject Duplicate Slug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reject Duplicate Slug": {
+      "main": [
+        [
+          {
+            "node": "Create WP Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Weekly Cron": {
+      "recurrenceRules": [
+        27
+      ]
+    }
+  },
+  "meta": null,
+  "pinData": null,
+  "versionId": "cf31dfe0-f142-4745-a41d-84a53081217e",
+  "versionCounter": 187,
+  "triggerCount": 2,
+  "shared": [
+    {
+      "updatedAt": "2026-03-30T17:23:48.857Z",
+      "createdAt": "2026-03-30T17:23:48.857Z",
+      "role": "workflow:owner",
+      "workflowId": "cs4mxROtYBnSaPHr",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

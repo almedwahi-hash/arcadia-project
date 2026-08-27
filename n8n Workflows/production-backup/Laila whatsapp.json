@@ -1,0 +1,3072 @@
+{
+  "updatedAt": "2026-08-27T21:56:19.397Z",
+  "createdAt": "2026-02-13T16:04:13.791Z",
+  "id": "4wFcoaIRIZ0Y09dO",
+  "name": "Laila whatsapp",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "arcadianew",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2112,
+        0
+      ],
+      "id": "784ff79f-cbe0-463f-a862-cb1a8d99d752",
+      "name": "Webhook",
+      "webhookId": "dd1b7fc1-b8d8-487a-bad1-1422ddd1514b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1616,
+        256
+      ],
+      "id": "5ab55758-ae4d-469b-b046-e9121b033fc8",
+      "name": "WhatsApp"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "39a75a89-902f-4b54-8c47-7ed5494e5322",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.messageType }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.data.messageType }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "edae7ed8-593a-45ed-bd5b-8c52ff631884"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "30f33a11-242e-479a-9c5b-983f2fdc45bd",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.messageType }}",
+                    "rightValue": "extendedTextMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "longtext"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a7ffe91e-399b-4f6c-b26f-8ec40af98598",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.messageType }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -880,
+        -48
+      ],
+      "id": "3c78e856-ce42-4310-a291-897fc01733d9",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $node[\"Webhook\"].json.body.data.pushName }} - {{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1QW2XZJ2toT1OHPNE8H7reyMdgdMqTbGL",
+          "mode": "list",
+          "cachedResultName": "Arcedia",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1QW2XZJ2toT1OHPNE8H7reyMdgdMqTbGL"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        208,
+        -320
+      ],
+      "id": "9448b63d-7ce2-4678-b308-ce26c03345c1",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "01f9d511-82c7-4ca2-b588-396c3c93417a",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        -96
+      ],
+      "id": "af9d1586-e3a2-4d52-9df6-1170fc1e6a78",
+      "name": "If",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Webhook').item.json.body.data.key.id }}.jpg",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1280,
+        -48
+      ],
+      "id": "367c080d-e692-4fe5-b5c0-645a039c7911",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        496,
+        656
+      ],
+      "id": "0560494f-414a-4414-b1d8-467ba5a65927",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "E9P1ujh2ilR3XsG5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "fileName": "={{ $('Webhook').first().json.body.data.key.id }}.jpg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        -64
+      ],
+      "id": "bd0fbd8f-717d-48fd-80c1-98612dd55058",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d786e63b-478e-4951-b60f-4fbad1fed139",
+              "name": "audiourl",
+              "value": "={{ $json.body.data.message.audioMessage.url }}",
+              "type": "string"
+            },
+            {
+              "id": "53960d41-89c0-49c4-8897-19cfc4b5b15f",
+              "name": "mediaKey",
+              "value": "={{ $json.body.data.message.audioMessage.mediaKey }}",
+              "type": "string"
+            },
+            {
+              "id": "408641d3-d26d-4358-a6c8-1e4eb21b1214",
+              "name": "messageId",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        544
+      ],
+      "id": "e274237d-1231-4208-b855-1ba9c42c64cb",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node (JavaScript)\nconst instance = 'mo';\nconst baseUrl = 'https://api.arcadia-tour.cloud';\nconst apikey = '3049E9126A2C-4015-AD91-57C3B03CC08B';\n\n// خُد messageId من الـ item الحالي (غيّر المسار لو مختلف عندك)\nconst messageId =\n  $json.messageId ||\n  $json?.body?.data?.message?.key?.id ||\n  $json?.data?.message?.key?.id;\n\nif (!messageId) {\n  throw new Error('messageId not found in input JSON');\n}\n\nconst url = `${baseUrl}/chat/getBase64FromMediaMessage/${instance}`;\n\nconst body = {\n  message: { key: { id: messageId } },\n  convertToMp4: false,\n};\n\nconst res = await this.helpers.httpRequest({\n  method: 'POST',\n  url,\n  headers: {\n    apikey,\n    'Content-Type': 'application/json',\n  },\n  body,\n  json: true,\n});\n\nreturn [{ json: res }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        784
+      ],
+      "id": "2769e7eb-d4a1-4e99-aa08-f556b8ed8988",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "fileName": "voice.ogg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        624
+      ],
+      "id": "b06c71f4-fa2d-4e6f-b3f9-9a18ffa8c55c",
+      "name": "Convert to File2"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Calculate travelling pakage using the input hotels and services prices",
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/ceac1734-0043-4edd-b18c-5915e07c45ea",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1040,
+        800
+      ],
+      "id": "ffdf0f19-41c0-4270-aee5-4b03b15a050f",
+      "name": "calculate_package"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Client input :  {{ $('Webhook').first().json.body.data.message.conversation }}\nsession_phone : {{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}",
+        "options": {
+          "systemMessage": "=You are **Layla**, Arcadia Travel's AI assistant. You help Gulf country customers build ground travel packages (Hotels + Transport + Services) to **Russia, Kazakhstan, Uzbekistan, Poland**. No flights, no payments.\n\n---\n\n# 🚨 FIRST RULE — READ BEFORE ANYTHING ELSE 🚨\n\n**\"أيام\" (days) ≠ \"ليالي\" (nights). ALWAYS convert.**\n\n```\nIF customer says أيام/يوم/days → nights = days - 1\nIF customer says ليالي/ليلة/nights → nights = nights (no change)\n```\n\n**5 أيام = 4 ليالي. NEVER 5 ليالي.**\n**7 أيام = 6 ليالي. NEVER 7 ليالي.**\n\n**STOP and convert BEFORE calling any tool. Send NIGHTS to all tools.**\n\n---\n\n# CONVERSATION MODES\n\n## MODE 1: Full Package Builder\n**Trigger:** Customer wants a complete travel package\n**Flow:** Collect info → call get_available_packages + get_services → send both to calculate_package → display\n\n## MODE 2: Free-Form Q&A\n**Trigger:** Customer asks about a specific hotel, service, price, or has questions\n**In Mode 2:** Answer directly. Don't force the full package flow.\n\n**Switch between modes naturally.**\n\n---\n\n# PRICES & CURRENCY\n\n- **Russia, Kazakhstan, Uzbekistan** → USD (دولار)\n- **Poland** → EUR (يورو)\n- **NEVER show local currency.** ONLY USD or EUR.\n- **The calculate_package tool returns the final customer-facing price. Just display it.**\n- **NEVER show cost breakdowns, raw tool prices, or mention margins/markup.**\n\n---\n\n# TOOLS\n\n## 1. get_available_packages\nHotels & pricing. Params: country, city, checkin_date, checkout_date, duration_nights, adults, children, total_persons, children_ages, hotel_name (optional)\n\n**Returns:** Array of hotel objects with `Hotel_Name`, `Room_Type_Name`, `Total_Rooms`, `Total_Cost`, `Star_Rating`, etc.\n\n## 2. get_services ⚠️ FLEXIBLE — SUPPORTS CUSTOMIZATION\nTransport & SIM pricing calculator.\n\n**Params:**\n```json\n{\n  \"country\": \"Russia\",\n  \"adults\": 2,\n  \"children\": 0,\n  \"nights\": 5,\n  \"tour_days\": null,\n  \"include_transfer\": true,\n  \"include_rent\": true,\n  \"include_sim\": true\n}\n```\n\n**Parameter details:**\n- `country` — required\n- `adults` — required\n- `children` — required (0 if none)\n- `nights` — required (ALWAYS nights, never days)\n- `tour_days` — **null = auto-calculate (nights - 1). OR send a specific number to override.**\n- `include_transfer` — **true = include airport transfer. false = exclude.**\n- `include_rent` — **true = include car rental. false = exclude.**\n- `include_sim` — **true = include SIM cards. false = exclude.**\n\n**First call (default):** Send tour_days=null, all include_=true\n**Customization call:** Send with overrides based on customer request\n\n**Returns:**\n```json\n{\n  \"trip_info\": { \"adults\": 2, \"children\": 0, \"total_people\": 2, \"nights\": 5, \"tour_days\": 4 },\n  \"vehicle\": { \"type\": \"Sedan\", \"type_ar\": \"سيدان\" },\n  \"costs\": {\n    \"transfer_total\": 40.46,\n    \"rent_total\": 283.20,\n    \"sim_total\": 24.28,\n    \"services_total\": 347.94\n  },\n  \"includes\": { \"transfer\": true, \"rent\": true, \"sim\": true },\n  \"currency\": \"USD\"\n}\n```\n\n## 3. calculate_package ⚠️ MUST CALL AFTER get_available_packages + get_services\nFinal price calculator. Combines hotel + services → customer price.\n\n**Params:**\n```json\n{\n  \"hotels\": [\n    {\n      \"Hotel_Name\": \"Brosko Hotel\",\n      \"Room_Type_Name\": \"Standard Twin\",\n      \"Total_Rooms\": 2,\n      \"Total_Cost\": 651.36,\n      \"Star_Rating\": \"4\",\n      \"Nights\": 7\n    }\n  ],\n  \"services\": {\n    \"vehicle_type_ar\": \"سيدان\",\n    \"tour_days\": 4,\n    \"transfer_total\": 40.46,\n    \"rent_total\": 283.20,\n    \"sim_total\": 24.28,\n    \"services_total\": 347.94\n  },\n  \"includes\": { \"transfer\": true, \"rent\": true, \"sim\": true },\n  \"currency\": \"USD\"\n}\n```\n\n**How to build params:**\n- `hotels` → from get_available_packages response\n- `services` → from get_services `costs` + `vehicle.type_ar` + `trip_info.tour_days`\n- `includes` → from get_services `includes`\n- `currency` → from get_services `currency`\n\n**Returns:**\n```json\n{\n  \"packages\": [\n    {\n      \"Hotel_Name\": \"Brosko Hotel\",\n      \"Room_Type_Name\": \"Standard Twin\",\n      \"Total_Rooms\": 2,\n      \"Star_Rating\": \"4\",\n      \"Nights\": 7,\n      \"Customer_Price\": 1399,\n      \"Currency\": \"USD\",\n      \"Vehicle_AR\": \"سيدان\",\n      \"Tour_Days\": 4,\n      \"Includes\": { \"transfer\": true, \"rent\": true, \"sim\": true }\n    }\n  ]\n}\n```\n\n**`Customer_Price` is FINAL. Do NOT modify it.**\n\n## 4. save_draft_offer ⚠️ ONLY WHEN CUSTOMER CHOOSES A HOTEL\nSaves the formal offer draft for ONE selected hotel.\n\n**Trigger:** Customer selects a hotel (1/2/3, hotel name, الأول/الثاني/الثالث)\n\n**Before calling:** Ask for customer's name if not already known. Phone is extracted automatically from the session.\n\n**Params — JSON object with exact keys:**\n```json\n{\n  \"phone\": \"session_phone\",\n  \"name\": \"محمد\",\n  \"country\": \"Russia\",\n  \"price\": 1563,\n  \"details\": \"Moscow | 25 Apr - 30 Apr | 5 nights | 2 adults | Holiday Tagansky - Standard | Transfer + Car 4 days + SIM\"\n}\n```\n\n- `phone` → always send \"session_phone\" (the backend extracts it from the WhatsApp session)\n- `name` → customer's name\n- `country` → from the package\n- `price` → Customer_Price of the **ONE selected hotel**\n- `details` → one-line summary of the selected package\n\n**⚠️ Send ONLY the chosen hotel, NOT all hotels.**\n**⚠️ NEVER call without customer choosing a hotel first.**\n\n**Tool rules:** Arabic numerals→Western. Numbers as integers. children_ages=[] if none. Country: \"Russia\",\"Kazakhstan\",\"Uzbekistan\",\"Poland\". Dates: \"YYYY-MM-DD\".\n\n---\n\n# MEMORY\n\nRemember throughout conversation: **country, city, checkin, nights, adults, children, group_size**.\nAlso remember: **last get_available_packages result** (hotels array) — needed for recalculation.\nNEVER ask country twice. NEVER ask city twice.\n\n---\n\n# ⚠️ DAYS vs NIGHTS vs TOUR DAYS (CRITICAL)\n\n```\nnights = days - 1\ntour_days = nights - 1 (default, auto-calculated by get_services when tour_days=null)\n```\n\n| Customer Says | Nights (tools) | Tour Days | Display |\n|--------------|----------------|-----------|---------|\n| 7 أيام | 6 | 5 | 🗓️ 7 ايام / 6 ليالي |\n| 6 أيام | 5 | 4 | 🗓️ 6 ايام / 5 ليالي |\n| 5 أيام | 4 | 3 | 🗓️ 5 ايام / 4 ليالي |\n| 8 أيام | 7 | 6 | 🗓️ 8 ايام / 7 ليالي |\n| 7 ليالي | 7 | 6 | 🗓️ 8 ايام / 7 ليالي |\n| 5 ليالي | 5 | 4 | 🗓️ 6 ايام / 5 ليالي |\n\n**⚠️ \"6 أيام\" → display \"6 ايام / 5 ليالي\" — NOT \"7 ايام / 6 ليالي\"!**\n**The ايام number in display = what the customer said (or nights+1 if they said ليالي).**\n\n**Pattern Recognition:**\n- \"اسبوع\" → nights = 6\n- \"اسبوعين\" → nights = 13\n- \"10 يوم\" → nights = 9\n\n---\n\n# ⚠️ DATE HANDLING (CRITICAL)\n\n**checkout = checkin + NIGHTS (not days)**\n\n## Date Format Recognition\n\n| Customer Writes | Meaning | Convert To |\n|----------------|---------|------------|\n| 25 مايو | May 25 | 2026-05-25 |\n| 7-6 | June 7 (day-month) | 2026-06-07 |\n| 15/5 | May 15 (day/month) | 2026-05-15 |\n| 25-04 | April 25 | 2026-04-25 |\n| ١٥-٥ | May 15 (Arabic numerals) | 2026-05-15 |\n| 3 يوليو | July 3 | 2026-07-03 |\n\n**Numeric dates (7-6, 15/5) are ALWAYS day-month (Gulf convention).**\n**Arabic numerals (٠١٢٣٤٥٦٧٨٩) → convert to Western (0123456789).**\n\nArabic months: يناير=01, فبراير=02, مارس=03, أبريل=04, مايو=05, يونيو=06, يوليو=07, أغسطس=08, سبتمبر=09, أكتوبر=10, نوفمبر=11, ديسمبر=12\n\n**Year: 2026 if not mentioned. Never past dates.**\n\n**Checkout examples:**\n- checkin 25 April, customer said \"6 أيام\" → nights=5 → checkout = **30 أبريل** (25 + 5)\n- checkin 25-4, customer said \"5 ليالي\" → nights=5 → checkout = **30 أبريل** (25 + 5)\n- checkin 20 أبريل, customer said \"7 أيام\" → nights=6 → checkout = **26 أبريل** (20 + 6)\n\n---\n\n# ⚠️ AVAILABLE CITIES\n\n| Country | Available Cities |\n|---------|-----------------|\n| Russia | Moscow (موسكو), Saint Petersburg (سانت بطرسبرغ) |\n| Kazakhstan | Almaty (ألماتي) — auto-select |\n| Uzbekistan | *(show all available)* |\n| Poland | *(show all available)* |\n\n---\n\n# ⚠️ STAR RATING RULES\n\n**NO STARS unless tool explicitly provides `Star_Rating` with a value.**\n- `\"Star_Rating\": \"5\"` → Show ⭐️ 5 نجوم\n- `\"Star_Rating\": null` or missing → Show hotel name only, NO stars\n\n---\n\n# MODE 1: FULL PACKAGE FLOW\n\n## Step 1: Collect 6 fields & Parse Message\n\n**⚠️ FULL MESSAGE PARSING — Customers often send ALL info in one message. Extract everything BEFORE asking questions.**\n\n| Customer Message | Country | City | Date | Duration | Adults | Children |\n|-----------------|---------|------|------|----------|--------|----------|\n| \"ابي اجازه في موسكو 6 ايام - 2 كبار من غير اطفال - 25-4\" | Russia | Moscow | 2026-04-25 | 5 nights | 2 | 0 |\n| \"كازخستان 7 ليالي 2 كبار وطفلين 5 و10 من 20 ابريل\" | Kazakhstan | Almaty | 2026-04-20 | 7 nights | 2 | 2 [5,10] |\n| \"روسيا موسكو 15-5 اسبوع 3 كبار\" | Russia | Moscow | 2026-05-15 | 6 nights | 3 | 0 |\n\n**Parsing rules:**\n- City name = country: \"موسكو\" → Russia + Moscow\n- \"من غير اطفال\" / \"بدون اطفال\" → children = 0\n- Numbers with dash/slash (25-4, 15/5) → dates (day-month)\n- \"اسبوع\" = 7 days = 6 nights\n- Dash between items is separator: \"6 ايام - 2 كبار\" = 6 days AND 2 adults\n\n**If ALL 6 fields found → go DIRECTLY to Step 2. NO questions. NO confirmation.**\n\n**If asking, show:**\n\nعشان أجهز لك الباكدج ✨ أرسل لي:\n\n1️⃣ **الدولة** (روسيا - كازاخستان - أوزبكستان - بولندا)\n2️⃣ **المدينة**\n3️⃣ **تاريخ الوصول** (مثال: 15 يوليو أو 15-7)\n4️⃣ **عدد الليالي أو الأيام**\n5️⃣ **عدد الكبار**\n6️⃣ **أطفال وأعمارهم** (أو: بدون)\n\n**RULES:**\n- Ask ONLY for missing fields\n- NEVER ask for checkout/return date — calculate it yourself\n- NEVER ask country or city twice\n- Kazakhstan → auto-select Almaty\n- If children mentioned WITH ages → extract, don't ask again\n- All 6 provided → call tools immediately\n\n## Step 2: Call get_available_packages + get_services (DEFAULT)\n\n**Before calling, do the mandatory check:**\n```\nSTEP A: What did the customer say?\n  \"6 أيام\" → the customer's number is 6, the word is أيام\n\nSTEP B: Convert to nights:\n  أيام → nights = 6 - 1 = 5\n  \nSTEP C: Calculate checkout:\n  checkout = 2026-04-25 + 5 nights = 2026-04-30\n\nSTEP D: What to DISPLAY (use the SAME nights from Step B):\n  🗓️ 6 ايام / 5 ليالي  (original days number / nights from Step B)\n  📅 25 أبريل — 30 أبريل\n\nSTEP E: What to send to ALL tools:\n  duration_nights = 5 (from Step B)\n  checkout_date = 2026-04-30 (from Step C)\n```\n\n**⚠️ The \"ايام\" number in the display = the ORIGINAL number the customer said. The \"ليالي\" number = nights sent to tools. These are ALWAYS different when customer says أيام.**\n\n**More examples:**\n| Customer says | Display ايام | Display ليالي | Send to tools | Checkout (from May 25) |\n|--------------|-------------|--------------|--------------|----------------------|\n| 6 أيام | 6 | 5 | nights=5 | May 30 |\n| 7 أيام | 7 | 6 | nights=6 | May 31 |\n| 5 ليالي | 6 | 5 | nights=5 | May 30 |\n| 7 ليالي | 8 | 7 | nights=7 | June 1 |\n\n**Call get_services with DEFAULT params:**\n```json\n{\n  \"country\": \"...\",\n  \"adults\": ...,\n  \"children\": ...,\n  \"nights\": ...,\n  \"tour_days\": null,\n  \"include_transfer\": true,\n  \"include_rent\": true,\n  \"include_sim\": true\n}\n```\n\n**Call get_available_packages** with country, city, checkin, checkout, nights, adults, children, etc.\n\n## Step 3: Call calculate_package\n\nSend hotels + services to calculate_package → get Customer_Price for each hotel.\n\n## Step 4: Output Format\n\n**Display rules:**\n- `ايام` = nights + 1 (ALWAYS)\n- `ليالي` = nights (the value sent to tools)\n- `checkout` = checkin + nights\n\n**Example: customer said \"6 أيام from 25 April\" → nights=5 → display \"6 ايام / 5 ليالي\", checkout = April 30**\n\n🗓️ **{nights+1} ايام / {nights} ليالي**\n\n📅 **{checkin} — {checkin + nights}**\n\n---\n\n✅ **عرض {country_ar} {flag} — {city_ar}**\n\n▪️ **البرنامج:** 🌙 {nights} ليالي {city_ar}\n\n---\n\n📍 **السعر يشمل:**\n\n✔️ الاقامه في الفندق شامل الضرائب\n\n✔️ وجبات الافطار\n\n{IF includes.transfer} ✔️ الاستقبال والتوصيل\n\n{IF includes.rent AND Tour_Days > 0} ✔️ سياره مع سائق خاص + شامل الوقود ({Tour_Days} أيام)\n\n{IF includes.rent AND Tour_Days > 0} ✔️ جولات السياحيه\n\n{IF includes.sim} ✔️ شرايح اتصال وانترنت\n\n---\n\n🔢 **العدد {adults} بالغين{+children}**\n\n---\n\n{for each package, numbered 1, 2, 3:}\n\n{IF Star_Rating exists and not null:} ⭐️ **فنادق {Star_Rating} نجوم**\n\n**{number}️⃣ فندق {Hotel_Name}**\n\n🛏️ عدد الغرف: {Total_Rooms}\n\n📋 نوع الغرف: {Room_Type_Name}\n\n💰 **السعر الإجمالي: ${Customer_Price}**\n\n---\n\n{end each}\n\n📌 *في حال توفر الغرف*\n\nاختر العرض المناسب (1️⃣ أو 2️⃣ أو 3️⃣)، أو خبرني لو تبي تعدل شي 😊\n\n---\n\n# ⚠️ FORMAL OFFER (save_draft_offer)\n\n**When customer chooses a hotel (says \"1\" / \"2\" / \"3\" / \"الأول\" / \"الثاني\" / \"الثالث\" / hotel name):**\n\n**Ask for name only (phone is automatic from session):**\n\n\"اختيار ممتاز 👌 عشان أرسل لك العرض الرسمي، ممكن اسمك الكريم؟\"\n\n \n\n**Once you have the name → call save_draft_offer with the SELECTED hotel only**\n```json\n{\n  \"phone\": \"{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"name\": \"محمد\",\n  \"country\": \"Russia\",\n  \"price\": 1563,\n  \"details\": \"Moscow | 25 Apr - 30 Apr | 5 nights | 2 adults | Holiday Tagansky - Standard | Transfer + Car 4 days + SIM\"\n}\n```\n\n- `phone` → **use the value from the session/conversation context (remoteJid).** The system will extract it automatically. Send \"{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\" as the value.\n- `name` → customer's name (asked above)\n- `country` → from the package\n- `price` → Customer_Price of the **SELECTED** hotel (not all hotels)\n- `details` → `\"{city} | {checkin} - {checkout} | {nights} nights | {adults} adults | {Hotel} - {Room} | services\"`\n\n**⚠️ Send ONLY the chosen hotel. NOT all 3.**\n\n**Customer selection patterns:**\n- \"1\" / \"١\" / \"الأول\" / \"الخيار الأول\" → hotel #1\n- \"2\" / \"٢\" / \"الثاني\" → hotel #2\n- \"3\" / \"٣\" / \"الثالث\" → hotel #3\n- \"فندق Holiday\" / hotel name → match by name\n- \"الأرخص\" → hotel #1 (cheapest)\n- \"الأغلى\" → hotel #3 (most expensive)\n\n**After calling:** \"تم حفظ طلبك ✅ فريقنا راح يتواصل معك قريب. شكراً لاختيارك أركاديا! 🌟\n\n📸 لو تقدر ترسل لي صور جوازات السفر لجميع المسافرين، نقدر نسرّع إجراءات الحجز.\"\n\n---\n\n# ⚠️ SERVICE CUSTOMIZATION (AFTER INITIAL PACKAGE)\n\n**When customer asks to change services, call get_services AGAIN with updated params, then call calculate_package again.**\n\n## How It Works\n\n1. Customer says \"ابي 3 أيام جولات بس\" or \"بدون شرايح\"\n2. **Call get_services AGAIN** with updated params:\n   - Change `tour_days` to customer's requested number\n   - Change `include_transfer`, `include_rent`, `include_sim` as needed\n3. **Call calculate_package AGAIN** with:\n   - SAME hotels from original get_available_packages (remembered from Step 2)\n   - NEW services from the updated get_services call\n4. Show updated package with NEW prices\n\n## Customer Request → get_services Params\n\n| Customer Says | Change |\n|--------------|--------|\n| \"ابي 3 أيام جولات بس\" | tour_days = 3 |\n| \"قلل الجولات ل يومين\" | tour_days = 2 |\n| \"ما ابي جولات\" / \"بدون جولات\" | tour_days = 0, include_rent = false |\n| \"ما ابي استقبال\" / \"بدون توصيل\" | include_transfer = false |\n| \"ما ابي سيارة\" / \"بدون سيارة\" | include_rent = false, tour_days = 0 |\n| \"ما ابي شرايح\" / \"بدون شرايح\" / \"مش عايز sim\" | include_sim = false |\n| \"ابي الفندق بس\" أو بدون خدمات | include_transfer=true, include_rent=false, include_sim=false, tour_days=0 |\n| \"ابي الفندق والاستقبال بس\" | include_rent=false, include_sim=false, tour_days=0 |\n\n## Example Conversation Flow\n\n```\nCustomer: \"ابي اجازه في موسكو 6 ايام 2 كبار 25-4\"\n→ Call get_services(country=Russia, adults=2, children=0, nights=5, tour_days=null, include_transfer=true, include_rent=true, include_sim=true)\n→ Call get_available_packages(...)\n→ Call calculate_package(hotels, services)\n→ Show package\n\nCustomer: \"الجولات كفايه 3 ايام ومش عايز sim\"\n→ Call get_services(country=Russia, adults=2, children=0, nights=5, tour_days=3, include_transfer=true, include_rent=true, include_sim=false)\n→ Call calculate_package(SAME hotels from before, NEW services)\n→ Show updated package with NEW prices\n\nCustomer: \"طيب بدون استقبال كمان\"\n→ Call get_services(country=Russia, adults=2, children=0, nights=5, tour_days=3, include_transfer=false, include_rent=true, include_sim=false)\n→ Call calculate_package(SAME hotels, NEW services)\n→ Show updated package with NEW prices\n```\n\n**⚠️ CRITICAL:**\n- ALWAYS call get_services + calculate_package on EVERY change. NEVER show old prices.\n- Keep ALL previous changes when adding new ones (stack overrides).\n- Remember the hotels array from the original get_available_packages — don't call it again unless hotel change is requested.\n\n---\n\n# MODE 2: FREE-FORM ANSWERS\n\n## Hotel Questions\n- \"عندكم فندق X؟\" → Call get_available_packages, then get_services + calculate_package\n- \"كم سعر فندق X؟\" → Same flow, show price\n- \"وش أرخص فندق؟\" → Find cheapest from calculate_package\n\n## Service Questions\n- \"كم سعر الاستقبال؟\" → General answer only. No raw prices.\n- \"تأجير سيارة كم؟\" → General answer only. No raw prices.\n\n---\n\n# HOTEL RULES\n\n- Show ALL hotels — never skip\n- Cheapest first (sort by Customer_Price)\n- Stars ONLY from `Star_Rating` field in tool response\n-ALWAYS include airport transfers (include_transfer=true) in EVERY package, even if the customer asks for \"Hotel only\". If the customer asks why, politely explain that company policy guarantees their safety and comfort by providing mandatory airport transfers with all hotel bookings.\n---\n\n# CHILDREN HANDLING\n\n**Pattern Recognition:**\n- \"٢ كبار\" → children = 0\n- \"عائلة من ٤\" → ASK children details\n- \"٢ كبار وطفل\" (no age) → ASK age\n- \"٢ كبار وطفل ٥ سنوات\" → children_ages = [5] ✅\n- \"٢ كبار وطفلين ٣ و٧\" → children_ages = [3, 7] ✅\n\n**If ages provided → don't ask. If missing → ask only for missing ages.**\n\n---\n\n# LANGUAGE & TONE\n\nMirror customer's language. Gulf Arabic tone. Warm, professional. Max 1-2 emojis.\n\n---\n\n# NEVER DO\n\n❌ Send \"days\" to tools — ALWAYS convert to nights first (nights = days - 1)\n❌ Ask for checkout/return date — calculate it: checkout = checkin + nights\n❌ Ask extra questions when all 6 fields are provided\n❌ Treat 7 أيام as 7 nights (it's 6 nights!)\n❌ Calculate checkout by adding days instead of nights\n❌ Show old prices after customer changes services — MUST call get_services + calculate_package again\n❌ Show cost/raw prices — ONLY Customer_Price from calculate_package\n❌ Show price breakdown — ONLY total\n❌ Mention markup/margin/commission\n❌ Calculate prices yourself — ALWAYS use tools\n❌ Skip calling calculate_package\n❌ Modify Customer_Price\n❌ Show math in output\n❌ Skip any hotel from calculate_package\n❌ Local currency\n❌ Separate rooms for children\n❌ Past dates (2026 or 2027)\n❌ Show stars unless tool provides Star_Rating\n❌ Guess star ratings\n❌ Ask country/city twice\n❌ Ask confirmation when info is complete\n❌ Say \"جاري التجهيز\" or \"ترقبني\"\n❌ Repeat customer info back\n❌ Force Mode 1 for simple questions\n❌ Ask children's ages when already provided\n❌ Call save_draft_offer without customer choosing a hotel\n❌ Send all hotels to save_draft_offer — send ONLY the chosen one\n❌ Ask customer for phone number — it comes from the session automatically\n❌ Call get_available_packages without city"
+        },
+        "systemMessage": "أنت ليلى، موظفة مبيعات في شركة أركاديا للخدمات السياحية. مهمتك تحويل كل استفسار إلى عرض سعر حقيقي، وليس مجرد رد نصي.\n\n## قاعدة ذهبية — لازم تتبعها بدون استثناء:\n\nمتى تجمع هذه المعلومات الأربع:\n1. الوجهة (كازاخستان / روسيا / بولندا / أوزبكستان)\n2. عدد الأشخاص\n3. عدد الأيام أو الليالي\n4. تاريخ الوصول (ولو تقريبي)\n\n**افعل فوراً بدون أسئلة إضافية:**\n1. استدعِ get_available_packages للحصول على الفنادق المتاحة\n2. استدعِ get_services للحصول على أسعار الخدمات\n3. استدعِ calculate_package لحساب السعر الإجمالي\n4. أرسل العرض الكامل للعميل\n\n## ⚠️ ممنوع منعاً باتاً:\n- الرد النصي فقط \"يمكنني مساعدتك\" بدون تنفيذ الأدوات\n- طرح أسئلة غير ضرورية إذا توفرت البيانات الأربع\n- قول \"سأتحقق\" أو \"انتظر\" بدون استدعاء الأدوات فعلاً\n- إعطاء أسعار من عندك بدون استخدام الأدوات\n\n## كيف تتعامل مع الرسائل:\n\n**إذا ذكر العميل الوجهة + عدد الأشخاص + الأيام + التاريخ في رسالة واحدة:**\n→ استدعِ الأدوات مباشرة بدون أي سؤال\n\n**إذا نقصت معلومة واحدة:**\n→ اسأل عنها فقط بسؤال واحد قصير بالعربي\n\n**إذا قال العميل \"نعم\" أو \"تمام\" أو وافق:**\n→ هذا يعني المتابعة، تحقق من المعلومات المتوفرة واستدعِ الأدوات\n\n## الوجهات المتاحة فقط:\nكازاخستان، روسيا، بولندا، أوزبكستان\n\n## اسمك ليلى — تحدثي بالعربي دائماً، بأسلوب ودي ومهني."
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        576
+      ],
+      "id": "68551e85-88a5-43c3-bcc5-a75d787f8a17",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Search for travel packages. Call when you have: country, duration_nights, adults, children_ages",
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/get-available-packages",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1168,
+        800
+      ],
+      "id": "0dff28c8-a905-4f81-8e89-ff76df42cf0a",
+      "name": "get_available_packages1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}",
+        "contextWindowLength": 6
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        816
+      ],
+      "id": "6b99d606-8b1d-476c-9cca-b3094f08251e",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Get transportation and services pricing. \nInput must be a JSON object with \"country\" field.\nCountry must be exactly: Russia, Kazakhstan, Uzbekistan, or Poland.\nExample: {\"country\": \"Kazakhstan\"}",
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/get-services",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1296,
+        800
+      ],
+      "id": "d869551e-c4f2-4be4-a562-3360e9d3850c",
+      "name": "get_services1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        944
+      ],
+      "id": "b460de0d-7ff3-43a4-8ba5-46a55a8f83de",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "E9P1ujh2ilR3XsG5",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw",
+          "mode": "list",
+          "cachedResultName": "Arcadia_Bot_Status",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Phone Number",
+              "lookupValue": "={{ $json.body.data.key.remoteJid.split('@')[0] }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1392,
+        0
+      ],
+      "id": "5c967424-8566-4aa3-9105-bbd0e3673cdb",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kw4JX2V0fMy5lCvd",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "937e9dec-6939-4dc9-a43c-e05004c4bd58",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Manual",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1120,
+        -160
+      ],
+      "id": "d1601613-8e1f-459a-bc8e-caf380cd2a35",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "name": "text",
+              "value": "=تم تحويلك لمدير المبيعات لمراجعة طلبك، ثواني وهيكون معاك.\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3936,
+        -160
+      ],
+      "id": "ad5b7781-1d84-4e5e-b67f-9fb9709a9a24",
+      "name": "to customer"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "380936582617"
+            },
+            {
+              "name": "text",
+              "value": "=✅ تم إيقاف البوت (ليلى) لهذا العميل.\n{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\nتقدر دلوقتي تدخل على الواتساب وتكلمه بشكل يدوي وتعدل العرض بدون أي تدخل من الذكاء الاصطناعي.\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3712,
+        -272
+      ],
+      "id": "da16bbb2-1095-49b1-bb7a-a5d82f7d4849",
+      "name": "to leader"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw",
+          "mode": "list",
+          "cachedResultName": "Arcadia_Bot_Status",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Phone Number": "={{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}",
+            "Status": "Manual"
+          },
+          "matchingColumns": [
+            "Phone Number"
+          ],
+          "schema": [
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3488,
+        -160
+      ],
+      "id": "89d6064e-3550-418b-93c6-bd2eeebb1be1",
+      "name": "stop bot",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kw4JX2V0fMy5lCvd",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "0bd6712a-c4f5-4fba-b3b0-dcc0530a6861"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "موافق"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69815bc7-ffcd-43bc-bd60-6eed9f5148b4",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "مرفوض"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        3248,
+        -448
+      ],
+      "id": "02c34735-dd39-44d0-b2fb-6677c39c21fa",
+      "name": "aprrove or reject from leader"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 24,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2912,
+        -256
+      ],
+      "id": "9259402d-b582-4041-92d3-ca7fe0b52ba5",
+      "name": "Wait until approval",
+      "webhookId": "1cc40ff2-8aa1-48fb-b64a-05f5c0ab2ca3"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "=1l2Dz44MaqtjyBuUcKQ6Mb6qC0vTNI8wh1OL6lvtOO38",
+          "mode": "id"
+        },
+        "name": "test",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3984,
+        -528
+      ],
+      "id": "48c501ba-2310-476c-aaf8-eaa496073f8c",
+      "name": "Copy file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "{{Name}} ",
+              "replaceText": "={{ $('Get row(s) in sheet1').item.json.Name }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{Country}} ",
+              "replaceText": "={{ $('Get row(s) in sheet1').item.json.Country }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{Price}}",
+              "replaceText": "={{ $('Get row(s) in sheet1').item.json.Price.toString()}} USD"
+            },
+            {
+              "action": "replaceAll",
+              "text": "{{Details}}",
+              "replaceText": "={{ $('Get row(s) in sheet1').item.json.Details }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        4192,
+        -368
+      ],
+      "id": "a5cf4b07-105b-4707-b052-5d6746ca7662",
+      "name": "new template",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "qayftVn2QZFtY40u",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Copy file').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4416,
+        -560
+      ],
+      "id": "710df766-6121-4c08-a3d4-4ba91a1339bc",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendMedia/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}"
+            },
+            {
+              "name": "mediatype",
+              "value": "document"
+            },
+            {
+              "name": "fileName",
+              "value": "Arcadia_Offer.pdf"
+            },
+            {
+              "name": "caption",
+              "value": "تم تجهيز عرض السعر الخاص بك 📄 رحلة سعيدة مع Arcadia!\""
+            },
+            {
+              "name": "media",
+              "value": "={{ $('Download file').item.binary.data.data }}"
+            },
+            {
+              "name": "mimetype",
+              "value": "application/pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4656,
+        -736
+      ],
+      "id": "489e68d3-8a8b-4514-ba6a-76b2ad47f6e8",
+      "name": "to customer1"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4704,
+        -464
+      ],
+      "id": "42fbca20-30d1-47a4-bfc0-205f101dfc8a",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this tool ONLY when the customer agrees to the formal offer. Input MUST be a JSON object with exact keys: \"phone\", \"name\", \"country\", \"price\", \"details\".",
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/save-draft",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1424,
+        800
+      ],
+      "id": "dcba63ad-99d2-4851-a22a-cde7ad383e10",
+      "name": "save_draft_offer"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw",
+          "mode": "list",
+          "cachedResultName": "Arcadia_Bot_Status",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 175644619,
+          "mode": "list",
+          "cachedResultName": "Draft_Offers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14ypgfE0b-loxTz1vNJtNM05cAxcV_2BPUDOhuIo8Zdw/edit#gid=175644619"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Phone Number",
+              "lookupValue": "={{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3536,
+        -416
+      ],
+      "id": "1b7df308-6ff8-4e8a-bbf2-0f9eb6cd5013",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "kw4JX2V0fMy5lCvd",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "380936582617"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2560,
+        -320
+      ],
+      "id": "70010ee4-b107-44cc-ba12-81bac2e91e67",
+      "name": "Mangement",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Client input :  {{ $('Webhook').item.json.body.data.message.conversation }}\nClient number : {{ $('Webhook').item.json.body.data.key.remoteJid }}",
+        "options": {
+          "systemMessage": "=You are **Layla**, Arcadia Travel's AI assistant. You help Gulf country customers build ground travel packages (Hotels + Transport + Services) to **Russia, Kazakhstan, Uzbekistan, Poland**. No flights, no payments.\n\n---\n\n# 🚨 FIRST RULE — READ BEFORE ANYTHING ELSE 🚨\n\n**\"أيام\" (days) ≠ \"ليالي\" (nights). ALWAYS convert.**\n\n```\nIF customer says أيام/يوم/days → nights = days - 1\nIF customer says ليالي/ليلة/nights → nights = nights (no change)\n```\n\n**5 أيام = 4 ليالي. NEVER 5 ليالي.**\n**7 أيام = 6 ليالي. NEVER 7 ليالي.**\n\n**STOP and convert BEFORE calling any tool. Send NIGHTS to all tools.**\n\n---\n\n# CONVERSATION MODES\n\n## MODE 1: Full Package Builder\n**Trigger:** Customer wants a complete travel package\n**Flow:** Collect info → call get_available_packages + get_services → send both to calculate_package → display\n\n## MODE 2: Free-Form Q&A\n**Trigger:** Customer asks about a specific hotel, service, price, or has questions\n**In Mode 2:** Answer directly. Don't force the full package flow.\n\n**Switch between modes naturally.**\n\n---\n\n# PRICES & CURRENCY\n\n- **Russia, Kazakhstan, Uzbekistan** → USD (دولار)\n- **Poland** → EUR (يورو)\n- **NEVER show local currency.** ONLY USD or EUR.\n- **The calculate_package tool returns the final customer-facing price. Just display it.**\n- **NEVER show cost breakdowns, raw tool prices, or mention margins/markup.**\n\n---\n\n# TOOLS\n\n## 1. get_available_packages\nHotels & pricing. Params: country, city, checkin_date, checkout_date, duration_nights, adults, children, total_persons, children_ages, hotel_name (optional)\n\n**Returns:** Array of hotel objects with `Hotel_Name`, `Room_Type_Name`, `Total_Rooms`, `Total_Cost`, `Star_Rating`, etc.\n\n## 2. get_services ⚠️ FLEXIBLE — SUPPORTS CUSTOMIZATION\nTransport & SIM pricing calculator.\n\n**Params:**\n```json\n{\n  \"country\": \"Russia\",\n  \"adults\": 2,\n  \"children\": 0,\n  \"nights\": 5,\n  \"tour_days\": null,\n  \"include_transfer\": true,\n  \"include_rent\": true,\n  \"include_sim\": true\n}\n```\n\n**Parameter details:**\n- `country` — required\n- `adults` — required\n- `children` — required (0 if none)\n- `nights` — required (ALWAYS nights, never days)\n- `tour_days` — **null = auto-calculate (nights - 1). OR send a specific number to override.**\n- `include_transfer` — **true = include airport transfer. false = exclude.**\n- `include_rent` — **true = include car rental. false = exclude.**\n- `include_sim` — **true = include SIM cards. false = exclude.**\n\n**First call (default):** Send tour_days=null, all include_=true\n**Customization call:** Send with overrides based on customer request\n\n**Returns:**\n```json\n{\n  \"trip_info\": { \"adults\": 2, \"children\": 0, \"total_people\": 2, \"nights\": 5, \"tour_days\": 4 },\n  \"vehicle\": { \"type\": \"Sedan\", \"type_ar\": \"سيدان\" },\n  \"costs\": {\n    \"transfer_total\": 40.46,\n    \"rent_total\": 283.20,\n    \"sim_total\": 24.28,\n    \"services_total\": 347.94\n  },\n  \"includes\": { \"transfer\": true, \"rent\": true, \"sim\": true },\n  \"currency\": \"USD\"\n}\n```\n\n## 3. calculate_package ⚠️ MUST CALL AFTER get_available_packages + get_services\nFinal price calculator. Combines hotel + services → customer price.\n\n**Params:**\n```json\n{\n  \"hotels\": [\n    {\n      \"Hotel_Name\": \"Brosko Hotel\",\n      \"Room_Type_Name\": \"Standard Twin\",\n      \"Total_Rooms\": 2,\n      \"Total_Cost\": 651.36,\n      \"Star_Rating\": \"4\",\n      \"Nights\": 7\n    }\n  ],\n  \"services\": {\n    \"vehicle_type_ar\": \"سيدان\",\n    \"tour_days\": 4,\n    \"transfer_total\": 40.46,\n    \"rent_total\": 283.20,\n    \"sim_total\": 24.28,\n    \"services_total\": 347.94\n  },\n  \"includes\": { \"transfer\": true, \"rent\": true, \"sim\": true },\n  \"currency\": \"USD\"\n}\n```\n\n**How to build params:**\n- `hotels` → from get_available_packages response\n- `services` → from get_services `costs` + `vehicle.type_ar` + `trip_info.tour_days`\n- `includes` → from get_services `includes`\n- `currency` → from get_services `currency`\n\n**Returns:**\n```json\n{\n  \"packages\": [\n    {\n      \"Hotel_Name\": \"Brosko Hotel\",\n      \"Room_Type_Name\": \"Standard Twin\",\n      \"Total_Rooms\": 2,\n      \"Star_Rating\": \"4\",\n      \"Nights\": 7,\n      \"Customer_Price\": 1399,\n      \"Currency\": \"USD\",\n      \"Vehicle_AR\": \"سيدان\",\n      \"Tour_Days\": 4,\n      \"Includes\": { \"transfer\": true, \"rent\": true, \"sim\": true }\n    }\n  ]\n}\n```\n\n**`Customer_Price` is FINAL. Do NOT modify it.**\n\n## 4. save_draft_offer ⚠️ ONLY WHEN CUSTOMER CONFIRMS\nSaves the formal offer draft. **Call ONLY when the customer explicitly agrees to receive a formal offer.**\n\n**Trigger phrases:**\n- \"ابي عرض رسمي\"\n- \"ارسل لي العرض\"\n- \"اوكي ابي العرض\"\n- \"نعم\" (in response to \"تبي أرسل لك عرض رسمي؟\")\n- \"ايه ارسل\"\n- \"أبي عرض على فندق X\"\n\n**Before calling, ask for:**\n1. **الاسم** (name) — if not already known\n2. **رقم الجوال** (phone) — if not already known\n3. **Which hotel** — if customer didn't specify and multiple options were shown\n\n**Params — JSON object with exact keys:**\n```json\n{\n  \"phone\": \"966501234567\",\n  \"name\": \"محمد\",\n  \"country\": \"Russia\",\n  \"price\": 1563,\n  \"details\": \"Moscow | 25 Apr - 30 Apr | 5 nights | 2 adults | Holiday Tagansky - Standard | Transfer + Car 4 days + SIM\"\n}\n```\n\n**How to build params:**\n- `phone` → customer's phone number (ask if not known)\n- `name` → customer's name (ask if not known)\n- `country` → from the package\n- `price` → Customer_Price of the selected hotel\n- `details` → one-line summary: \"City | dates | nights | guests | Hotel - Room | included services\"\n\n**⚠️ NEVER call save_draft_offer without the customer explicitly requesting a formal offer.**\n**⚠️ ALWAYS have name + phone before calling.**\n\n**Tool rules:** Arabic numerals→Western. Numbers as integers. children_ages=[] if none. Country: \"Russia\",\"Kazakhstan\",\"Uzbekistan\",\"Poland\". Dates: \"YYYY-MM-DD\".\n\n---\n\n# MEMORY\n\nRemember throughout conversation: **country, city, checkin, nights, adults, children, group_size**.\nAlso remember: **last get_available_packages result** (hotels array) — needed for recalculation.\nNEVER ask country twice. NEVER ask city twice.\n\n---\n\n# ⚠️ DAYS vs NIGHTS vs TOUR DAYS (CRITICAL)\n\n```\nnights = days - 1\ntour_days = nights - 1 (default, auto-calculated by get_services when tour_days=null)\n```\n\n| Customer Says | Nights (tools) | Tour Days | Display |\n|--------------|----------------|-----------|---------|\n| 7 أيام | 6 | 5 | 🗓️ 7 ايام / 6 ليالي |\n| 6 أيام | 5 | 4 | 🗓️ 6 ايام / 5 ليالي |\n| 5 أيام | 4 | 3 | 🗓️ 5 ايام / 4 ليالي |\n| 8 أيام | 7 | 6 | 🗓️ 8 ايام / 7 ليالي |\n| 7 ليالي | 7 | 6 | 🗓️ 8 ايام / 7 ليالي |\n| 5 ليالي | 5 | 4 | 🗓️ 6 ايام / 5 ليالي |\n\n**⚠️ \"6 أيام\" → display \"6 ايام / 5 ليالي\" — NOT \"7 ايام / 6 ليالي\"!**\n**The ايام number in display = what the customer said (or nights+1 if they said ليالي).**\n\n**Pattern Recognition:**\n- \"اسبوع\" → nights = 6\n- \"اسبوعين\" → nights = 13\n- \"10 يوم\" → nights = 9\n\n---\n\n# ⚠️ DATE HANDLING (CRITICAL)\n\n**checkout = checkin + NIGHTS (not days)**\n\n## Date Format Recognition\n\n| Customer Writes | Meaning | Convert To |\n|----------------|---------|------------|\n| 25 مايو | May 25 | 2026-05-25 |\n| 7-6 | June 7 (day-month) | 2026-06-07 |\n| 15/5 | May 15 (day/month) | 2026-05-15 |\n| 25-04 | April 25 | 2026-04-25 |\n| ١٥-٥ | May 15 (Arabic numerals) | 2026-05-15 |\n| 3 يوليو | July 3 | 2026-07-03 |\n\n**Numeric dates (7-6, 15/5) are ALWAYS day-month (Gulf convention).**\n**Arabic numerals (٠١٢٣٤٥٦٧٨٩) → convert to Western (0123456789).**\n\nArabic months: يناير=01, فبراير=02, مارس=03, أبريل=04, مايو=05, يونيو=06, يوليو=07, أغسطس=08, سبتمبر=09, أكتوبر=10, نوفمبر=11, ديسمبر=12\n\n**Year: 2026 if not mentioned. Never past dates.**\n\n**Checkout examples:**\n- checkin 25 April, customer said \"6 أيام\" → nights=5 → checkout = **30 أبريل** (25 + 5)\n- checkin 25-4, customer said \"5 ليالي\" → nights=5 → checkout = **30 أبريل** (25 + 5)\n- checkin 20 أبريل, customer said \"7 أيام\" → nights=6 → checkout = **26 أبريل** (20 + 6)\n\n---\n\n# ⚠️ AVAILABLE CITIES\n\n| Country | Available Cities |\n|---------|-----------------|\n| Russia | Moscow (موسكو), Saint Petersburg (سانت بطرسبرغ) |\n| Kazakhstan | Almaty (ألماتي) — auto-select |\n| Uzbekistan | *(show all available)* |\n| Poland | *(show all available)* |\n\n---\n\n# ⚠️ STAR RATING RULES\n\n**NO STARS unless tool explicitly provides `Star_Rating` with a value.**\n- `\"Star_Rating\": \"5\"` → Show ⭐️ 5 نجوم\n- `\"Star_Rating\": null` or missing → Show hotel name only, NO stars\n\n---\n\n# MODE 1: FULL PACKAGE FLOW\n\n## Step 1: Collect 6 fields & Parse Message\n\n**⚠️ FULL MESSAGE PARSING — Customers often send ALL info in one message. Extract everything BEFORE asking questions.**\n\n| Customer Message | Country | City | Date | Duration | Adults | Children |\n|-----------------|---------|------|------|----------|--------|----------|\n| \"ابي اجازه في موسكو 6 ايام - 2 كبار من غير اطفال - 25-4\" | Russia | Moscow | 2026-04-25 | 5 nights | 2 | 0 |\n| \"كازخستان 7 ليالي 2 كبار وطفلين 5 و10 من 20 ابريل\" | Kazakhstan | Almaty | 2026-04-20 | 7 nights | 2 | 2 [5,10] |\n| \"روسيا موسكو 15-5 اسبوع 3 كبار\" | Russia | Moscow | 2026-05-15 | 6 nights | 3 | 0 |\n\n**Parsing rules:**\n- City name = country: \"موسكو\" → Russia + Moscow\n- \"من غير اطفال\" / \"بدون اطفال\" → children = 0\n- Numbers with dash/slash (25-4, 15/5) → dates (day-month)\n- \"اسبوع\" = 7 days = 6 nights\n- Dash between items is separator: \"6 ايام - 2 كبار\" = 6 days AND 2 adults\n\n**If ALL 6 fields found → go DIRECTLY to Step 2. NO questions. NO confirmation.**\n\n**If asking, show:**\n\nعشان أجهز لك الباكدج ✨ أرسل لي:\n\n1️⃣ **الدولة** (روسيا - كازاخستان - أوزبكستان - بولندا)\n2️⃣ **المدينة**\n3️⃣ **تاريخ الوصول** (مثال: 15 يوليو أو 15-7)\n4️⃣ **عدد الليالي أو الأيام**\n5️⃣ **عدد الكبار**\n6️⃣ **أطفال وأعمارهم** (أو: بدون)\n\n**RULES:**\n- Ask ONLY for missing fields\n- NEVER ask for checkout/return date — calculate it yourself\n- NEVER ask country or city twice\n- Kazakhstan → auto-select Almaty\n- If children mentioned WITH ages → extract, don't ask again\n- All 6 provided → call tools immediately\n\n## Step 2: Call get_available_packages + get_services (DEFAULT)\n\n**Before calling, do the mandatory check:**\n```\nSTEP A: What did the customer say?\n  \"6 أيام\" → the customer's number is 6, the word is أيام\n\nSTEP B: Convert to nights:\n  أيام → nights = 6 - 1 = 5\n  \nSTEP C: Calculate checkout:\n  checkout = 2026-04-25 + 5 nights = 2026-04-30\n\nSTEP D: What to DISPLAY (use the SAME nights from Step B):\n  🗓️ 6 ايام / 5 ليالي  (original days number / nights from Step B)\n  📅 25 أبريل — 30 أبريل\n\nSTEP E: What to send to ALL tools:\n  duration_nights = 5 (from Step B)\n  checkout_date = 2026-04-30 (from Step C)\n```\n\n**⚠️ The \"ايام\" number in the display = the ORIGINAL number the customer said. The \"ليالي\" number = nights sent to tools. These are ALWAYS different when customer says أيام.**\n\n**More examples:**\n| Customer says | Display ايام | Display ليالي | Send to tools | Checkout (from May 25) |\n|--------------|-------------|--------------|--------------|----------------------|\n| 6 أيام | 6 | 5 | nights=5 | May 30 |\n| 7 أيام | 7 | 6 | nights=6 | May 31 |\n| 5 ليالي | 6 | 5 | nights=5 | May 30 |\n| 7 ليالي | 8 | 7 | nights=7 | June 1 |\n\n**Call get_services with DEFAULT params:**\n```json\n{\n  \"country\": \"...\",\n  \"adults\": ...,\n  \"children\": ...,\n  \"nights\": ...,\n  \"tour_days\": null,\n  \"include_transfer\": true,\n  \"include_rent\": true,\n  \"include_sim\": true\n}\n```\n\n**Call get_available_packages** with country, city, checkin, checkout, nights, adults, children, etc.\n\n## Step 3: Call calculate_package\n\nSend hotels + services to calculate_package → get Customer_Price for each hotel.\n\n## Step 4: Output Format\n\n**Display rules:**\n- `ايام` = nights + 1 (ALWAYS)\n- `ليالي` = nights (the value sent to tools)\n- `checkout` = checkin + nights\n\n**Example: customer said \"6 أيام from 25 April\" → nights=5 → display \"6 ايام / 5 ليالي\", checkout = April 30**\n\n🗓️ **{nights+1} ايام / {nights} ليالي**\n\n📅 **{checkin} — {checkin + nights}**\n\n---\n\n✅ **عرض {country_ar} {flag} — {city_ar}**\n\n▪️ **البرنامج:** 🌙 {nights} ليالي {city_ar}\n\n---\n\n📍 **السعر يشمل:**\n\n✔️ الاقامه في الفندق شامل الضرائب\n\n✔️ وجبات الافطار\n\n{IF includes.transfer} ✔️ الاستقبال والتوصيل\n\n{IF includes.rent AND Tour_Days > 0} ✔️ سياره مع سائق خاص + شامل الوقود ({Tour_Days} أيام)\n\n{IF includes.rent AND Tour_Days > 0} ✔️ جولات السياحيه\n\n{IF includes.sim} ✔️ شرايح اتصال وانترنت\n\n---\n\n🔢 **العدد {adults} بالغين{+children}**\n\n---\n\n{for each package:}\n\n{IF Star_Rating exists and not null:} ⭐️ **فنادق {Star_Rating} نجوم**\n\n🏨 **فندق {Hotel_Name}**\n\n🛏️ عدد الغرف: {Total_Rooms}\n\n📋 نوع الغرف: {Room_Type_Name}\n\n💰 **السعر الإجمالي: ${Customer_Price}**\n\n---\n\n{end each}\n\n📌 *في حال توفر الغرف*\n\nتبي تعدل شي في الباكدج؟ أو تبي أرسل لك عرض رسمي؟ 📄\n\n---\n\n# ⚠️ FORMAL OFFER (save_draft_offer)\n\n**When customer says \"ابي عرض رسمي\" / \"ارسل العرض\" / \"نعم\" (to offer question):**\n\n**Ask for name and phone if not already known:**\n\n\"عشان أرسل لك العرض الرسمي، أرسل لي:\n📝 الاسم\n📱 رقم الجوال\"\n\n**Once you have name + phone + which hotel → call save_draft_offer:**\n```json\n{\n  \"phone\": \"966501234567\",\n  \"name\": \"محمد\",\n  \"country\": \"Russia\",\n  \"price\": 1563,\n  \"details\": \"Moscow | 25 Apr - 30 Apr | 5 nights | 2 adults | Holiday Tagansky - Standard | Transfer + Car 4 days + SIM\"\n}\n```\n\n- `phone` → customer's phone number\n- `name` → customer's name\n- `country` → from the package\n- `price` → Customer_Price of the selected hotel (if not specified, use cheapest)\n- `details` → `\"{city} | {checkin} - {checkout} | {nights} nights | {adults} adults | {Hotel} - {Room} | services\"`\n\n**After calling:** \"تم حفظ طلبك ✅ فريقنا راح يتواصل معك قريب. شكراً لاختيارك أركاديا! 🌟\"\n\n---\n\n# ⚠️ SERVICE CUSTOMIZATION (AFTER INITIAL PACKAGE)\n\n**When customer asks to change services, call get_services AGAIN with updated params, then call calculate_package again.**\n\n## How It Works\n\n1. Customer says \"ابي 3 أيام جولات بس\" or \"بدون شرايح\"\n2. **Call get_services AGAIN** with updated params:\n   - Change `tour_days` to customer's requested number\n   - Change `include_transfer`, `include_rent`, `include_sim` as needed\n3. **Call calculate_package AGAIN** with:\n   - SAME hotels from original get_available_packages (remembered from Step 2)\n   - NEW services from the updated get_services call\n4. Show updated package with NEW prices\n\n## Customer Request → get_services Params\n\n| Customer Says | Change |\n|--------------|--------|\n| \"ابي 3 أيام جولات بس\" | tour_days = 3 |\n| \"قلل الجولات ل يومين\" | tour_days = 2 |\n| \"ما ابي جولات\" / \"بدون جولات\" | tour_days = 0, include_rent = false |\n| \"ما ابي استقبال\" / \"بدون توصيل\" | include_transfer = false |\n| \"ما ابي سيارة\" / \"بدون سيارة\" | include_rent = false, tour_days = 0 |\n| \"ما ابي شرايح\" / \"بدون شرايح\" / \"مش عايز sim\" | include_sim = false |\n| \"ابي الفندق بس\" | include_transfer=false, include_rent=false, include_sim=false, tour_days=0 |\n| \"ابي الفندق والاستقبال بس\" | include_rent=false, include_sim=false, tour_days=0 |\n\n## Example Conversation Flow\n\n```\nCustomer: \"ابي اجازه في موسكو 6 ايام 2 كبار 25-4\"\n→ Call get_services(country=Russia, adults=2, children=0, nights=5, tour_days=null, include_transfer=true, include_rent=true, include_sim=true)\n→ Call get_available_packages(...)\n→ Call calculate_package(hotels, services)\n→ Show package\n\nCustomer: \"الجولات كفايه 3 ايام ومش عايز sim\"\n→ Call get_services(country=Russia, adults=2, children=0, nights=5, tour_days=3, include_transfer=true, include_rent=true, include_sim=false)\n→ Call calculate_package(SAME hotels from before, NEW services)\n→ Show updated package with NEW prices\n\nCustomer: \"طيب بدون استقبال كمان\"\n→ Call get_services(country=Russia, adults=2, children=0, nights=5, tour_days=3, include_transfer=false, include_rent=true, include_sim=false)\n→ Call calculate_package(SAME hotels, NEW services)\n→ Show updated package with NEW prices\n```\n\n**⚠️ CRITICAL:**\n- ALWAYS call get_services + calculate_package on EVERY change. NEVER show old prices.\n- Keep ALL previous changes when adding new ones (stack overrides).\n- Remember the hotels array from the original get_available_packages — don't call it again unless hotel change is requested.\n\n---\n\n# MODE 2: FREE-FORM ANSWERS\n\n## Hotel Questions\n- \"عندكم فندق X؟\" → Call get_available_packages, then get_services + calculate_package\n- \"كم سعر فندق X؟\" → Same flow, show price\n- \"وش أرخص فندق؟\" → Find cheapest from calculate_package\n\n## Service Questions\n- \"كم سعر الاستقبال؟\" → General answer only. No raw prices.\n- \"تأجير سيارة كم؟\" → General answer only. No raw prices.\n\n---\n\n# HOTEL RULES\n\n- Show ALL hotels — never skip\n- Cheapest first (sort by Customer_Price)\n- Stars ONLY from `Star_Rating` field in tool response\n\n---\n\n# CHILDREN HANDLING\n\n**Pattern Recognition:**\n- \"٢ كبار\" → children = 0\n- \"عائلة من ٤\" → ASK children details\n- \"٢ كبار وطفل\" (no age) → ASK age\n- \"٢ كبار وطفل ٥ سنوات\" → children_ages = [5] ✅\n- \"٢ كبار وطفلين ٣ و٧\" → children_ages = [3, 7] ✅\n\n**If ages provided → don't ask. If missing → ask only for missing ages.**\n\n---\n\n# LANGUAGE & TONE\n\nMirror customer's language. Gulf Arabic tone. Warm, professional. Max 1-2 emojis.\n\n---\n\n# NEVER DO\n\n❌ Send \"days\" to tools — ALWAYS convert to nights first (nights = days - 1)\n❌ Ask for checkout/return date — calculate it: checkout = checkin + nights\n❌ Ask extra questions when all 6 fields are provided\n❌ Treat 7 أيام as 7 nights (it's 6 nights!)\n❌ Calculate checkout by adding days instead of nights\n❌ Show old prices after customer changes services — MUST call get_services + calculate_package again\n❌ Show cost/raw prices — ONLY Customer_Price from calculate_package\n❌ Show price breakdown — ONLY total\n❌ Mention markup/margin/commission\n❌ Calculate prices yourself — ALWAYS use tools\n❌ Skip calling calculate_package\n❌ Modify Customer_Price\n❌ Show math in output\n❌ Skip any hotel from calculate_package\n❌ Local currency\n❌ Separate rooms for children\n❌ Past dates (2026 or 2027)\n❌ Show stars unless tool provides Star_Rating\n❌ Guess star ratings\n❌ Ask country/city twice\n❌ Ask confirmation when info is complete\n❌ Say \"جاري التجهيز\" or \"ترقبني\"\n❌ Repeat customer info back\n❌ Force Mode 1 for simple questions\n❌ Ask children's ages when already provided\n❌ Call save_draft_offer without customer requesting a formal offer\n❌ Call get_available_packages without city"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        832,
+        352
+      ],
+      "id": "76521f17-fde0-4760-8d76-887fca1420b7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automation-evolution-api.f2rger.easypanel.host/chat/getBase64FromMediaMessage/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        720,
+        -176
+      ],
+      "id": "610807e0-7faf-4100-98ab-c69733d0d6fb",
+      "name": "get media"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $('Webhook').first().json;\n\nconst key = item.body.data.key;\nconst message = item.body.data.message;\nconst instance = item.body.instance;\n\nconst body = JSON.stringify({\n  message: {\n    key: {\n      remoteJid: key.remoteJid,\n      fromMe: key.fromMe,\n      id: key.id\n    },\n    message: message\n  },\n  convertToMp4: false\n});\n\nreturn [{ json: { body, instance } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        -272
+      ],
+      "id": "394fd914-7835-4761-8f1e-9ffcc95c3106",
+      "name": "Code in JavaScript1",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base64",
+        "options": {
+          "fileName": "={{ $('Webhook').first().json.body.data.key.id }}.jpg"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        864,
+        144
+      ],
+      "id": "2ad236b1-e168-43df-8f44-79a4fc810ebb",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://automation-evolution-api.f2rger.easypanel.host/chat/getBase64FromMediaMessage/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        464,
+        16
+      ],
+      "id": "df02ab21-a682-47a9-bc88-277af1d19723",
+      "name": "get media1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $('Webhook').first().json;\n\nconst key = item.body.data.key;\nconst message = item.body.data.message;\nconst instance = item.body.instance;\n\nconst body = JSON.stringify({\n  message: {\n    key: {\n      remoteJid: key.remoteJid,\n      fromMe: key.fromMe,\n      id: key.id\n    },\n    message: message\n  },\n  convertToMp4: false\n});\n\nreturn [{ json: { body, instance } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -48
+      ],
+      "id": "a3f03371-014c-4c2d-a76e-303928384196",
+      "name": "Code in JavaScript2",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "name": "={{ $node[\"Webhook\"].json[\"body\"][\"data\"][\"key\"][\"id\"] }}.jpg",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Search files and folders').first().json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        192
+      ],
+      "id": "c471dc4d-d572-4902-b4c0-979fa3f2582a",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $node[\"Webhook\"].json.body.data.pushName }} - {{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}'",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1QW2XZJ2toT1OHPNE8H7reyMdgdMqTbGL",
+            "mode": "list",
+            "cachedResultName": "Arcedia",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1QW2XZJ2toT1OHPNE8H7reyMdgdMqTbGL"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -496,
+        -192
+      ],
+      "id": "194d5805-9a34-402f-823f-4687a478a55d",
+      "name": "Search files and folders",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "=name = '{{ $node[\"Webhook\"].json.body.data.pushName }} - {{ $node[\"Webhook\"].json.body.data.key.remoteJid.split('@')[0] }}'",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1QW2XZJ2toT1OHPNE8H7reyMdgdMqTbGL",
+            "mode": "list",
+            "cachedResultName": "Arcedia",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1QW2XZJ2toT1OHPNE8H7reyMdgdMqTbGL"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1776,
+        -112
+      ],
+      "id": "47f760b2-b01f-4d44-b06a-aa516928d0ae",
+      "name": "Search files and folders1",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "mBAKfZFl7lePdWwd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        -112
+      ],
+      "id": "e06a8c7d-d84d-4b32-b9c2-2c76c92a6659",
+      "name": "Limit",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst driveLink = item.webViewLink;\nconst resumeUrl = $execution.resumeUrl;\n\nconst text = `أهلاً يا مدير، تم استلام صور ومستندات جديدة من العميل.\\n\\n🗂 لينك درايف للمراجعة:\\n${driveLink}\\n\\nبرجاء مراجعة الصور وتجهيز عرض السعر (PDF) ثم اضغط:\\n\\n✅ موافقة:\\n${resumeUrl}?decision=approve\\n\\n❌ رفض:\\n${resumeUrl}?decision=reject`;\n\nreturn [{ json: { text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        -112
+      ],
+      "id": "d6f7d1d7-1b4a-4042-aa41-99eeb8c9e653",
+      "name": "Code in JavaScript3",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst sorted = items.sort((a, b) => \n  new Date(b.json.Time_stamp) - new Date(a.json.Time_stamp)\n);\n\nreturn [sorted[0]];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3728,
+        -592
+      ],
+      "id": "00fbfcf6-6a1b-41a9-8a7b-b041c46e47ba",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        1088
+      ],
+      "id": "d028223c-672b-4037-b7fe-dca08fdaa4bd",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "LRd1W1VkQ89rCcMW",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file1": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Convert to File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File2": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calculate_package": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_available_packages1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_services1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "to leader": {
+      "main": [
+        [
+          {
+            "node": "to customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stop bot": {
+      "main": [
+        [
+          {
+            "node": "to leader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aprrove or reject from leader": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "stop bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait until approval": {
+      "main": [
+        [
+          {
+            "node": "aprrove or reject from leader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy file": {
+      "main": [
+        [
+          {
+            "node": "new template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "new template": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "to customer1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        []
+      ]
+    },
+    "to customer1": {
+      "main": [
+        []
+      ]
+    },
+    "save_draft_offer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mangement": {
+      "main": [
+        [
+          {
+            "node": "Wait until approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "get media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get media": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get media1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "get media1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders1": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Mangement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Copy file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "59ul6YkPVThk7e4U",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.arcadia-tour.cloud",
+            "user-agent": "axios/1.13.2",
+            "content-length": "11275",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "172.18.0.1",
+            "x-forwarded-host": "n8n.arcadia-tour.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "d7e5d2503074",
+            "x-real-ip": "172.18.0.1"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event": "messages.upsert",
+            "instance": "h",
+            "data": {
+              "key": {
+                "remoteJid": "380936582617@s.whatsapp.net",
+                "remoteJidAlt": "380936582617@s.whatsapp.net",
+                "fromMe": false,
+                "id": "2A25B8B512FF6AFEF2B9",
+                "participant": "",
+                "addressingMode": "lid"
+              },
+              "pushName": "شركه اركاديا السياحيه",
+              "status": "DELIVERY_ACK",
+              "message": {
+                "imageMessage": {
+                  "interactiveAnnotations": [],
+                  "scanLengths": [
+                    13167,
+                    85468,
+                    69983,
+                    76474
+                  ],
+                  "annotations": [],
+                  "url": "https://mmg.whatsapp.net/o1/v/t24/f2/m235/AQMA_fTnzHgC193Dj_Ojj8VY5vnelBiXtI2ssWDnTQKjdM_johVzCN0Bja9Fy2H9BmLiuxG1w8L_CNSeCs9wWsk1ETBEfwTWpGK6YkUzgw?ccb=9-4&oh=01_Q5Aa4AH0RLrDFTdDPg3j1gmBHABosDQ4w4gPXt7AgjuoeDN_uw&oe=69F2305C&_nc_sid=e6ed6c&mms3=true",
+                  "mimetype": "image/jpeg",
+                  "fileSha256": {
+                    "0": 134,
+                    "1": 19,
+                    "2": 254,
+                    "3": 14,
+                    "4": 254,
+                    "5": 19,
+                    "6": 29,
+                    "7": 143,
+                    "8": 176,
+                    "9": 91,
+                    "10": 126,
+                    "11": 210,
+                    "12": 155,
+                    "13": 243,
+                    "14": 28,
+                    "15": 124,
+                    "16": 1,
+                    "17": 57,
+                    "18": 126,
+                    "19": 126,
+                    "20": 151,
+                    "21": 252,
+                    "22": 173,
+                    "23": 222,
+                    "24": 62,
+                    "25": 21,
+                    "26": 179,
+                    "27": 129,
+                    "28": 63,
+                    "29": 115,
+                    "30": 135,
+                    "31": 241
+                  },
+                  "fileLength": {
+                    "low": 245094,
+                    "high": 0,
+                    "unsigned": true
+                  },
+                  "height": 1280,
+                  "width": 922,
+                  "mediaKey": {
+                    "0": 147,
+                    "1": 150,
+                    "2": 86,
+                    "3": 234,
+                    "4": 149,
+                    "5": 248,
+                    "6": 132,
+                    "7": 8,
+                    "8": 13,
+                    "9": 41,
+                    "10": 243,
+                    "11": 165,
+                    "12": 126,
+                    "13": 127,
+                    "14": 254,
+                    "15": 117,
+                    "16": 176,
+                    "17": 53,
+                    "18": 84,
+                    "19": 211,
+                    "20": 217,
+                    "21": 199,
+                    "22": 125,
+                    "23": 231,
+                    "24": 96,
+                    "25": 203,
+                    "26": 178,
+                    "27": 226,
+                    "28": 99,
+                    "29": 82,
+                    "30": 110,
+                    "31": 221
+                  },
+                  "fileEncSha256": {
+                    "0": 183,
+                    "1": 184,
+                    "2": 66,
+                    "3": 36,
+                    "4": 131,
+                    "5": 117,
+                    "6": 36,
+                    "7": 20,
+                    "8": 249,
+                    "9": 232,
+                    "10": 20,
+                    "11": 172,
+                    "12": 36,
+                    "13": 33,
+                    "14": 212,
+                    "15": 190,
+                    "16": 131,
+                    "17": 33,
+                    "18": 252,
+                    "19": 231,
+                    "20": 162,
+                    "21": 221,
+                    "22": 204,
+                    "23": 63,
+                    "24": 146,
+                    "25": 173,
+                    "26": 193,
+                    "27": 119,
+                    "28": 166,
+                    "29": 202,
+                    "30": 36,
+                    "31": 196
+                  },
+                  "directPath": "/o1/v/t24/f2/m235/AQMA_fTnzHgC193Dj_Ojj8VY5vnelBiXtI2ssWDnTQKjdM_johVzCN0Bja9Fy2H9BmLiuxG1w8L_CNSeCs9wWsk1ETBEfwTWpGK6YkUzgw?ccb=9-4&oh=01_Q5Aa4AH0RLrDFTdDPg3j1gmBHABosDQ4w4gPXt7AgjuoeDN_uw&oe=69F2305C&_nc_sid=e6ed6c",
+                  "mediaKeyTimestamp": {
+                    "low": 1774899515,
+                    "high": 0,
+                    "unsigned": false
+                  },
+                  "jpegThumbnail": {
+                    "0": 255,
+                    "1": 216,
+                    "2": 255,
+                    "3": 224,
+                    "4": 0,
+                    "5": 16,
+                    "6": 74,
+                    "7": 70,
+                    "8": 73,
+                    "9": 70,
+                    "10": 0,
+                    "11": 1,
+                    "12": 1,
+                    "13": 0,
+                    "14": 0,
+                    "15": 1,
+                    "16": 0,
+                    "17": 1,
+                    "18": 0,
+                    "19": 0,
+                    "20": 255,
+                    "21": 219,
+                    "22": 0,
+                    "23": 67,
+                    "24": 0,
+                    "25": 27,
+                    "26": 18,
+                    "27": 20,
+                    "28": 23,
+                    "29": 20,
+                    "30": 17,
+                    "31": 27,
+                    "32": 23,
+                    "33": 22,
+                    "34": 23,
+                    "35": 30,
+                    "36": 28,
+                    "37": 27,
+                    "38": 32,
+                    "39": 40,
+                    "40": 66,
+                    "41": 43,
+                    "42": 40,
+                    "43": 37,
+                    "44": 37,
+                    "45": 40,
+                    "46": 81,
+                    "47": 58,
+                    "48": 61,
+                    "49": 48,
+                    "50": 66,
+                    "51": 96,
+                    "52": 85,
+                    "53": 101,
+                    "54": 100,
+                    "55": 95,
+                    "56": 85,
+                    "57": 93,
+                    "58": 91,
+                    "59": 106,
+                    "60": 120,
+                    "61": 153,
+                    "62": 129,
+                    "63": 106,
+                    "64": 113,
+                    "65": 144,
+                    "66": 115,
+                    "67": 91,
+                    "68": 93,
+                    "69": 133,
+                    "70": 181,
+                    "71": 134,
+                    "72": 144,
+                    "73": 158,
+                    "74": 163,
+                    "75": 171,
+                    "76": 173,
+                    "77": 171,
+                    "78": 103,
+                    "79": 128,
+                    "80": 188,
+                    "81": 201,
+                    "82": 186,
+                    "83": 166,
+                    "84": 199,
+                    "85": 153,
+                    "86": 168,
+                    "87": 171,
+                    "88": 164,
+                    "89": 255,
+                    "90": 219,
+                    "91": 0,
+                    "92": 67,
+                    "93": 1,
+                    "94": 28,
+                    "95": 30,
+                    "96": 30,
+                    "97": 40,
+                    "98": 35,
+                    "99": 40,
+                    "100": 78,
+                    "101": 43,
+                    "102": 43,
+                    "103": 78,
+                    "104": 164,
+                    "105": 110,
+                    "106": 93,
+                    "107": 110,
+                    "108": 164,
+                    "109": 164,
+                    "110": 164,
+                    "111": 164,
+                    "112": 164,
+                    "113": 164,
+                    "114": 164,
+                    "115": 164,
+                    "116": 164,
+                    "117": 164,
+                    "118": 164,
+                    "119": 164,
+                    "120": 164,
+                    "121": 164,
+                    "122": 164,
+                    "123": 164,
+                    "124": 164,
+                    "125": 164,
+                    "126": 164,
+                    "127": 164,
+                    "128": 164,
+                    "129": 164,
+                    "130": 164,
+                    "131": 164,
+                    "132": 164,
+                    "133": 164,
+                    "134": 164,
+                    "135": 164,
+                    "136": 164,
+                    "137": 164,
+                    "138": 164,
+                    "139": 164,
+                    "140": 164,
+                    "141": 164,
+                    "142": 164,
+                    "143": 164,
+                    "144": 164,
+                    "145": 164,
+                    "146": 164,
+                    "147": 164,
+                    "148": 164,
+                    "149": 164,
+                    "150": 164,
+                    "151": 164,
+                    "152": 164,
+                    "153": 164,
+                    "154": 164,
+                    "155": 164,
+                    "156": 164,
+                    "157": 164,
+                    "158": 255,
+                    "159": 194,
+                    "160": 0,
+                    "161": 17,
+                    "162": 8,
+                    "163": 0,
+                    "164": 72,
+                    "165": 0,
+                    "166": 72,
+                    "167": 3,
+                    "168": 1,
+                    "169": 34,
+                    "170": 0,
+                    "171": 2,
+                    "172": 17,
+                    "173": 1,
+                    "174": 3,
+                    "175": 17,
+                    "176": 1,
+                    "177": 255,
+                    "178": 196,
+                    "179": 0,
+                    "180": 25,
+                    "181": 0,
+                    "182": 0,
+                    "183": 3,
+                    "184": 1,
+                    "185": 1,
+                    "186": 1,
+                    "187": 0,
+                    "188": 0,
+                    "189": 0,
+                    "190": 0,
+                    "191": 0,
+                    "192": 0,
+                    "193": 0,
+                    "194": 0,
+                    "195": 0,
+                    "196": 0,
+                    "197": 0,
+                    "198": 0,
+                    "199": 1,
+                    "200": 2,
+                    "201": 3,
+                    "202": 4,
+                    "203": 5,
+                    "204": 255,
+                    "205": 196,
+                    "206": 0,
+                    "207": 22,
+                    "208": 1,
+                    "209": 1,
+                    "210": 1,
+                    "211": 1,
+                    "212": 0,
+                    "213": 0,
+                    "214": 0,
+                    "215": 0,
+                    "216": 0,
+                    "217": 0,
+                    "218": 0,
+                    "219": 0,
+                    "220": 0,
+                    "221": 0,
+                    "222": 0,
+                    "223": 0,
+                    "224": 0,
+                    "225": 0,
+                    "226": 1,
+                    "227": 2,
+                    "228": 255,
+                    "229": 218,
+                    "230": 0,
+                    "231": 12,
+                    "232": 3,
+                    "233": 1,
+                    "234": 0,
+                    "235": 2,
+                    "236": 16,
+                    "237": 3,
+                    "238": 16,
+                    "239": 0,
+                    "240": 0,
+                    "241": 0,
+                    "242": 246,
+                    "243": 46,
+                    "244": 111,
+                    "245": 45,
+                    "246": 6,
+                    "247": 44,
+                    "248": 140,
+                    "249": 66,
+                    "250": 52,
+                    "251": 138,
+                    "252": 144,
+                    "253": 34,
+                    "254": 110,
+                    "255": 118,
+                    "256": 166,
+                    "257": 148,
+                    "258": 148,
+                    "259": 75,
+                    "260": 28,
+                    "261": 81,
+                    "262": 80,
+                    "263": 4,
+                    "264": 112,
+                    "265": 234,
+                    "266": 114,
+                    "267": 217,
+                    "268": 213,
+                    "269": 74,
+                    "270": 137,
+                    "271": 211,
+                    "272": 159,
+                    "273": 72,
+                    "274": 209,
+                    "275": 40,
+                    "276": 170,
+                    "277": 40,
+                    "278": 149,
+                    "279": 249,
+                    "280": 125,
+                    "281": 222,
+                    "282": 116,
+                    "283": 223,
+                    "284": 126,
+                    "285": 188,
+                    "286": 61,
+                    "287": 236,
+                    "288": 99,
+                    "289": 111,
+                    "290": 93,
+                    "291": 100,
+                    "292": 28,
+                    "293": 74,
+                    "294": 196,
+                    "295": 75,
+                    "296": 195,
+                    "297": 1,
+                    "298": 169,
+                    "299": 27,
+                    "300": 1,
+                    "301": 104,
+                    "302": 10,
+                    "303": 204,
+                    "304": 14,
+                    "305": 160,
+                    "306": 51,
+                    "307": 191,
+                    "308": 255,
+                    "309": 196,
+                    "310": 0,
+                    "311": 26,
+                    "312": 17,
+                    "313": 0,
+                    "314": 2,
+                    "315": 3,
+                    "316": 1,
+                    "317": 1,
+                    "318": 0,
+                    "319": 0,
+                    "320": 0,
+                    "321": 0,
+                    "322": 0,
+                    "323": 0,
+                    "324": 0,
+                    "325": 0,
+                    "326": 0,
+                    "327": 0,
+                    "328": 0,
+                    "329": 0,
+                    "330": 1,
+                    "331": 16,
+                    "332": 17,
+                    "333": 32,
+                    "334": 33,
+                    "335": 49,
+                    "336": 255,
+                    "337": 218,
+                    "338": 0,
+                    "339": 8,
+                    "340": 1,
+                    "341": 2,
+                    "342": 1,
+                    "343": 1,
+                    "344": 63,
+                    "345": 0,
+                    "346": 149,
+                    "347": 149,
+                    "348": 182,
+                    "349": 155,
+                    "350": 92,
+                    "351": 60,
+                    "352": 155,
+                    "353": 23,
+                    "354": 34,
+                    "355": 138,
+                    "356": 25,
+                    "357": 255,
+                    "358": 196,
+                    "359": 0,
+                    "360": 26,
+                    "361": 17,
+                    "362": 1,
+                    "363": 0,
+                    "364": 2,
+                    "365": 3,
+                    "366": 1,
+                    "367": 0,
+                    "368": 0,
+                    "369": 0,
+                    "370": 0,
+                    "371": 0,
+                    "372": 0,
+                    "373": 0,
+                    "374": 0,
+                    "375": 0,
+                    "376": 0,
+                    "377": 0,
+                    "378": 1,
+                    "379": 0,
+                    "380": 17,
+                    "381": 2,
+                    "382": 32,
+                    "383": 33,
+                    "384": 16,
+                    "385": 255,
+                    "386": 218,
+                    "387": 0,
+                    "388": 8,
+                    "389": 1,
+                    "390": 3,
+                    "391": 1,
+                    "392": 1,
+                    "393": 63,
+                    "394": 0,
+                    "395": 117,
+                    "396": 101,
+                    "397": 232,
+                    "398": 221,
+                    "399": 206,
+                    "400": 203,
+                    "401": 150,
+                    "402": 249,
+                    "403": 138,
+                    "404": 15,
+                    "405": 98,
+                    "406": 139,
+                    "407": 207,
+                    "408": 8,
+                    "409": 76,
+                    "410": 139,
+                    "411": 211,
+                    "412": 25,
+                    "413": 255,
+                    "414": 196,
+                    "415": 0,
+                    "416": 43,
+                    "417": 16,
+                    "418": 0,
+                    "419": 1,
+                    "420": 4,
+                    "421": 1,
+                    "422": 3,
+                    "423": 2,
+                    "424": 4,
+                    "425": 6,
+                    "426": 3,
+                    "427": 0,
+                    "428": 0,
+                    "429": 0,
+                    "430": 0,
+                    "431": 0,
+                    "432": 0,
+                    "433": 0,
+                    "434": 1,
+                    "435": 0,
+                    "436": 2,
+                    "437": 3,
+                    "438": 17,
+                    "439": 4,
+                    "440": 18,
+                    "441": 33,
+                    "442": 49,
+                    "443": 50,
+                    "444": 65,
+                    "445": 5,
+                    "446": 16,
+                    "447": 20,
+                    "448": 114,
+                    "449": 19,
+                    "450": 34,
+                    "451": 51,
+                    "452": 52,
+                    "453": 66,
+                    "454": 81,
+                    "455": 32,
+                    "456": 82,
+                    "457": 97,
+                    "458": 255,
+                    "459": 218,
+                    "460": 0,
+                    "461": 8,
+                    "462": 1,
+                    "463": 1,
+                    "464": 0,
+                    "465": 1,
+                    "466": 63,
+                    "467": 0,
+                    "468": 198,
+                    "469": 250,
+                    "470": 17,
+                    "471": 123,
+                    "472": 86,
+                    "473": 183,
+                    "474": 106,
+                    "475": 175,
+                    "476": 227,
+                    "477": 73,
+                    "478": 252,
+                    "479": 163,
+                    "480": 122,
+                    "481": 74,
+                    "482": 198,
+                    "483": 251,
+                    "484": 120,
+                    "485": 183,
+                    "486": 252,
+                    "487": 86,
+                    "488": 250,
+                    "489": 252,
+                    "490": 207,
+                    "491": 156,
+                    "492": 156,
+                    "493": 163,
+                    "494": 208,
+                    "495": 86,
+                    "496": 55,
+                    "497": 208,
+                    "498": 139,
+                    "499": 218,
+                    "500": 139,
+                    "501": 29,
+                    "502": 170,
+                    "503": 252,
+                    "504": 143,
+                    "505": 8,
+                    "506": 249,
+                    "507": 94,
+                    "508": 201,
+                    "509": 221,
+                    "510": 72,
+                    "511": 244,
+                    "512": 149,
+                    "513": 138,
+                    "514": 219,
+                    "515": 199,
+                    "516": 143,
+                    "517": 126,
+                    "518": 222,
+                    "519": 70,
+                    "520": 236,
+                    "521": 34,
+                    "522": 121,
+                    "523": 91,
+                    "524": 170,
+                    "525": 220,
+                    "526": 175,
+                    "527": 197,
+                    "528": 22,
+                    "529": 222,
+                    "530": 234,
+                    "531": 67,
+                    "532": 177,
+                    "533": 80,
+                    "534": 102,
+                    "535": 61,
+                    "536": 144,
+                    "537": 176,
+                    "538": 105,
+                    "539": 236,
+                    "540": 189,
+                    "541": 107,
+                    "542": 255,
+                    "543": 0,
+                    "544": 168,
+                    "545": 67,
+                    "546": 49,
+                    "547": 228,
+                    "548": 236,
+                    "549": 208,
+                    "550": 80,
+                    "551": 201,
+                    "552": 146,
+                    "553": 247,
+                    "554": 96,
+                    "555": 71,
+                    "556": 58,
+                    "557": 158,
+                    "558": 24,
+                    "559": 90,
+                    "560": 45,
+                    "561": 122,
+                    "562": 167,
+                    "563": 95,
+                    "564": 72,
+                    "565": 71,
+                    "566": 37,
+                    "567": 213,
+                    "568": 210,
+                    "569": 23,
+                    "570": 170,
+                    "571": 117,
+                    "572": 116,
+                    "573": 4,
+                    "574": 252,
+                    "575": 135,
+                    "576": 186,
+                    "577": 233,
+                    "578": 129,
+                    "579": 99,
+                    "580": 69,
+                    "581": 170,
+                    "582": 6,
+                    "583": 108,
+                    "584": 56,
+                    "585": 83,
+                    "586": 101,
+                    "587": 226,
+                    "588": 193,
+                    "589": 46,
+                    "590": 135,
+                    "591": 201,
+                    "592": 191,
+                    "593": 112,
+                    "594": 2,
+                    "595": 143,
+                    "596": 67,
+                    "597": 227,
+                    "598": 18,
+                    "599": 71,
+                    "600": 68,
+                    "601": 30,
+                    "602": 8,
+                    "603": 64,
+                    "604": 19,
+                    "605": 217,
+                    "606": 77,
+                    "607": 28,
+                    "608": 108,
+                    "609": 144,
+                    "610": 72,
+                    "611": 225,
+                    "612": 186,
+                    "613": 103,
+                    "614": 207,
+                    "615": 71,
+                    "616": 78,
+                    "617": 197,
+                    "618": 22,
+                    "619": 22,
+                    "620": 139,
+                    "621": 229,
+                    "622": 7,
+                    "623": 11,
+                    "624": 173,
+                    "625": 40,
+                    "626": 86,
+                    "627": 147,
+                    "628": 66,
+                    "629": 150,
+                    "630": 47,
+                    "631": 219,
+                    "632": 55,
+                    "633": 218,
+                    "634": 157,
+                    "635": 3,
+                    "636": 53,
+                    "637": 60,
+                    "638": 152,
+                    "639": 154,
+                    "640": 235,
+                    "641": 59,
+                    "642": 18,
+                    "643": 176,
+                    "644": 219,
+                    "645": 163,
+                    "646": 11,
+                    "647": 72,
+                    "648": 21,
+                    "649": 69,
+                    "650": 68,
+                    "651": 215,
+                    "652": 145,
+                    "653": 187,
+                    "654": 136,
+                    "655": 83,
+                    "656": 159,
+                    "657": 155,
+                    "658": 73,
+                    "659": 117,
+                    "660": 145,
+                    "661": 254,
+                    "662": 40,
+                    "663": 230,
+                    "664": 37,
+                    "665": 128,
+                    "666": 181,
+                    "667": 132,
+                    "668": 132,
+                    "669": 199,
+                    "670": 23,
+                    "671": 13,
+                    "672": 197,
+                    "673": 39,
+                    "674": 53,
+                    "675": 167,
+                    "676": 114,
+                    "677": 133,
+                    "678": 104,
+                    "679": 52,
+                    "680": 189,
+                    "681": 92,
+                    "682": 88,
+                    "683": 152,
+                    "684": 177,
+                    "685": 186,
+                    "686": 67,
+                    "687": 200,
+                    "688": 217,
+                    "689": 75,
+                    "690": 59,
+                    "691": 167,
+                    "692": 121,
+                    "693": 124,
+                    "694": 96,
+                    "695": 6,
+                    "696": 158,
+                    "697": 197,
+                    "698": 96,
+                    "699": 231,
+                    "700": 107,
+                    "701": 7,
+                    "702": 29,
+                    "703": 237,
+                    "704": 162,
+                    "705": 59,
+                    "706": 142,
+                    "707": 233,
+                    "708": 146,
+                    "709": 182,
+                    "710": 171,
+                    "711": 116,
+                    "712": 24,
+                    "713": 199,
+                    "714": 146,
+                    "715": 65,
+                    "716": 41,
+                    "717": 173,
+                    "718": 0,
+                    "719": 105,
+                    "720": 28,
+                    "721": 46,
+                    "722": 10,
+                    "723": 115,
+                    "724": 104,
+                    "725": 221,
+                    "726": 157,
+                    "727": 208,
+                    "728": 218,
+                    "729": 50,
+                    "730": 179,
+                    "731": 4,
+                    "732": 62,
+                    "733": 154,
+                    "734": 31,
+                    "735": 140,
+                    "736": 9,
+                    "737": 29,
+                    "738": 169,
+                    "739": 49,
+                    "740": 216,
+                    "741": 161,
+                    "742": 180,
+                    "743": 26,
+                    "744": 120,
+                    "745": 76,
+                    "746": 126,
+                    "747": 44,
+                    "748": 82,
+                    "749": 107,
+                    "750": 96,
+                    "751": 118,
+                    "752": 164,
+                    "753": 220,
+                    "754": 248,
+                    "755": 255,
+                    "756": 0,
+                    "757": 68,
+                    "758": 167,
+                    "759": 120,
+                    "760": 132,
+                    "761": 100,
+                    "762": 80,
+                    "763": 4,
+                    "764": 20,
+                    "765": 223,
+                    "766": 16,
+                    "767": 141,
+                    "768": 166,
+                    "769": 205,
+                    "770": 163,
+                    "771": 226,
+                    "772": 112,
+                    "773": 254,
+                    "774": 138,
+                    "775": 118,
+                    "776": 123,
+                    "777": 46,
+                    "778": 201,
+                    "779": 43,
+                    "780": 30,
+                    "781": 81,
+                    "782": 52,
+                    "783": 5,
+                    "784": 237,
+                    "785": 186,
+                    "786": 95,
+                    "787": 255,
+                    "788": 254,
+                    "789": 0,
+                    "790": 3,
+                    "791": 0,
+                    "792": 255,
+                    "793": 217
+                  },
+                  "contextInfo": {
+                    "mentionedJid": [],
+                    "groupMentions": [],
+                    "statusAttributions": [],
+                    "statusSourceType": 0
+                  },
+                  "firstScanSidecar": {
+                    "0": 229,
+                    "1": 92,
+                    "2": 175,
+                    "3": 93,
+                    "4": 41,
+                    "5": 200,
+                    "6": 164,
+                    "7": 254,
+                    "8": 102,
+                    "9": 152
+                  },
+                  "firstScanLength": 13167,
+                  "scansSidecar": {
+                    "0": 229,
+                    "1": 92,
+                    "2": 175,
+                    "3": 93,
+                    "4": 41,
+                    "5": 200,
+                    "6": 164,
+                    "7": 254,
+                    "8": 102,
+                    "9": 152,
+                    "10": 214,
+                    "11": 190,
+                    "12": 147,
+                    "13": 60,
+                    "14": 189,
+                    "15": 94,
+                    "16": 198,
+                    "17": 107,
+                    "18": 220,
+                    "19": 87,
+                    "20": 242,
+                    "21": 9,
+                    "22": 24,
+                    "23": 195,
+                    "24": 2,
+                    "25": 163,
+                    "26": 70,
+                    "27": 193,
+                    "28": 254,
+                    "29": 128,
+                    "30": 119,
+                    "31": 28,
+                    "32": 207,
+                    "33": 219,
+                    "34": 153,
+                    "35": 10,
+                    "36": 97,
+                    "37": 76,
+                    "38": 41,
+                    "39": 155
+                  },
+                  "midQualityFileSha256": {
+                    "0": 161,
+                    "1": 246,
+                    "2": 66,
+                    "3": 243,
+                    "4": 234,
+                    "5": 150,
+                    "6": 90,
+                    "7": 115,
+                    "8": 255,
+                    "9": 209,
+                    "10": 160,
+                    "11": 132,
+                    "12": 205,
+                    "13": 16,
+                    "14": 124,
+                    "15": 246,
+                    "16": 156,
+                    "17": 16,
+                    "18": 18,
+                    "19": 155,
+                    "20": 241,
+                    "21": 122,
+                    "22": 152,
+                    "23": 213,
+                    "24": 158,
+                    "25": 52,
+                    "26": 116,
+                    "27": 97,
+                    "28": 103,
+                    "29": 197,
+                    "30": 30,
+                    "31": 157
+                  },
+                  "imageSourceType": 0
+                },
+                "messageContextInfo": {
+                  "threadId": [],
+                  "deviceListMetadata": {
+                    "senderKeyIndexes": [],
+                    "recipientKeyIndexes": [],
+                    "senderKeyHash": {
+                      "0": 251,
+                      "1": 22,
+                      "2": 244,
+                      "3": 130,
+                      "4": 253,
+                      "5": 165,
+                      "6": 210,
+                      "7": 38,
+                      "8": 157,
+                      "9": 157
+                    },
+                    "senderTimestamp": {
+                      "low": 1774743114,
+                      "high": 0,
+                      "unsigned": true
+                    },
+                    "recipientKeyHash": {
+                      "0": 50,
+                      "1": 1,
+                      "2": 58,
+                      "3": 132,
+                      "4": 165,
+                      "5": 45,
+                      "6": 242,
+                      "7": 168,
+                      "8": 187,
+                      "9": 243
+                    },
+                    "recipientTimestamp": {
+                      "low": 1774898888,
+                      "high": 0,
+                      "unsigned": true
+                    }
+                  },
+                  "deviceListMetadataVersion": 2,
+                  "messageSecret": {
+                    "0": 227,
+                    "1": 243,
+                    "2": 102,
+                    "3": 88,
+                    "4": 121,
+                    "5": 217,
+                    "6": 210,
+                    "7": 108,
+                    "8": 161,
+                    "9": 92,
+                    "10": 83,
+                    "11": 115,
+                    "12": 71,
+                    "13": 76,
+                    "14": 138,
+                    "15": 53,
+                    "16": 247,
+                    "17": 112,
+                    "18": 115,
+                    "19": 123,
+                    "20": 204,
+                    "21": 119,
+                    "22": 0,
+                    "23": 17,
+                    "24": 239,
+                    "25": 193,
+                    "26": 74,
+                    "27": 136,
+                    "28": 77,
+                    "29": 194,
+                    "30": 220,
+                    "31": 88
+                  }
+                }
+              },
+              "contextInfo": {
+                "mentionedJid": [],
+                "groupMentions": [],
+                "statusAttributions": [],
+                "statusSourceType": 0
+              },
+              "messageType": "imageMessage",
+              "messageTimestamp": 1774899818,
+              "instanceId": "8aa89a08-c5f4-40d1-a342-939f38499018",
+              "source": "unknown"
+            },
+            "destination": "https://n8n.arcadia-tour.cloud/webhook/arcadianew",
+            "date_time": "2026-03-30T16:43:38.374Z",
+            "sender": "77064007561@s.whatsapp.net",
+            "server_url": "https://automation-evolution-api.f2rger.easypanel.host",
+            "apikey": "863E50B69702-4B1F-B00F-45E76B267DBE"
+          },
+          "webhookUrl": "https://n8n.arcadia-tour.cloud/webhook/arcadianew",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "92804270-3eab-45f1-b234-cfd9fa771fea",
+  "versionCounter": 282,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-13T16:04:13.794Z",
+      "createdAt": "2026-02-13T16:04:13.794Z",
+      "role": "workflow:owner",
+      "workflowId": "4wFcoaIRIZ0Y09dO",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

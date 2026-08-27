@@ -1,0 +1,93 @@
+{
+  "updatedAt": "2026-04-22T10:14:01.724Z",
+  "createdAt": "2026-04-22T10:14:01.724Z",
+  "id": "ic9tdkxsmeRJAjkW",
+  "name": "Arcadia - Cancel FU on Reply [HELPER]",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "n1",
+      "name": "Cancel Follow-up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Cancel Follow-up on Client Reply\n// أول Code node في Laila Webhook\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nconst raw = $input.first().json;\n\n// ── Checkpoint 1: Defensive fromMe detection ──────────\nconst msgData       = raw.data || raw;\nconst incomingPhone = msgData?.key?.remoteJid?.replace('@s.whatsapp.net', '');\nconst isFromBot     = msgData?.key?.fromMe === true || msgData?.message?.fromMe === true;\n\nif (!incomingPhone || isFromBot) {\n  console.log(`[CANCEL-FU] skip — phone=${incomingPhone} fromMe=${isFromBot}`);\n  return $input.all();\n}\n\nconsole.log(`[CANCEL-FU] client replied → canceling follow-up for ${incomingPhone}`);\n\n// ✅ إلغاء follow-up + تسجيل وقت الرد\nconst res = await fetch(`${SUPABASE_URL}/rest/v1/leads?phone=eq.${incomingPhone}`, {\n  method: 'PATCH',\n  headers: {\n    'apikey': SUPABASE_KEY,\n    'Authorization': `Bearer ${SUPABASE_KEY}`,\n    'Content-Type': 'application/json',\n    'Prefer': 'return=representation',\n  },\n  body: JSON.stringify({\n    next_followup: null,\n    last_contact:  new Date().toISOString(),\n  }),\n});\n\nconst data     = await res.json();\nconst affected = Array.isArray(data) ? data.length : 0;\nconsole.log(`[CANCEL-FU] done — leads updated: ${affected}`);\n\nreturn $input.all();\n"
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "23f0ccfb-7e6e-48f5-9b28-3b26695e9158",
+  "versionCounter": 1,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T10:14:01.727Z",
+      "createdAt": "2026-04-22T10:14:01.727Z",
+      "role": "workflow:owner",
+      "workflowId": "ic9tdkxsmeRJAjkW",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

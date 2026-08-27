@@ -1,0 +1,1233 @@
+{
+  "updatedAt": "2026-07-03T00:06:08.804Z",
+  "createdAt": "2026-03-31T21:19:24.124Z",
+  "id": "0sSEVMDJJzyJqGQs",
+  "name": "Arcadia Marketing Bot",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ],
+      "id": "tg-trigger",
+      "name": "Bot Trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "9sstF4ebHLE5WSSj",
+          "name": "Arcadia Marketing Bot"
+        }
+      },
+      "webhookId": "arcadia-marketing-bot"
+    },
+    {
+      "parameters": {
+        "jsCode": "const upd = $input.item.json;\nconst cbCountryMap = {\n  kz: 'كازاخستان', ru: 'روسيا', pl: 'بولندا', uz: 'أوزبكستان', cn: 'الصين',\n};\n\nif (upd.callback_query) {\n  const cb = upd.callback_query.data || '';\n  const msgId = upd.callback_query.message?.message_id;\n  const chatId = upd.callback_query.message?.chat?.id || 493831958;\n  const callbackId = upd.callback_query.id;\n\n  if (cb.startsWith('seo_approve_')) {\n    return [{ json: { cmd: 'seo_approve', postId: cb.replace('seo_approve_',''), chatId, msgId, callbackId } }];\n  }\n  if (cb.startsWith('seo_reject_')) {\n    return [{ json: { cmd: 'seo_reject', postId: cb.replace('seo_reject_',''), chatId, msgId, callbackId } }];\n  }\n\n  if (cb.startsWith('seo_pick_')) {\n    const code = cb.slice('seo_pick_'.length).toLowerCase();\n    const country = cbCountryMap[code];\n    if (country) {\n      return [{ json: { cmd: 'seo_country', country, chatId, msgId, callbackId } }];\n    }\n  }\n\n  if (cb.startsWith('seo_pick:')) {\n    const code = cb.slice('seo_pick:'.length).toLowerCase();\n    const country = cbCountryMap[code];\n    if (country) {\n      return [{ json: { cmd: 'seo_country', country, chatId, msgId, callbackId } }];\n    }\n  }\n\n  return [{ json: { cmd: 'unknown_callback', chatId, msgId, callbackId, raw: cb } }];\n}\n\nconst msg = upd.message || {};\nconst chatId = msg.chat?.id || 493831958;\nconst text = (msg.text || '').trim();\nconst msgId = msg.message_id;\nconst countryMap = {\n  'كازاخستان':'كازاخستان','kazakhstan':'كازاخستان','kz':'كازاخستان',\n  'روسيا':'روسيا','russia':'روسيا','ru':'روسيا',\n  'بولندا':'بولندا','poland':'بولندا','pl':'بولندا',\n  'أوزبكستان':'أوزبكستان','uzbekistan':'أوزبكستان','uz':'أوزبكستان',\n  'الصين':'الصين','china':'الصين','cn':'الصين','صين':'الصين',\n};\n\nconst posterMatch = text.match(/^(?:بوستر|poster|generate|\\/generate)\\s+(.+)$/i);\nif (posterMatch) {\n  const rawCountry = posterMatch[1].trim().toLowerCase();\n  const country = countryMap[rawCountry];\n  if (country) {\n    return [{ json: { cmd: 'poster_country', country, chatId, msgId, callbackId: '' } }];\n  }\n}\n\nconst seoMatch = text.match(/^(?:مقال[ةه]?|article|seo)\\s+(.+)$/iu);\nif (seoMatch) {\n  const rawCountry = seoMatch[1].trim();\n  const country = countryMap[rawCountry.toLowerCase()] || countryMap[rawCountry];\n  if (country) return [{ json: { cmd: 'seo_country', country, chatId, msgId, callbackId: '' } }];\n}\n\nconst plain = countryMap[text.toLowerCase()] || countryMap[text.trim()];\nif (plain) return [{ json: { cmd: 'seo_country', country: plain, chatId, msgId, callbackId: '' } }];\n\nconst cmd = text.startsWith('/') ? text.slice(1).toLowerCase().split(' ')[0] : text.toLowerCase().replace(/\\s+/g,'');\nreturn [{ json: { cmd, chatId, msgId, text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "id": "parse-input",
+      "name": "Parse Input"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "status",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        100
+      ],
+      "id": "if-status",
+      "name": "Is status?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/content_queue?select=status",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJ-REDACTED-SERVICE-ROLE"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -60
+      ],
+      "id": "fetch-status",
+      "name": "Fetch Status"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst arr = Array.isArray($input.item.json) ? $input.item.json : [];\nconst c = {draft:0,approved:0,published:0,rejected:0};\narr.forEach(i => { if(c[i.status] !== undefined) c[i.status]++; });\nreturn [{json:{text:'📊 <b>حالة المحتوى</b>\\n\\n⏳ للمراجعة: <b>'+c.draft+'</b>\\n✅ موافق: <b>'+c.approved+'</b>\\n📤 منشور: <b>'+c.published+'</b>\\n❌ مرفوض: <b>'+c.rejected+'</b>'}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -60
+      ],
+      "id": "build-status",
+      "name": "Build Status"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\":493831958,\"text\":\"{{ $json.text }}\",\"parse_mode\":\"HTML\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        -60
+      ],
+      "id": "send-status",
+      "name": "Send Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "generate",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "id": "if-gen",
+      "name": "Is generate?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"chat_id\": 493831958, \"text\": \"\\u2699\\ufe0f \\u062c\\u0627\\u0631\\u064a \\u0627\\u0644\\u062a\\u0648\\u0644\\u064a\\u062f... \\u064a\\u0635\\u0644\\u0643 \\u0627\\u0644\\u0628\\u0648\\u0633\\u062a\\u0631 \\u062e\\u0644\\u0627\\u0644 \\u062f\\u0642\\u064a\\u0642\\u0629 \\ud83c\\udfa8\", \"parse_mode\": \"HTML\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        220
+      ],
+      "id": "reply-gen",
+      "name": "Reply Generate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/content-gen-run",
+        "sendHeaders": true,
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ destination: $json.country || 'كازاخستان' }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ],
+      "id": "run-gen",
+      "name": "Run Generator"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "seo",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": false
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "مقال",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": false
+              }
+            }
+          ],
+          "combinator": "or"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        500
+      ],
+      "id": "if-seo",
+      "name": "Is seo?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "contentType": "raw",
+        "options": {},
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  chat_id: $('Parse Input').item.json.chatId || 493831958,\n  text: \"📝 اختر الدولة للمقال أو اكتب: مقال كازاخستان\",\n  parse_mode: \"HTML\",\n  reply_markup: {\n    inline_keyboard: [\n      [\n        { text: \"🇰🇿 كازاخستان\", callback_data: \"seo_pick:kz\" },\n        { text: \"🇷🇺 روسيا\", callback_data: \"seo_pick:ru\" }\n      ],\n      [\n        { text: \"🇵🇱 بولندا\", callback_data: \"seo_pick:pl\" },\n        { text: \"🇺🇿 أوزبكستان\", callback_data: \"seo_pick:uz\" }\n      ],\n      [\n        { text: \"🇨🇳 الصين\", callback_data: \"seo_pick:cn\" }\n      ]\n    ]\n  }\n}) }}",
+        "sendBody": true
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        440
+      ],
+      "id": "reply-seo",
+      "name": "Reply SEO"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/api/v1/workflows/cs4mxROtYBnSaPHr/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "eyJ-REDACTED-SERVICE-ROLE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {
+          "timeout": 8000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        500
+      ],
+      "id": "run-seo",
+      "name": "Run SEO",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "schedule",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        700
+      ],
+      "id": "if-sched",
+      "name": "Is schedule?"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/content_queue?status=eq.draft&order=scheduled_date.asc&limit=5&select=destination,scheduled_date",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJ-REDACTED-SERVICE-ROLE"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        640
+      ],
+      "id": "fetch-sched",
+      "name": "Fetch Schedule"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst arr = Array.isArray($input.item.json) ? $input.item.json : [];\nif(!arr.length || !arr[0].destination){\n  return [{json:{text:'📅 لا يوجد محتوى مجدول حالياً.'}}];\n}\nlet msg = '📅 <b>المحتوى القادم:</b>\n\n';\narr.forEach((i,n) => { msg += (n+1)+'. '+i.destination+' — '+(i.scheduled_date||'')+'\n'; });\nreturn [{json:{text:msg}}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        640
+      ],
+      "id": "build-sched",
+      "name": "Build Schedule"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\":493831958,\"text\":\"{{ $json.text }}\",\"parse_mode\":\"HTML\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        640
+      ],
+      "id": "send-sched",
+      "name": "Send Schedule"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"chat_id\": 493831958, \"text\": \"\\ud83d\\udc4b \\u0623\\u0647\\u0644\\u0627\\u064b! \\u0628\\u0648\\u062a \\u0623\\u0631\\u0643\\u0627\\u062f\\u064a\\u0627 \\ud83d\\ude80\\n\\n/status \\u2014 \\u062d\\u0627\\u0644\\u0629 \\u0627\\u0644\\u0645\\u062d\\u062a\\u0648\\u0649\\n/generate \\u0643\\u0627\\u0632\\u0627\\u062e\\u0633\\u062a\\u0627\\u0646 \\u2014 \\u0628\\u0648\\u0633\\u062a\\u0631 \\u062c\\u062f\\u064a\\u062f\\n/seo \\u2014 \\u0645\\u0642\\u0627\\u0644 SEO\\n/schedule \\u2014 \\u0627\\u0644\\u0645\\u062c\\u062f\\u0648\\u0644\", \"parse_mode\": \"HTML\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        860
+      ],
+      "id": "reply-start",
+      "name": "Reply Start"
+    },
+    {
+      "id": "is-seo-approve",
+      "name": "Is SEO Approve?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        600
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "seo_approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": false
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "is-seo-reject",
+      "name": "Is SEO Reject?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        750
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "seo_reject",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": false
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "publish-wp-post",
+      "name": "Publish WP Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1100,
+        600
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.arg }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YWRtaW46TExJZnNwaDFQQ043YXNFZVMwZHZwQXB2"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\"status\":\"publish\"}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      }
+    },
+    {
+      "id": "delete-wp-post",
+      "name": "Delete WP Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1100,
+        750
+      ],
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://187.77.64.14/wp-json/wp/v2/posts/{{ $json.arg }}?force=true",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic YWRtaW46TExJZnNwaDFQQ043YXNFZVMwZHZwQXB2"
+            },
+            {
+              "name": "Host",
+              "value": "wordpress-arcadia-wp.f2rger.easypanel.host"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      }
+    },
+    {
+      "id": "answer-seo-cb",
+      "name": "Answer SEO Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1300,
+        675
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/answerCallbackQuery",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  callback_query_id: $('Parse Input').item.json.callbackId,\n  text: $('Parse Input').item.json.cmd === 'seo_approve' ? '✅ تم النشر!' : '🗑️ تم الحذف'\n}) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "notify-seo-done",
+      "name": "Notify SEO Done",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1500,
+        675
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  chat_id: 493831958,\n  text: $('Parse Input').item.json.cmd === 'seo_approve'\n    ? '✅ تم نشر المقالة على الموقع!'\n    : '🗑️ تم حذف المسودة.'\n}) }}",
+        "options": {}
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "seo_country",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        400
+      ],
+      "id": "is-seo-country",
+      "name": "Is seo_country?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $json.chatId || 493831958, text: \"⏳ جاري كتابة المقال عن \" + $json.country + \"...\\nانتظر دقيقتين تقريباً ✍️\" }) }}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        360
+      ],
+      "id": "ack-country",
+      "name": "Ack Country"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/seo-manual-run",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ country: $json.country, with_image: true }) }}",
+        "options": {
+          "timeout": 5000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2600,
+        360
+      ],
+      "id": "run-seo-country",
+      "name": "Run SEO With Country"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.cmd }}",
+              "rightValue": "poster_country",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": true
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        480
+      ],
+      "id": "7110c85a-4b16-47fc-8ccb-a1047ae8dc4e",
+      "name": "Is poster_country?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\": 493831958, \"text\": \"🎨 جاري توليد بوستر {{ $json.country }} عبر Fal... انتظر دقيقة ⏳\", \"parse_mode\": \"HTML\"}"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        440
+      ],
+      "id": "f03e7771-e021-4ecb-b5cc-21559ab45ec7",
+      "name": "Ack Poster"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/content-gen-run",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ destination: $json.country }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        440
+      ],
+      "id": "19e81c29-b119-4f9b-9a5e-ae2746c68d98",
+      "name": "Run Poster With Country"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.callbackId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "has-seo-callback",
+      "name": "Has SEO callback?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2300,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/answerCallbackQuery",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ callback_query_id: $json.callbackId, text: '✅ ' + ($json.country || '') }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "answer-seo-pick",
+      "name": "Answer SEO Pick",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.callbackId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "f833447e-1414-4f21-9e3d-2e7997c52720",
+      "name": "Has Country Callback?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/answerCallbackQuery",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ callback_query_id: $json.callbackId, text: 'جاري كتابة المقال...' }) }}",
+        "options": {}
+      },
+      "id": "730c99c9-553e-44b7-8f2f-48f51d543323",
+      "name": "Answer Country Callback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2200,
+        360
+      ]
+    }
+  ],
+  "connections": {
+    "Bot Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Input": {
+      "main": [
+        [
+          {
+            "node": "Is status?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is poster_country?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is seo_country?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is status?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is generate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Status": {
+      "main": [
+        [
+          {
+            "node": "Build Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Status": {
+      "main": [
+        [
+          {
+            "node": "Send Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is generate?": {
+      "main": [
+        [
+          {
+            "node": "Reply Generate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is seo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Generate": {
+      "main": [
+        [
+          {
+            "node": "Run Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is seo?": {
+      "main": [
+        [
+          {
+            "node": "Reply SEO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is schedule?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply SEO": {
+      "main": [
+        []
+      ]
+    },
+    "Is schedule?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is SEO Approve?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Schedule": {
+      "main": [
+        [
+          {
+            "node": "Build Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Schedule": {
+      "main": [
+        [
+          {
+            "node": "Send Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is SEO Approve?": {
+      "main": [
+        [
+          {
+            "node": "Publish WP Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is SEO Reject?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is SEO Reject?": {
+      "main": [
+        [
+          {
+            "node": "Delete WP Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is seo_country?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish WP Post": {
+      "main": [
+        [
+          {
+            "node": "Answer SEO Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete WP Post": {
+      "main": [
+        [
+          {
+            "node": "Answer SEO Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer SEO Callback": {
+      "main": [
+        [
+          {
+            "node": "Notify SEO Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is seo_country?": {
+      "main": [
+        [
+          {
+            "node": "Has Country Callback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ack Country": {
+      "main": [
+        [
+          {
+            "node": "Run SEO With Country",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is poster_country?": {
+      "main": [
+        [
+          {
+            "node": "Ack Poster",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Ack Poster": {
+      "main": [
+        [
+          {
+            "node": "Run Poster With Country",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has SEO callback?": {
+      "main": [
+        [
+          {
+            "node": "Answer SEO Pick",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ack Country",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer SEO Pick": {
+      "main": [
+        [
+          {
+            "node": "Ack Country",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Country Callback?": {
+      "main": [
+        [
+          {
+            "node": "Answer Country Callback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ack Country",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Country Callback": {
+      "main": [
+        [
+          {
+            "node": "Ack Country",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "cc758b8f-dd3d-4536-ac90-be357cc1dd4d",
+  "versionCounter": 160,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-03-31T21:19:24.127Z",
+      "createdAt": "2026-03-31T21:19:24.127Z",
+      "role": "workflow:owner",
+      "workflowId": "0sSEVMDJJzyJqGQs",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

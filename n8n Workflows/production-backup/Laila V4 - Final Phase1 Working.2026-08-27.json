@@ -1,0 +1,429 @@
+{
+  "updatedAt": "2026-08-27T21:59:08.486Z",
+  "createdAt": "2026-08-27T21:55:59.863Z",
+  "id": "LN7Pr1RThjJQrAbY",
+  "name": "Laila V4 - Final Phase1 Working",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "3e2e3752-6876-4a61-941d-967edd8a6130",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "2cfd87f2-3271-436e-91e8-76121e7dfb68",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "laila-v4",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "35ed7f7e-e29d-4057-a5a1-0d0d37983faf",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        350,
+        150
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ee19372c-acbe-4cd8-9bbf-28af798f4b31",
+      "name": "Parse + CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst data = body.data || body;\nconst key = data.key || {};\nconst remoteJid = key.remoteJid || '';\nconst phone = remoteJid.replace('@s.whatsapp.net','').replace('@g.us','');\n\nif (key.fromMe) return [];\n\nconst message = data.message || {};\nconst messageType = data.messageType || 'unknown';\nlet textContent = '';\nif (messageType === 'conversation') textContent = message.conversation || '';\nelse if (messageType === 'extendedTextMessage') textContent = (message.extendedTextMessage||{}).text || '';\nelse if (messageType === 'audioMessage') textContent = '[رسالة صوتية]';\nelse textContent = message.conversation || message.text || '';\n\n// Normalize\n// تحويل \"X أيام\" الرقمي → (X-1) ليالي\ntextContent = textContent.replace(/(\\d+)\\s*(ايام|أيام|يوم)/g, (m, d) => {\n  const nights = parseInt(d) - 1;\n  return nights + ' ليالي';\n});\ntextContent = textContent.replace(/اسبوعين|أسبوعين/g, '13 ليالي');\ntextContent = textContent.replace(/اسبوع|أسبوع/g, '7 ليالي');\ntextContent = textContent.replace(/عشر ايام|عشرة ايام|عشر أيام|عشرة أيام/g, '9 ليالي');\ntextContent = textContent.replace(/خمسة ايام|خمس ايام|خمسة أيام/g, '4 ليالي');\ntextContent = textContent.replace(/ستة ايام|ست ايام/g, '5 ليالي');\n\nconst MANAGER_PHONE = '380936582617';\nconst isManager = (phone === MANAGER_PHONE);\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst h = { 'apikey': KEY, 'Authorization': 'Bearer '+KEY, 'Content-Type': 'application/json' };\n\nlet isNew = false, lead = null;\ntry {\n  const r = await this.helpers.httpRequest({ method:'GET', url:`${SB}/leads?phone=eq.${phone}&limit=1`, headers:h });\n  if (r.length > 0) {\n    lead = r[0];\n    await this.helpers.httpRequest({ method:'PATCH', url:`${SB}/leads?phone=eq.${phone}`, headers:{...h,'Prefer':'return=minimal'}, body:{ last_contact: new Date().toISOString(), updated_at: new Date().toISOString() } });\n  } else {\n    isNew = true;\n    if (!isManager) {\n      const r2 = await this.helpers.httpRequest({ method:'POST', url:`${SB}/leads`, headers:{...h,'Prefer':'return=representation'}, body:{ phone, stage:'new', assigned_to:'bot', source:'direct', last_contact: new Date().toISOString() } });\n      lead = r2[0] || null;\n    }\n  }\n} catch(e) {}\n\nif (!isManager) {\n  try { await this.helpers.httpRequest({ method:'POST', url:`${SB}/conversations`, headers:{...h,'Prefer':'return=minimal'}, body:{ phone, role:'user', message:textContent } }); } catch(e) {}\n}\n\n// SESSION RESET: عند التحية → احذف التاريخ القديم ثم اجلب الحديث\nconst _greetingRx = /^(السلام|سلام|مرحبا|هلا|أهلا|ياهلا|صباح|مساء|هلو|hello|hi\\b|جديد|بداية جديدة|new)/i;\nconst _isNewSession = _greetingRx.test(textContent.trim());\nif (_isNewSession && phone) {\n  // RESET LEAD DATA on greeting\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: SB + '/leads?phone=eq.' + phone,\n      headers: { ...h, Prefer: 'return=minimal' },\n      body: {\n        stage: 'new',\n        destination: null,\n        travel_dates: null,\n        pax_adults: null,\n        pax_children: null,\n        children_ages: null,\n        offer_sent: false,\n        notes: null,\n        next_followup: null,\n        follow_up_count: 0,\n        objection_type: null,\n        needs_human: false,\n        updated_at: new Date().toISOString()\n      }\n    });\n    // Update local lead object too\n    if (lead) {\n      lead.stage = 'new';\n      lead.destination = null;\n      lead.travel_dates = null;\n      lead.pax_adults = null;\n      lead.pax_children = null;\n      lead.children_ages = null;\n      lead.offer_sent = false;\n      lead.notes = null;\n    }\n  } catch(e) {}\n  try {\n    const _cutoff = new Date(Date.now() - 30000).toISOString();\n    await this.helpers.httpRequest({\n      method: 'DELETE',\n      url: `${SB}/conversations?phone=eq.${phone}&created_at=lt.${encodeURIComponent(_cutoff)}`,\n      headers: h,\n      returnFullResponse: true\n    });\n  } catch(e) {}\n}\n\nlet chatHistory = '';\ntry {\n  const msgs = await this.helpers.httpRequest({ method:'GET', url:`${SB}/conversations?phone=eq.${phone}&order=id.asc&limit=30`, headers:h });\n  chatHistory = msgs.map(m => (m.role==='user'?'العميل':'ليلى')+': '+m.message).join('\\n');\n} catch(e) {}\n\nlet managerInstructions = '';\ntry {\n  const inst = await this.helpers.httpRequest({ method:'GET', url:`${SB}/manager_instructions?active=eq.true&order=created_at.desc&limit=20`, headers:h });\n  if (inst.length>0) managerInstructions = inst.map(i=>'- '+i.instruction).join('\\n');\n} catch(e) {}\n\nlet context = '';\nif (isManager) context = 'هذا المدير أبو أمير — عامليه كمديرك.';\nelse if (isNew) context = 'عميل جديد — عرّفي نفسك \"أنا ليلى من أركاديا للسياحة\".';\nelse context = 'عميل سابق — لا تعرّفي نفسك.';\nif (lead) {\n  if (lead.name) context += ` اسمه: ${lead.name}.`;\n  if (lead.destination) context += ` الوجهة: ${lead.destination}.`;\n}\n\n// كشف لغة العميل\nconst enWords = (textContent.match(/[a-zA-Z]{3,}/g) || []).length;\nconst totalWords = textContent.trim().split(/\\s+/).length;\nconst customerLanguage = (enWords / Math.max(totalWords, 1)) > 0.5 ? 'en' : 'ar';\n\nreturn [{ json: { phone, remoteJid, textContent, customerLanguage, isManager, isNew, lead, chatHistory, managerInstructions, context } }];"
+      }
+    },
+    {
+      "id": "87a07994-11ad-435c-80c3-3db1aef79149",
+      "name": "Save Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const prev = $input.first().json;\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst h = { 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' };\nif (!prev.isManager) {\n  try { await this.helpers.httpRequest({ method:'POST', url:`${SB}/conversations`, headers:h, body:{ phone:prev.phone, role:'assistant', message:prev.response } }); } catch(e) {}\n}\nreturn [{ json: prev }];"
+      }
+    },
+    {
+      "id": "4eeb650c-d7a5-4c71-bc70-421acd560d1a",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.response }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "fu-cancel-001",
+      "name": "Cancel FU on Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Cancel Follow-up on Client Reply\n// أول Code node في Laila V4 (بعد Webhook)\n// يستخدم this.helpers.httpRequest (لا fetch)\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nconst raw     = $input.first().json;\nconst msgData = raw.data || raw;\n\n// Defensive fromMe detection\nconst incomingPhone = msgData?.key?.remoteJid?.replace('@s.whatsapp.net', '');\nconst isFromBot     = msgData?.key?.fromMe === true || msgData?.message?.fromMe === true;\n\nif (!incomingPhone || isFromBot) {\n  return $input.all();\n}\n\ntry {\n  await this.helpers.httpRequest({\n    method: 'PATCH',\n    url: `${SUPABASE_URL}/rest/v1/leads?phone=eq.${incomingPhone}`,\n    headers: {\n      'apikey': SUPABASE_KEY,\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=representation',\n    },\n    body: {\n      next_followup: null,\n      last_contact: new Date().toISOString(),\n    },\n    json: true,\n  });\n} catch(e) {\n  // لا نوقف الـ flow لو الـ patch فشل\n  console.log(`[CANCEL-FU] patch failed: ${e.message}`);\n}\n\nreturn $input.all();\n"
+      }
+    },
+    {
+      "id": "fu-set-001",
+      "name": "Set FU on Quote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Set Follow-up — Smart Detection\n// بعد \"Send WhatsApp\" في Laila V4\n// يستخدم this.helpers.httpRequest (لا fetch)\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nconst ctx    = $input.first().json;\nconst phone  = ctx.phone\n  || ctx.data?.key?.remoteJid?.replace('@s.whatsapp.net', '')\n  || ctx.from;\n\nconst botMsg      = ctx.botMessage || ctx.finalResponse || ctx.message || '';\nconst destination = ctx.destination || ctx.context?.destination || null;\nconst name        = ctx.name || ctx.clientName || null;\n\nif (!phone) return $input.all();\n\n// Price Detection\nconst PRICE_PATTERNS = [\n  /\\$[\\d,]+/, /USD\\s*[\\d,]+/i,\n  /[\\d,]{3,}\\s*(دولار|ريال|درهم)/,\n  /السعر[:\\s]+/, /🥇|🥈|🥉/,\n  /الاقتصادي|الفاخر|المتوسط/,\n  /ليلة.*\\$/,\n];\n\nconst hasPriceSent = PRICE_PATTERNS.some(p => p.test(botMsg));\nif (!hasPriceSent) return $input.all();\n\nconst nextFollowup = new Date(Date.now() + 30 * 60 * 1000).toISOString();\n\ntry {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: `${SUPABASE_URL}/rest/v1/leads`,\n    headers: {\n      'apikey': SUPABASE_KEY,\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'resolution=merge-duplicates,return=representation',\n    },\n    body: {\n      phone, name, destination,\n      stage: 'quoted',\n      follow_up_count: 0,\n      next_followup: nextFollowup,\n      paused: false,\n      source: 'laila_v4',\n    },\n    json: true,\n  });\n} catch(e) {\n  console.log(`[SET-FU] failed: ${e.message}`);\n}\n\nreturn $input.all();\n"
+      }
+    },
+    {
+      "id": "de-001",
+      "name": "Decision Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Laila WhatsApp brain → calls the updated AI agent (Supabase pricing) and returns its reply\nconst phone = $json.phone;\nconst remoteJid = $json.remoteJid;\nconst text = $json.textContent || $json.text || '';\nconst isManager = $json.isManager || false;\nlet response = '';\ntry {\n  const res = await this.helpers.httpRequest({\n    method: 'POST',\n    url: 'https://n8n.arcadia-tour.cloud/webhook/cc004272-5e46-4e5c-be6d-ba84fdf35258/chat',\n    body: { action: 'sendMessage', sessionId: String(phone||'wa'), chatInput: text },\n    json: true,\n    timeout: 90000\n  });\n  if (typeof res === 'string') { try { response = JSON.parse(res).output; } catch(e){ response = res; } }\n  else { response = (res && (res.output || res.text || res.response)) || ''; }\n} catch (e) { response = ''; }\nif (!response) { response = 'أهلاً 👋 صار خطأ تقني بسيط، جرّب ترسل طلبك مرة ثانية أو تواصل معنا واتساب: https://wa.me/380936582617'; }\nconst followup = /دولار|\\$|💵/.test(response);\nreturn [{ json: { phone, remoteJid, response, isManager, followup } }];"
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase1 — normalize inbound (no prompt / stage changes)\nconst j = $input.first().json;\nconst raw = $('WhatsApp Webhook').first()?.json || $('Telegram Trigger').first()?.json || {};\nconst body = raw.body || raw;\nconst data = body.data || body;\nconst key = data.key || {};\nconst waMsg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\nconst tgMsg = raw.message || body.message;\nconst msg = waMsg || tgMsg || body.messages?.[0] || {};\nconst phone = String(\n  j.phone\n  || key.remoteJid?.replace('@s.whatsapp.net', '').replace('@g.us', '')\n  || msg.from\n  || tgMsg?.chat?.id\n  || body.from?.id\n  || j.chat_id\n  || ''\n).trim();\nconst providerMessageId = key.id ? String(key.id)\n  : (waMsg?.id ? String(waMsg.id)\n  : (tgMsg?.message_id != null ? String(tgMsg.message_id) : (j.provider_message_id || null)));\nconst channel = key.remoteJid || waMsg?.id ? 'whatsapp' : (tgMsg ? 'telegram' : (j.channel || 'whatsapp'));\nconst text = j.textContent || j.text || msg.text?.body || msg.body || tgMsg?.text || '';\nconst messageType = data.messageType || msg.type || (tgMsg?.photo ? 'image' : 'text');\nreturn [{ json: {\n  ...j,\n  phase1: {\n    phone,\n    provider_message_id: providerMessageId,\n    channel,\n    message_text: text,\n    message_type: messageType,\n    metadata: { raw_channel: channel, normalized_at: new Date().toISOString(), source: 'phase1_normalize' }\n  }\n}}];"
+      },
+      "id": "bb29466a-ff31-4732-8798-1bc5a48b25e5",
+      "name": "Phase1 Normalize Inbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "nztIELsQqVpdDVua",
+          "cachedResultName": "Arcadia - Phase1 Inbound Pipeline"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "34be009f-a164-4289-aba5-a92b18b03d57",
+      "name": "Arcadia - Phase1 Inbound Pipeline",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1060,
+        200
+      ],
+      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Inbound Pipeline' after import"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "proceed-check",
+              "leftValue": "={{ $json.proceed }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8e1beccf-4179-4d6f-8540-3e3a2ce55cb1",
+      "name": "Phase1 IF Proceed (not duplicate)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase1 — prepare outbound log AFTER successful send only\nconst send = $input.first().json;\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json\n  || $('Phase1 IF Proceed (not duplicate)').first()?.json\n  || {};\nreturn [{ json: {\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  conversation_id: ctx.conversation_id,\n  channel: ctx.phase1?.channel || ctx.channel,\n  message_text: send.text || send.message || send.output || send.reply || send.body?.text,\n  provider_message_id: send.message_id || send.messages?.[0]?.id || null,\n  metadata: { phase1: 'outbound_after_send_success' }\n}}];"
+      },
+      "id": "a2cb8296-94be-47cb-b66c-c2f036026596",
+      "name": "Phase1 Prepare Outbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "QbQ3kJtWOnnq3b2A",
+          "cachedResultName": "Arcadia - Phase1 Outbound Log"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "3d9fc874-75a8-4e27-8cc3-4f9e8eeafe25",
+      "name": "Arcadia - Phase1 Outbound Log",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1940,
+        200
+      ],
+      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Outbound Log' after import"
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cancel FU on Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel FU on Reply": {
+      "main": [
+        [
+          {
+            "node": "Parse + CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + CRM": {
+      "main": [
+        [
+          {
+            "node": "Phase1 Normalize Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Engine": {
+      "main": [
+        [
+          {
+            "node": "Save Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Phase1 Prepare Outbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phase1 Normalize Inbound": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Inbound Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arcadia - Phase1 Inbound Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Phase1 IF Proceed (not duplicate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phase1 IF Proceed (not duplicate)": {
+      "main": [
+        [
+          {
+            "node": "Decision Engine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Phase1 Prepare Outbound": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Outbound Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "ab41c448-f970-4f85-bc3a-98f552f1ffb9",
+  "versionCounter": 3,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T21:55:59.866Z",
+      "createdAt": "2026-08-27T21:55:59.866Z",
+      "role": "workflow:owner",
+      "workflowId": "LN7Pr1RThjJQrAbY",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

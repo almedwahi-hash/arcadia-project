@@ -1,0 +1,130 @@
+{
+  "updatedAt": "2026-08-27T21:56:42.604Z",
+  "createdAt": "2026-04-23T14:55:46.921Z",
+  "id": "sa9ThvlS4gBYnFmn",
+  "name": "Arcadia - Follow-up Cron (3h-24h)",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "sched",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Follow-up Cron — 3h then 24h for unanswered quotes\n// - Looks for leads where next_followup <= now, paused=false, follow_up_count < 2\n// - Sends Telegram follow-up if lead.phone starts with \"tg:\"; otherwise call your WhatsApp sender webhook\n//\n// No n8n variables ($env) used. Sakhr will fill placeholders.\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nconst SB_HEADERS = {\n  apikey: SUPABASE_KEY,\n  Authorization: `Bearer ${SUPABASE_KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nconst now = new Date();\n\nasync function sbGet(path) {\n  return await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${SUPABASE_URL}/rest/v1/${path}`,\n    headers: SB_HEADERS,\n    json: true,\n  });\n}\n\nasync function sbPatch(path, body) {\n  return await this.helpers.httpRequest({\n    method: 'PATCH',\n    url: `${SUPABASE_URL}/rest/v1/${path}`,\n    headers: SB_HEADERS,\n    body,\n    json: true,\n  });\n}\n\nasync function sendTelegram(chatId, text) {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: `https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage`,\n    headers: { 'Content-Type': 'application/json' },\n    body: { chat_id: chatId, text },\n    json: true,\n  });\n}\n\nasync function sendWhatsApp(phone, text) {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: 'https://n8n.arcadia-tour.cloud/webhook/laila-v4',\n    headers: { 'Content-Type': 'application/json' },\n    body: { phone, message: text },\n    json: true,\n  });\n}\n\nconst due = await sbGet.call(this,\n  `leads?paused=eq.false&follow_up_count=lt.2&next_followup=lte.${now.toISOString()}&stage=eq.quoted&select=phone,name,destination,follow_up_count,telegram_chat_id`\n);\n\nif (!Array.isArray(due) || due.length === 0) {\n  return [{ json: { status: 'idle', checked_at: now.toISOString() } }];\n}\n\nconst results = { sent: [], errors: [], checked_at: now.toISOString() };\n\nfor (const lead of due) {\n  try {\n    const count = lead.follow_up_count || 0;\n\n    const msg = count === 0\n      ? `هلا ${lead.name || 'بك'} 👋\\nبس أتأكد وصلك عرض السعر؟ إذا تبون أعدّل شي (فندق/مدة/عدد) قولي لي 😊`\n      : `هلا ${lead.name || 'بك'} 🌟\\nآخر تذكير لطيف — الأسعار تتغير حسب التوفر. تبون نثبت الحجز اليوم؟ العربون 20٪ وبعدها الجوازات 😊`;\n\n    if (String(lead.phone).startsWith('tg:')) {\n      if (!lead.telegram_chat_id) throw new Error('missing telegram_chat_id');\n      await sendTelegram.call(this, lead.telegram_chat_id, msg);\n    } else {\n      await sendWhatsApp.call(this, lead.phone, msg);\n    }\n\n    const newCount = count + 1;\n    const nextFU = newCount === 1\n      ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()\n      : null;\n\n    await sbPatch.call(this, `leads?phone=eq.${encodeURIComponent(lead.phone)}`,\n      { follow_up_count: newCount, next_followup: nextFU, stage: newCount >= 2 ? 'followup' : 'quoted' }\n    );\n\n    results.sent.push({ phone: lead.phone, follow_up_count: newCount, next_followup: nextFU });\n  } catch (e) {\n    results.errors.push({ phone: lead.phone, error: e.message });\n  }\n}\n\nreturn [{ json: results }];\n"
+      },
+      "id": "logic",
+      "name": "Follow-up Logic (3h/24h)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Follow-up Logic (3h/24h)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": {
+    "node:Schedule": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "pinData": null,
+  "versionId": "d50ffebe-4ca1-4051-81a7-e2097c82c3e9",
+  "versionCounter": 6,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-23T14:55:46.922Z",
+      "createdAt": "2026-04-23T14:55:46.922Z",
+      "role": "workflow:owner",
+      "workflowId": "sa9ThvlS4gBYnFmn",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

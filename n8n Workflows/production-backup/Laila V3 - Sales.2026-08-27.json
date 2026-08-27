@@ -1,0 +1,378 @@
+{
+  "updatedAt": "2026-08-27T21:56:39.281Z",
+  "createdAt": "2026-04-18T22:09:07.638Z",
+  "id": "h3chOZsyPGCyA84E",
+  "name": "Laila V3 - Sales",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "3e2e3752-6876-4a61-941d-967edd8a6130",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "2cfd87f2-3271-436e-91e8-76121e7dfb68",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "laila-v3",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "35ed7f7e-e29d-4057-a5a1-0d0d37983faf",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        350,
+        150
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "c70b07ba-b777-48d9-8d56-df556dec4d04",
+      "name": "Parse Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        350,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst data = body.data || body;\nconst key = data.key || {};\nconst remoteJid = key.remoteJid || '';\nconst phone = remoteJid.replace('@s.whatsapp.net', '').replace('@g.us', '');\nif (key.fromMe) return [];\nconst message = data.message || {};\nconst messageType = data.messageType || 'unknown';\nlet textContent = '';\nif (messageType === 'conversation') textContent = message.conversation || '';\nelse if (messageType === 'extendedTextMessage') textContent = (message.extendedTextMessage || {}).text || '';\nelse if (messageType === 'audioMessage') textContent = '[رسالة صوتية]';\nelse textContent = message.conversation || message.text || '';\nreturn [{ json: { phone, remoteJid, messageType, textContent, timestamp: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "809deaec-9bc0-490c-bf6d-070bedb42f40",
+      "name": "Manager or Customer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const phone = $input.first().json.phone;\nconst isManager = (phone === '380936582617');\nreturn [{ json: { ...$input.first().json, isManager } }];"
+      }
+    },
+    {
+      "id": "a9c8d2a4-267d-4288-b0fb-12df5e536803",
+      "name": "CRM Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        850,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const phone = $input.first().json.phone;\nconst textContent = $input.first().json.textContent;\nconst isManager = $input.first().json.isManager;\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst h = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json' };\n\nlet isNew = false, lead = null;\ntry {\n  const d = await this.helpers.httpRequest({\n    url: SB + '/leads?phone=eq.' + phone + '&limit=1',\n    method: 'GET',\n    headers: h\n  });\n  if (d && d.length > 0) {\n    lead = d[0];\n    await this.helpers.httpRequest({\n      url: SB + '/leads?phone=eq.' + phone,\n      method: 'PATCH',\n      headers: { ...h, 'Prefer': 'return=minimal' },\n      body: { last_contact: new Date().toISOString(), updated_at: new Date().toISOString() }\n    });\n  } else {\n    isNew = true;\n    if (!isManager) {\n      const r2 = await this.helpers.httpRequest({\n        url: SB + '/leads',\n        method: 'POST',\n        headers: { ...h, 'Prefer': 'return=representation' },\n        body: { phone, stage: 'new', assigned_to: 'bot', source: 'direct', last_contact: new Date().toISOString() }\n      });\n      lead = Array.isArray(r2) ? r2[0] : r2;\n    }\n  }\n} catch(e) {}\n\nif (!isManager) {\n  try {\n    await this.helpers.httpRequest({\n      url: SB + '/conversations',\n      method: 'POST',\n      headers: { ...h, 'Prefer': 'return=minimal' },\n      body: { phone, role: 'user', message: textContent }\n    });\n  } catch(e) {}\n}\n\nreturn [{ json: { ...$input.first().json, isNew, lead } }];"
+      }
+    },
+    {
+      "id": "254bbda0-2935-4c9d-9a65-815da3471f98",
+      "name": "Get Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const phone = $input.first().json.phone;\nconst isManager = $input.first().json.isManager;\nconst isNew = $input.first().json.isNew;\nconst lead = $input.first().json.lead;\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst h = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY };\n\nlet chatHistory = '';\nif (!isManager) {\n  try {\n    const msgs = await this.helpers.httpRequest({\n      url: SB + '/conversations?phone=eq.' + phone + '&order=created_at.desc&limit=20',\n      method: 'GET', headers: h\n    });\n    chatHistory = (msgs || []).reverse().map(m => (m.role === 'user' ? 'العميل' : 'ليلى') + ': ' + m.message).join('\\n');\n  } catch(e) {}\n}\n\nlet managerInstructions = '';\ntry {\n  const inst = await this.helpers.httpRequest({\n    url: SB + '/manager_instructions?active=eq.true&order=created_at.desc&limit=20',\n    method: 'GET', headers: h\n  });\n  if (inst && inst.length > 0) managerInstructions = inst.map(i => '- ' + i.instruction).join('\\n');\n} catch(e) {}\n\nlet leadContext = '';\nif (isManager) {\n  leadContext = 'هذا المدير أبو أمير.';\n} else if (isNew) {\n  leadContext = 'هذا عميل جديد — عرّفي نفسك.';\n} else {\n  leadContext = 'عميل سابق — لا تعرّفي نفسك.';\n  if (lead?.name) leadContext += ' اسمه: ' + lead.name + '.';\n  if (lead?.destination) leadContext += ' الوجهة: ' + lead.destination + '.';\n}\n\nreturn [{ json: { ...$input.first().json, chatHistory, leadContext, managerInstructions } }];"
+      }
+    },
+    {
+      "id": "c354a028-5af1-43bf-b648-82792ace857f",
+      "name": "Build AI Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1225,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const ctx = $input.first().json;\n\n// ── تطبيع النص العربي قبل إرساله للـ AI ───────────────────────────────────\nfunction normalizeArabic(t) {\n  if (!t) return t;\n  t = t.replace(/اسبوعين|أسبوعين/g, '14 ايام');\n  t = t.replace(/اسبوع|أسبوع/g,     '7 ايام');\n  t = t.replace(/شهرين/g,            '60 ايام');\n  t = t.replace(/شهر/g,              '30 ايام');\n  t = t.replace(/عشر ايام|عشرة ايام|عشرة أيام|عشر أيام/g, '10 ايام');\n  t = t.replace(/خمس ايام|خمسة ايام|خمسة أيام/g,           '5 ايام');\n  t = t.replace(/ثلاثة ايام|ثلاث ايام/g,                    '3 ايام');\n  t = t.replace(/اربعة ايام|أربعة ايام|اربع ايام|أربع ايام/g,'4 ايام');\n  t = t.replace(/ستة ايام|ست ايام/g,                        '6 ايام');\n  t = t.replace(/سبعة ايام|سبع ايام/g,                      '7 ايام');\n  t = t.replace(/ثمانية ايام|ثماني ايام/g,                  '8 ايام');\n  t = t.replace(/تسعة ايام|تسع ايام/g,                      '9 ايام');\n  t = t.replace(/عشرة ايام/g,                               '10 ايام');\n  return t;\n}\nconst normText = normalizeArabic(ctx.textContent);\nconst systemPrompt = \"أنتِ ليلى، موظفة مبيعات في شركة أركاديا للسياحة. تتكلمين بالعامية العربية.\\n\\n━━ الوجهات ━━\\nكازاخستان (ألماتي) | روسيا (موسكو، سان بطرسبرغ) | بولندا | أوزبكستان\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n🚫 ممنوع مطلقاً\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n• لا تكتبي أي سعر ($) من عندك\\n• لا تذكري اسم أي فندق من عندك\\n• كل الأسعار والفنادق تأتي حصراً من PRICING أو HOTEL_PRICING tag\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n⚠️ لا تعيدي أسئلة — اقرئي المحادثة\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nقبل ما تسألي — اقرئي المحادثة السابقة كاملة.\\nلو الوجهة أو الأشخاص أو الأيام ذُكرت قبل → استخدميها مباشرة.\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nلما ما تقدري تساعدي\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nلو ما تقدري تساعدي العميل (فندق ما عندنا، سؤال ما تعرفي جوابه، طلب خارج نطاقك):\\n- لا تقولي \\\"خلني أتحقق\\\" — لأنك ما بتتحققي فعلياً\\n- قولي: \\\"عشان أساعدك بأفضل شكل، تقدر تتواصل مع فريقنا المختص مباشرة: https://wa.me/380936582617 😊\\\"\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nجدول الوقت\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nاسبوع/أسبوع=7ن | اسبوعين=14ن | 5أيام=4ن | 6أيام=5ن | 10أيام=9ن\\nالليالي = الأيام - 1\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nقواعد المعلومات الناقصة\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nلو ناقص عدد الأشخاص → اسأليه (سؤال واحد)\\nلو ناقص عدد الأيام → اسأليه (سؤال واحد)\\nلو عندك كل شي ولم يوافق → \\\"تحب أعرض لك؟\\\"\\nلو وافق (نعم/ايوا/اعرض/تمام) → اكتبي [PRICING:...] فوراً\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nلو العميل طلب خيارات أخرى\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nلو قال \\\"عندكم غير\\\" أو \\\"خيار آخر\\\" أو \\\"فنادق ثانية\\\" أو \\\"غير هذي\\\":\\n- لا تعيدي تسألي عن الأشخاص والأيام\\n- اسأليه: \\\"وش تدور عليه — أرخص؟ أفخم؟ موقع معين؟ أو عندك فندق في بالك؟\\\"\\n- لما يرد → اكتبي [PRICING:...] مع exclude=الفنادق اللي عرضتيها بالإنجليزي\\n- مثال: [PRICING: destination=KZ, city=Almaty, nights=7, adults=2, children=, type=B2C, exclude=Mildom Residence Hotel,Resident City Hotel,Hilton Almaty]\\n- النظام يعرض فندق واحد جديد بس (مش 3)\\n- لو طلب كمان → كرري نفس الشي مع exclude موسّعة\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nأمثلة\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nمثال 1:\\nالعميل: كازاخستان اسبوع شخصين\\nردك: عندي باقة حلوة تشمل إقامة مع إفطار يومي واستقبال مطار وسيارة خاصة وجولات سياحية وشريحة اتصال — تحب أعرض لك؟\\n\\nمثال 2 (بعد عرض الأسعار):\\nالعميل: عندكم فنادق غير هذي\\nردك: وش تدور عليه — أرخص؟ أفخم؟ موقع معين؟ أو عندك فندق في بالك؟\\n\\nمثال 3:\\nالعميل: أرخص (بعد ما عُرض Mildom, Resident City, Hilton)\\nردك: [PRICING: destination=KZ, city=Almaty, nights=7, adults=2, children=, type=B2C, exclude=Mildom Residence Hotel,Resident City Hotel,Hilton Almaty]\\n\\nمثال 4:\\nالعميل: ابي موسكو\\nردك: كم شخص بتسافرون؟\\n\\nمثال 5:\\nالعميل: ابي كازاخستان شخصين\\nردك: كم يوم حابين تقضون؟\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nPRICING tag\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n[PRICING: destination=KZ, city=Almaty, nights=7, adults=2, children=, type=B2C]\\nمع exclude (اختياري): exclude=Hotel A,Hotel B\\n\\nرموز الوجهات:\\nكازاخستان → KZ, Almaty | روسيا موسكو → RU, Moscow | روسيا سبط → RU, Saint Petersburg\\nبولندا → PL, Warsaw | أوزبكستان → UZ, Tashkent\\n\\nاستخراج الأشخاص:\\n\\\"4 كبار وطفلين 3 و8\\\" → adults=4, children=3,8 | \\\"شخصين\\\" → adults=2, children=\\n\\nHOTEL_PRICING tag:\\n[HOTEL_PRICING: hotel=Hilton Almaty, destination=KZ, city=Almaty, nights=7, adults=2, children=, type=B2C]\\n\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nقاعدة \\\"غالي\\\"\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\nلو قال \\\"غالي\\\":\\n١- \\\"السعر شامل إقامة+إفطار+مطار+سيارة+جولات+شريحة. لو حجزت لحالك يطلع أغلى.\\\"\\n٢- \\\"عندي خيارات:\\n1️⃣ نقلل الجولات\\n2️⃣ نشيل الجولات بالكامل\\n3️⃣ فندق بسعر أنسب\\nوش تفضل؟\\\"\\nبناءً على اختياره: tours=X أو route=basic أو PRICING عادي\\n\\nالمدير: احترام — \\\"تم 👍\\\" — لا تعامله كعميل\\nلا تكتبي اسمك في بداية الرد.\\nممنوع: Supabase/بوت/اسم المدير/رد بالإنجليزية/أي سعر من عندك\\n\\nبيانات الدفع: Kaspi Bank, BIN: 221240041379, IBAN: KZ20821AKZG610000002, SWIFT: KINCKZKA, Mohammed Ali Almadhwahi\";\nconst userContent = ctx.leadContext \n  + '\\n\\n'\n  + (ctx.managerInstructions ? 'تعليمات المدير:\\n' + ctx.managerInstructions + '\\n\\n' : '')\n  + 'المحادثة:\\n' + ctx.chatHistory \n  + '\\nرسالة العميل: ' + ctx.textContent;\nconst body = {\n  model: 'openai/gpt-4o-mini', temperature: 0.7, max_tokens: 1024,\n  messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userContent }]\n};\nreturn [{ json: { ...ctx, aiRequestBody: body } }];"
+      }
+    },
+    {
+      "id": "d6b93cad-4f36-4be6-b005-9325f9980744",
+      "name": "Call AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1350,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json.aiRequestBody) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ab10add1-8ed1-4c2e-b9ca-85457ee28a5a",
+      "name": "Process AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const aiResp = $input.first().json;\nconst content = aiResp.choices?.[0]?.message?.content || '';\nconst phone = $('Parse Message').first().json.phone;\nconst remoteJid = $('Parse Message').first().json.remoteJid;\nconst WA_LINK = 'https://wa.me/380936582617';\n\n// ── مانع الأسعار المخترعة ───────────────────────────────────────────────────\nconst hasPricingTag = /\\[PRICING:/i.test(content);\nconst hasHotelTag   = /\\[HOTEL_PRICING:/i.test(content);\nconst looksLikePrices = /💰|\\$\\d{3,}|السعر الإجمالي|الباقة الاقتصادية|الباقة الفضية|الباقة الذهبية/.test(content);\nif (looksLikePrices && !hasPricingTag && !hasHotelTag) {\n  return [{ json: { phone, remoteJid, response: `عشان أساعدك بأفضل شكل، تقدر تتواصل مع فريقنا المختص مباشرة: ${WA_LINK} 😊` } }];\n}\n\n// ── HOTEL_PRICING ────────────────────────────────────────────────────────────\nconst hotelMatch = content.match(/\\[HOTEL_PRICING:\\s*hotel=(.+?),\\s*destination=([A-Z]{2,3}),\\s*city=([\\w\\s]+),\\s*nights=(\\d+),\\s*adults=(\\d+),\\s*children=([\\d,]*),\\s*type=(\\w+)\\]/i);\nif (hotelMatch) {\n  try {\n    const hotelReq = {\n      hotelName: hotelMatch[1].trim(), destination: hotelMatch[2].trim(), city: hotelMatch[3].trim(),\n      nights: parseInt(hotelMatch[4]), adults: parseInt(hotelMatch[5]),\n      childrenAges: hotelMatch[6] ? hotelMatch[6].split(',').map(Number).filter(n=>n>0) : [],\n      clientType: hotelMatch[7]||'B2C', roomCategory: 'all'\n    };\n    const pricing = await this.helpers.httpRequest({ url:'https://n8n.arcadia-tour.cloud/webhook/pricing-engine', method:'POST', headers:{'Content-Type':'application/json'}, body: hotelReq });\n    if (!pricing.ok || !pricing.rooms || pricing.rooms.length===0) {\n      const r2 = await this.helpers.httpRequest({ url:'https://openrouter.ai/api/v1/chat/completions', method:'POST',\n        headers:{'Authorization':'Bearer REDACTED_API_KEY','Content-Type':'application/json'},\n        body:{ model:'openai/gpt-4o-mini', temperature:0.7, max_tokens:200,\n          messages:[{role:'system',content:'أنتِ ليلى من أركاديا. الفندق ما لقيتيه. اسأليه يكتب الاسم بالإنجليزي. ممنوع تخترعي سعر. لا تكتبي اسمك.'},{role:'user',content:'العميل طلب: '+hotelMatch[1]}]}\n      });\n      return [{ json: { phone, remoteJid, response: r2.choices?.[0]?.message?.content||'ممكن تكتب اسم الفندق بالإنجليزي؟ 😊' } }];\n    }\n    const { hotelName, stars, nights, adults, rooms } = pricing;\n    const DEST = { KZ:['كازاخستان','🇰🇿'], RU:['روسيا','🇷🇺'], PL:['بولندا','🇵🇱'], UZ:['أوزبكستان','🇺🇿'] };\n    const [dn,fl] = DEST[hotelReq.destination]||[hotelReq.destination,''];\n    let msg = `🏨 ${hotelName} ${'⭐'.repeat(Math.min(stars||5,5))}\\n━━━━━━━━━━━━━━━\\n📍 ${hotelReq.city} — ${dn} ${fl}\\n🗓 ${(nights||7)+1} أيام / ${nights} ليالٍ\\n👥 ${adults+(hotelReq.childrenAges.length)} أشخاص\\n━━━━━━━━━━━━━━━\\n✅ يشمل: إقامة + إفطار + استقبال مطار + سيارة خاصة + جولات\\n━━━━━━━━━━━━━━━\\n\\n🛏 أنواع الغرف المتاحة:\\n\\n`;\n    for (const r of rooms) msg += `🔹 ${r.roomType}\\n   💰 السعر الإجمالي: $${r.totalUSD.toLocaleString()}\\n\\n`;\n    msg += `⚠️ العرض صالح 3 أيام | حسب التوفر\\nأي غرفة تناسبك؟ 😊`;\n    return [{ json: { phone, remoteJid, response: msg } }];\n  } catch(e) {\n    return [{ json: { phone, remoteJid, response: 'ممكن تكتب اسم الفندق بالإنجليزي؟ 😊' } }];\n  }\n}\n\n// ── PRICING ──────────────────────────────────────────────────────────────────\nconst pm = content.match(/\\[PRICING:\\s*destination=([A-Z]{2,3}),\\s*city=([\\w\\s]+),\\s*nights=(\\d+),\\s*adults=(\\d+),\\s*children=([\\d,]*)(?:,\\s*type=(\\w+))?(?:,\\s*route=(\\w+))?(?:,\\s*tours=(\\d+))?(?:,\\s*exclude=([^\\]]+))?\\]/i);\nif (pm) {\n  try {\n    const destCode=pm[1].trim(), city=pm[2].trim(), nights=parseInt(pm[3]), adults=parseInt(pm[4]);\n    const children = pm[5] ? pm[5].split(',').map(Number).filter(n=>n>0) : [];\n    const clientType=pm[6]||'B2C', route=pm[7]||'standard';\n    const tours = pm[8]?parseInt(pm[8]):undefined;\n    const exclude = pm[9] ? pm[9].split(',').map(s=>s.trim()).filter(Boolean) : [];\n    // isExcludeMode فقط لو في exclude حقيقي ولو سبق وعُرضت أسعار في المحادثة\n    const chatCtx = $('Get Context').first().json?.chatHistory || '';\n    const pricesPreviouslyShown = /💰|الباقة الاقتصادية|خيار إضافي/.test(chatCtx);\n    const isExcludeMode = exclude.length > 0 && pricesPreviouslyShown;\n\n    const body2 = { destination:destCode, city, nights, adults, childrenAges:children, clientType, route };\n    if (tours!==undefined) body2.tours=tours;\n    if (exclude.length>0) body2.exclude=exclude;\n\n    const pricing = await this.helpers.httpRequest({ url:'https://n8n.arcadia-tour.cloud/webhook/pricing-engine', method:'POST', headers:{'Content-Type':'application/json'}, body:body2 });\n\n    // noMore\n    if (pricing.ok && pricing.noMore) {\n      return [{ json: { phone, remoteJid, response: `ما في خيارات إضافية متاحة حالياً. لو تبي مساعدة أكثر، تقدر تتواصل مع فريقنا: ${WA_LINK} 😊` } }];\n    }\n\n    if (pricing.ok && pricing.packages && pricing.packages.length>0) {\n      const pkgs = pricing.packages;\n      const days=nights+1, tourDays=tours!==undefined?tours:Math.max(nights-1,1);\n      const totalPax=adults+children.length, isBasic=route==='basic';\n      const DEST={KZ:['كازاخستان','🇰🇿'],RU:['روسيا','🇷🇺'],PL:['بولندا','🇵🇱'],UZ:['أوزبكستان','🇺🇿']};\n      const [destName,flag]=DEST[destCode]||[destCode,''];\n      const simLine=(destCode!=='RU'&&!isBasic)?'\\n• شرائح اتصال وإنترنت':'';\n      const toursLine=isBasic?'':`\\n• ${tourDays} جولات بسيارة خاصة وسائق خاص`;\n\n      if (isExcludeMode) {\n        // ── خيار واحد بس ────────────────────────────────────────────────────\n        const p = pkgs[0];\n        const sysMsg = `أنتِ ليلى من أركاديا. اعرضي هالفندق كخيار إضافي — فندق واحد بس بهالتنسيق. لا تكتبي \"ليلى:\" في البداية.\n\n🏨 خيار إضافي — ${destName} ${flag}\n━━━━━━━━━━━━━━━\n📍 ${city} — ${nights} ليالٍ\n🏨 [HOTEL] ⭐[STARS]\n💰 السعر الإجمالي: $[PRICE]\n✅ يشمل: إقامة + إفطار يومي + استقبال مطار + سيارة خاصة + جولات${simLine}\n\nتناسبك هالباقة؟ أو تبي خيار ثاني؟ 😊`;\n        const pkgLine = `${p.tierAr}|${p.hotelName}|${p.stars}|${p.totalUSD}`;\n        const r2 = await this.helpers.httpRequest({ url:'https://openrouter.ai/api/v1/chat/completions', method:'POST',\n          headers:{'Authorization':'Bearer REDACTED_API_KEY','Content-Type':'application/json'},\n          body:{ model:'openai/gpt-4o-mini', temperature:0.3, max_tokens:400,\n            messages:[{role:'system',content:sysMsg},{role:'user',content:'الفندق:\\n'+pkgLine}]}\n        });\n        return [{ json: { phone, remoteJid, response: r2.choices?.[0]?.message?.content||'' } }];\n      }\n\n      // ── 3 باقات عادية ────────────────────────────────────────────────────\n      const sysMsg = `أنتِ ليلى من أركاديا. اعرضي الباقات بهالشكل بالضبط. لا تكتبي \"ليلى:\" في البداية.\n\n🏨 عرض سعر ${destName} ${flag}${isBasic?' (باقة مختصرة بدون جولات)':''}\n━━━━━━━━━━━━━━━\n📍 ${city}\n🗓 ${days} أيام / ${nights} ليالٍ\n👥 ${totalPax} أشخاص\n━━━━━━━━━━━━━━━\n✅ يشمل:\n• الإقامة في الفندق + الإفطار اليومي\n• استقبال وتوديع من المطار${toursLine}${simLine}\n\n🥉 الباقة الاقتصادية\n━━━━━━━━━━━━━━━\n📍 ${city} — ${nights} ليالٍ\n🏨 [HOTEL_ECO] ⭐[STARS_ECO]\nالسعر الإجمالي: 💰 $[PRICE_ECO]\n\n🥈 الباقة الفضية\n━━━━━━━━━━━━━━━\n📍 ${city} — ${nights} ليالٍ\n🏨 [HOTEL_SIL] ⭐[STARS_SIL]\nالسعر الإجمالي: 💰 $[PRICE_SIL]\n\n🥇 الباقة الذهبية\n━━━━━━━━━━━━━━━\n📍 ${city} — ${nights} ليالٍ\n🏨 [HOTEL_GOLD] ⭐[STARS_GOLD]\nالسعر الإجمالي: 💰 $[PRICE_GOLD]\n\n⚠️ العرض صالح 3 أيام | حسب التوفر للغرف\nأي باقة تناسبك أكثر؟ 😊`;\n\n      const pkgLines = pkgs.map(p=>`${p.tierAr}|${p.hotelName}|${p.stars}|${p.totalUSD}`).join('\\n');\n      const r2 = await this.helpers.httpRequest({ url:'https://openrouter.ai/api/v1/chat/completions', method:'POST',\n        headers:{'Authorization':'Bearer REDACTED_API_KEY','Content-Type':'application/json'},\n        body:{ model:'openai/gpt-4o-mini', temperature:0.3, max_tokens:1024,\n          messages:[{role:'system',content:sysMsg},{role:'user',content:'البيانات:\\n'+pkgLines}]}\n      });\n      return [{ json: { phone, remoteJid, response: r2.choices?.[0]?.message?.content||content } }];\n    }\n\n    return [{ json: { phone, remoteJid, response: `عشان أساعدك بأفضل شكل، تقدر تتواصل مع فريقنا المختص: ${WA_LINK} 😊` } }];\n  } catch(e) {\n    return [{ json: { phone, remoteJid, response: `عشان أساعدك بأفضل شكل، تقدر تتواصل مع فريقنا: ${WA_LINK} 😊` } }];\n  }\n}\n\nreturn [{ json: { phone, remoteJid, response: content } }];"
+      }
+    },
+    {
+      "id": "bbd79481-f630-43cd-b0c8-a2635d077477",
+      "name": "Save & Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1850,
+        400
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const phone = $input.first().json.phone;\nconst response = $input.first().json.response;\nconst remoteJid = $input.first().json.remoteJid;\nconst isManager = $('Manager or Customer').first().json.isManager;\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst h = { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };\n\nif (!isManager) {\n  try {\n    await this.helpers.httpRequest({\n      url: SB + '/conversations',\n      method: 'POST', headers: h,\n      body: { phone, role: 'assistant', message: response }\n    });\n  } catch(e) {}\n}\n\nif (isManager) {\n  const txt = $('Parse Message').first().json.textContent;\n  const isQuestion = txt.includes('؟') || txt.includes('?') || txt.startsWith('كم') || txt.startsWith('وش') || txt.startsWith('ايش') || txt.startsWith('شو');\n  if (!isQuestion) {\n    try {\n      await this.helpers.httpRequest({\n        url: SB + '/manager_instructions',\n        method: 'POST', headers: h,\n        body: { instruction: txt, active: true, created_at: new Date().toISOString() }\n      });\n    } catch(e) {}\n  }\n}\n\nreturn [{ json: { phone, remoteJid, response } }];"
+      }
+    },
+    {
+      "id": "4747cd2e-59e2-448e-acd7-33db8bbdfaa7",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2100,
+        400
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.response }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Message": {
+      "main": [
+        [
+          {
+            "node": "Manager or Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manager or Customer": {
+      "main": [
+        [
+          {
+            "node": "CRM Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Handler": {
+      "main": [
+        [
+          {
+            "node": "Get Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Context": {
+      "main": [
+        [
+          {
+            "node": "Build AI Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call AI": {
+      "main": [
+        [
+          {
+            "node": "Process AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process AI Response": {
+      "main": [
+        [
+          {
+            "node": "Save & Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save & Send": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Request": {
+      "main": [
+        [
+          {
+            "node": "Call AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "201c7747-3737-42b6-a3f2-1342027a294c",
+  "versionCounter": 128,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-18T22:09:07.640Z",
+      "createdAt": "2026-04-18T22:09:07.640Z",
+      "role": "workflow:owner",
+      "workflowId": "h3chOZsyPGCyA84E",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

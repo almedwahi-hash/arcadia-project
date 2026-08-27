@@ -1,0 +1,249 @@
+{
+  "updatedAt": "2026-08-26T09:49:49.645Z",
+  "createdAt": "2026-04-29T23:26:13.700Z",
+  "id": "hMgcVriSB5QeIyHb",
+  "name": "Arcadia_Booking_System_V1",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "7030c128-e6d7-474f-89bc-a0fb746eee90",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        200
+      ],
+      "webhookId": "7e04c09e-856f-4d27-b2b1-7cf0e64a20d4",
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "dly4NI6xE4lQxF2O",
+          "name": "Arcadia Laila Sales Bot"
+        }
+      }
+    },
+    {
+      "id": "main-logic-node",
+      "name": "Main Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const BOT_TOKEN = 'REDACTED_TELEGRAM_BOT_TOKEN';\nconst OPENAI_KEY = 'REDACTED_API_KEY';\nconst OPENAI_URL = 'https://api.openai.com/v1/chat/completions';\n\n// helper: httpRequest قد يرجع object أو string — نتعامل مع الحالتين\nfunction parseResp(r) {\n  if (typeof r === 'string') return JSON.parse(r);\n  return r;\n}\n\nconst msg = .item.json.message;\nif (!msg) return [{ json: { action: 'none' } }];\n\nconst chatId = String(msg.chat.id);\nconst text = (msg.text || msg.caption || '').trim();\n\nconst staticData = ('global');\nif (!staticData.buffers) staticData.buffers = {};\nif (!staticData.buffers[chatId]) staticData.buffers[chatId] = { texts: [], photos: [] };\nconst buffer = staticData.buffers[chatId];\n\nasync function tgSend(txt) {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: ,\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ chat_id: chatId, text: txt })\n  });\n}\n\n// استبدال callGemini بـ callOpenAI مع دعم الصور والنص\nasync function callOpenAI(parts) {\n  const content = [];\n  for (const part of parts) {\n    if (part.text !== undefined) {\n      content.push({ type: 'text', text: part.text });\n    } else if (part.inline_data) {\n      const mime = part.inline_data.mime_type;\n      const data = part.inline_data.data;\n      if (mime === 'application/pdf') {\n        // PDF غير مدعوم في OpenAI Vision — نطلب من المستخدم إرسال صورة\n        content.push({ type: 'text', text: '[ملاحظة: PDF غير مدعوم، يرجى إرسال صورة من الجواز أو التذكرة]' });\n      } else {\n        content.push({\n          type: 'image_url',\n          image_url: { url:  }\n        });\n      }\n    }\n  }\n\n  const resp = await this.helpers.httpRequest({\n    method: 'POST',\n    url: OPENAI_URL,\n    headers: {\n      'Content-Type': 'application/json',\n      'Authorization': \n    },\n    body: JSON.stringify({\n      model: 'gpt-4o',\n      messages: [{ role: 'user', content }],\n      response_format: { type: 'json_object' }\n    })\n  });\n  const parsed = parseResp(resp);\n  const rawText = parsed?.choices?.[0]?.message?.content || '{}';\n  const cleaned = rawText.replace(/\\n?/g,'').trim();\n  return JSON.parse(cleaned);\n}\n\n// ── CLEAR ──\nif (text === '✅') {\n  staticData.buffers[chatId] = { texts: [], photos: [] };\n  await tgSend('🗑️ تم المسح — جاهز لحجز جديد ✅');\n  return [{ json: { action: 'none' } }];\n}\n\n// ── PROCESS ──\nif (text === 'ارسل') {\n  if (buffer.texts.length === 0 && buffer.photos.length === 0) {\n    await tgSend('⚠️ ما في بيانات. أرسل الصور والنص أولاً ثم اكتب: ارسل');\n    return [{ json: { action: 'none' } }];\n  }\n\n  await tgSend('⏳ جاري تحليل البيانات...');\n  let bookingData = {};\n  const errors = [];\n\n  // ── معالجة الصور ──\n  for (const fileId of buffer.photos) {\n    try {\n      const fileInfoResp = await this.helpers.httpRequest({\n        method: 'GET',\n        url: ,\n        headers: { 'Content-Type': 'application/json' }\n      });\n      const fileInfo = parseResp(fileInfoResp);\n      const filePath = fileInfo.result.file_path;\n\n      const fileBytes = await this.helpers.httpRequest({\n        method: 'GET',\n        url: ,\n        encoding: 'arraybuffer'\n      });\n\n      const buf = Buffer.from(fileBytes);\n      const base64 = buf.toString('base64');\n      let mimeType = 'image/jpeg';\n      if (buf[0]===0x89 && buf[1]===0x50) mimeType = 'image/png';\n      else if (buf[0]===0x25 && buf[1]===0x50) mimeType = 'application/pdf';\n\n      const prompt = ;\n\n      const photoData = await callOpenAI([\n        { text: prompt },\n        { inline_data: { mime_type: mimeType, data: base64 } }\n      ]);\n\n      if (photoData.type === 'passport') {\n        bookingData.guest_name = photoData.guest_name;\n        bookingData.country = photoData.country;\n      } else if (photoData.type === 'ticket') {\n        bookingData.check_in = photoData.check_in;\n        bookingData.arrival_time = photoData.arrival_time;\n        bookingData.check_out = photoData.check_out;\n        bookingData.flight_number = photoData.flight_number;\n      }\n    } catch(e) {\n      errors.push('صورة: ' + e.message);\n    }\n  }\n\n  // ── معالجة النص ──\n  if (buffer.texts.length > 0) {\n    try {\n      const allText = buffer.texts.join('\\n');\n      const textPrompt = ;\n\n      const textData = await callOpenAI([{ text: textPrompt }]);\n      bookingData = { ...bookingData, ...textData };\n    } catch(e) {\n      errors.push('نص: ' + e.message);\n    }\n  }\n\n  staticData.buffers[chatId] = { texts: [], photos: [] };\n\n  if (errors.length > 0) {\n    await tgSend('⚠️ تنبيه أخطاء:\\n' + errors.join('\\n'));\n  }\n\n  return [{ json: { action: 'process', chatId, bookingData } }];\n}\n\n// ── STORE ──\nif (msg.photo || msg.document) {\n  const fileId = msg.photo ? msg.photo[msg.photo.length-1].file_id : msg.document.file_id;\n  buffer.photos.push(fileId);\n  if (msg.caption) buffer.texts.push(msg.caption);\n  await tgSend();\n} else if (text) {\n  buffer.texts.push(text);\n  await tgSend('📝 تم حفظ النص 👍');\n}\n\nreturn [{ json: { action: 'none' } }];"
+      }
+    },
+    {
+      "id": "if-process-node",
+      "name": "Is Process?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        200
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.action }}",
+              "value2": "process",
+              "operation": "equal"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2484ab23-cbb2-4a80-863f-66bab9f53d39",
+      "name": "Send to Google Sheets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        -40,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://script.google.com/macros/s/AKfycbxMhi_NUbbwLfHr0QmumxFRq_2b0xL-R5OLfx6VtrDmFkR7XQYylXNdhdY6geK9rNsy/exec",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.bookingData }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "merge-node",
+      "name": "Merge Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        100
+      ],
+      "parameters": {
+        "jsCode": "\nconst booking = $('Main Logic').item.json.bookingData || {};\nconst chatId = $('Main Logic').item.json.chatId;\nconst sheetResponse = $input.item.json || {};\nreturn [{ json: { bookingData: booking, chatId, sheetResponse } }];\n"
+      }
+    },
+    {
+      "id": "confirm-node",
+      "name": "Send Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        100
+      ],
+      "parameters": {
+        "jsCode": "\nconst BOT_TOKEN = 'REDACTED_TELEGRAM_BOT_TOKEN';\nconst chatId = $input.item.json.chatId;\nconst booking = $input.item.json.bookingData || {};\nconst sheet = $input.item.json.sheetResponse || {};\n\nconst msg = `✅ تم التسجيل في Google Sheets!\n\n👤 الاسم: ${booking.guest_name || '-'}\n🌍 الجنسية: ${booking.country || '-'}\n🏨 الفندق: ${booking.company || '-'}\n👥 الأشخاص: ${booking.guests_count || '-'}\n📅 الوصول: ${booking.check_in || '-'} ${booking.arrival_time || ''}\n🛫 المغادرة: ${booking.check_out || '-'}\n💰 الإجمالي: ${booking.total || '-'}\n\n📋 الشيت: ${sheet.sheet || '-'} | السطر: ${sheet.row || '-'}\n\nأرسل ✅ للبدء بحجز جديد`;\n\nawait this.helpers.httpRequest({\n  method: 'POST',\n  url: `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ chat_id: chatId, text: msg })\n});\nreturn [{ json: { done: true } }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Main Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Main Logic": {
+      "main": [
+        [
+          {
+            "node": "Is Process?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Process?": {
+      "main": [
+        [
+          {
+            "node": "Send to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Merge Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Response": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "global": {
+      "buffers": {
+        "493831958": {
+          "texts": [],
+          "photos": []
+        }
+      }
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f1b596c3-6fbf-4ccb-95f1-4fd0d03621f3",
+  "versionCounter": 76,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-29T23:26:13.703Z",
+      "createdAt": "2026-04-29T23:26:13.703Z",
+      "role": "workflow:owner",
+      "workflowId": "hMgcVriSB5QeIyHb",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

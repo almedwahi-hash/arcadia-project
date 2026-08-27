@@ -1,0 +1,180 @@
+{
+  "updatedAt": "2026-08-27T21:59:27.908Z",
+  "createdAt": "2026-08-27T21:59:11.888Z",
+  "id": "8DQeCR48w0QAbgXX",
+  "name": "Arcadia - Phase1 Laila Scenario Test",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "phase1-laila-scenario-test",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "scenario-webhook",
+      "name": "Scenario Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "phase1-laila-scenario-test"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build Phase1 payload from scenario POST body (Evolution API or Meta WA format)\nconst body = $input.first().json.body || $input.first().json;\nconst scenario = body.scenario || 'custom';\nconst data = body.data || body;\nconst key = data.key || {};\nconst waMsg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\nconst phone = String(body.phone || key.remoteJid?.replace('@s.whatsapp.net','') || waMsg?.from || '').trim();\nconst providerMessageId = body.provider_message_id || key.id || waMsg?.id || null;\nconst text = body.text || body.textContent || waMsg?.text?.body || '';\nreturn [{ json: {\n  scenario,\n  phone,\n  textContent: text,\n  remoteJid: phone ? phone + '@s.whatsapp.net' : null,\n  phase1: {\n    phone,\n    provider_message_id: providerMessageId ? String(providerMessageId) : null,\n    channel: body.channel || 'whatsapp',\n    message_text: text,\n    message_type: body.message_type || 'text',\n    metadata: { scenario, test: true }\n  }\n}}];"
+      },
+      "id": "scenario-normalize",
+      "name": "Scenario Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "nztIELsQqVpdDVua",
+          "cachedResultName": "Arcadia - Phase1 Inbound Pipeline"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "run-inbound",
+      "name": "Arcadia - Phase1 Inbound Pipeline",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r = $input.first().json;\nreturn [{ json: {\n  scenario: $('Scenario Normalize').first().json.scenario,\n  proceed: r.proceed,\n  stop_reason: r.stop_reason,\n  lead_id: r.lead_id,\n  customer_id: r.customer_id,\n  conversation_id: r.conversation_id,\n  provider_message_id: r.phase1?.provider_message_id\n}}];"
+      },
+      "id": "scenario-output",
+      "name": "Scenario Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Scenario Webhook": {
+      "main": [
+        [
+          {
+            "node": "Scenario Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scenario Normalize": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Inbound Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arcadia - Phase1 Inbound Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Scenario Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "59ul6YkPVThk7e4U",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "e32443e0-b2be-4739-988c-0b9c097f3223",
+  "versionCounter": 4,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T21:59:11.890Z",
+      "createdAt": "2026-08-27T21:59:11.890Z",
+      "role": "workflow:owner",
+      "workflowId": "8DQeCR48w0QAbgXX",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

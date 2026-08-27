@@ -1,0 +1,569 @@
+{
+  "updatedAt": "2026-08-27T21:56:36.338Z",
+  "createdAt": "2026-04-23T14:55:41.595Z",
+  "id": "a3Q8FrIhgCAYBLm1",
+  "name": "Laila V6 - Telegram + Followups",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "tg-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "laila-v6-trigger",
+      "credentials": {
+        "telegramApi": {
+          "id": "dly4NI6xE4lQxF2O",
+          "name": "Arcadia Laila Sales Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var msg = $input.item.json.message || {};\nvar chatId = msg.chat ? msg.chat.id : null;\nvar text = (msg.text || '').trim();\nvar from = msg.from || {};\nif (!chatId || !text) return [];\nreturn [{ json: { phone: 'tg:' + chatId, chatId: chatId, textContent: text, firstName: from.first_name || null, username: from.username || null } }];"
+      },
+      "id": "parse",
+      "name": "Parse Telegram",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var d = $input.item.json;\nvar SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nvar SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nfunction normalizePhone(p, chatId) {\n  let s = (p ?? '').toString().trim();\n  if (!s && chatId !== undefined && chatId !== null) s = String(chatId);\n  if (s.startsWith('tg:')) s = s.slice(3);\n  s = s.replace(/[^\\d]/g, '');\n  return s || null;\n}\n\nvar phone = normalizePhone(d.phone, d.chatId);\n\nvar body = {\n  phone,\n  source: 'telegram',\n  stage: 'new',\n  assigned_to: 'laila',\n  last_contact: new Date().toISOString(),\n  telegram_chat_id: d.chatId,\n  telegram_username: d.username || null,\n  name: d.fullName || d.firstName || null,\n};\n\nawait this.helpers.httpRequest({\n  method: 'POST',\n  url: SUPABASE_URL + '/rest/v1/leads?on_conflict=phone',\n  headers: {\n    apikey: SUPABASE_KEY,\n    Authorization: 'Bearer ' + SUPABASE_KEY,\n    'Content-Type': 'application/json',\n    Prefer: 'resolution=merge-duplicates,return=minimal',\n  },\n  body: JSON.stringify(body),\n});\n\nreturn [{ json: d }];"
+      },
+      "id": "build-lead",
+      "name": "Upsert Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var d = $node['Parse Telegram'].json;\nvar SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nvar SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nawait this.helpers.httpRequest({\n  method: 'POST',\n  url: SUPABASE_URL + '/rest/v1/conversations',\n  headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },\n  body: JSON.stringify({ phone: d.phone, channel: 'telegram', role: 'user', message: d.textContent })\n});\nreturn [{ json: { phone: d.phone, chatId: d.chatId, textContent: d.textContent, firstName: d.firstName } }];"
+      },
+      "id": "log-user-code",
+      "name": "Log User Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/conversations?phone=eq.{{ $node['Parse Telegram'].json.phone }}&order=created_at.asc&limit=30",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJ-REDACTED-SERVICE-ROLE"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJ-REDACTED-SERVICE-ROLE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "get-history",
+      "name": "Get Chat History",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1328,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var parsed = $node['Parse Telegram'].json;\nvar histRaw = $input.item.json;\nvar rows = Array.isArray(histRaw) ? histRaw : [];\nvar chatHistory = rows.map(function(m){ return (m.role==='user'?'العميل':'ليلى') + ': ' + m.message; }).join('\\n');\nvar SYSTEM = 'انتِ ليلى، موظفة مبيعات في اركاديا للسياحة. خليجية ودودة ذكية.\\nقواعد:\\n- سؤال واحد فقط في كل رسالة\\n- اذا احتجتِ سعر اكتبي في سطر منفصل: TOOL:get_price:{}\\n- ممنوع تخترعي اسعار\\n- الوجهات: كازاخستان(KZ) روسيا(RU) بولندا(PL) اوزبكستان(UZ)';\nvar userMsg = SYSTEM + '\\n\\nالمحادثة السابقة:\\n' + chatHistory + '\\n\\nرسالة العميل:\\n' + parsed.textContent;\nvar geminiBody = JSON.stringify({ contents: [{ role: 'user', parts: [{ text: userMsg }] }], generationConfig: { temperature: 0.6, maxOutputTokens: 800 } });\nreturn [{ json: { phone: parsed.phone, chatId: parsed.chatId, textContent: parsed.textContent, geminiBody: geminiBody } }];"
+      },
+      "id": "build-prompt",
+      "name": "Build Gemini Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=AIzaSyAOJUNGg2rMsAOiIWi84g_d4nASuKRRH08",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.geminiBody }}",
+        "options": {}
+      },
+      "id": "gemini",
+      "name": "Gemini 1.5 Pro",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var res = $input.item.json;\nvar parts = (res && res.candidates && res.candidates[0] && res.candidates[0].content && res.candidates[0].content.parts) || [];\nvar draft = parts.map(function(p){ return p.text || ''; }).join('');\nvar parsed = $node['Parse Telegram'].json;\nvar toolRegex = /TOOL:get_price:(\\{[^\\}]*\\})/;\nvar m = draft.match(toolRegex);\nvar needsPrice = false; var priceArgs = null;\nif (m) { try { priceArgs = JSON.parse(m[1]); needsPrice = true; } catch(e) {} }\nreturn [{ json: { phone: parsed.phone, chatId: parsed.chatId, draft: draft.replace(toolRegex,'').trim(), needsPrice: needsPrice, priceArgs: priceArgs } }];"
+      },
+      "id": "extract",
+      "name": "Extract & Route",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "leftValue": "={{ $json.needsPrice }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-price",
+      "name": "Needs Price?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var d = $input.item.json;\nvar body = { inputData: { main: [[{ json: d.priceArgs }]] } };\nreturn [{ json: { phone: d.phone, chatId: d.chatId, draft: d.draft, calcBodyStr: JSON.stringify(body) } }];"
+      },
+      "id": "build-calc",
+      "name": "Build Calc Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/api/v1/workflows/oczNZTWTp2HR7v5o/run",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "eyJ-REDACTED-SERVICE-ROLE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.calcBodyStr }}",
+        "options": {}
+      },
+      "id": "run-calc",
+      "name": "Run Calculator V2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2640,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var calc = $input.item.json;\nvar prev = $node['Extract & Route'].json;\nfunction findNum(o){ if(!o)return null; if(typeof o==='number')return o; if(Array.isArray(o)){for(var i=0;i<o.length;i++){var v=findNum(o[i]);if(v!=null)return v;}} if(typeof o==='object'){var ks=Object.keys(o);for(var i=0;i<ks.length;i++){var v=findNum(o[ks[i]]);if(v!=null)return v;}} return null; }\nvar price = findNum(calc && calc.data && calc.data.resultData);\nvar response = price ? (prev.draft||'') + '\\n\\n\\u{1F4B0} السعر التقريبي: $' + Math.round(price) + ' للشخص' : (prev.draft || 'تمام! خليني اتاكد من السعر وارجعلك');\nreturn [{ json: { phone: prev.phone, chatId: prev.chatId, response: response } }];"
+      },
+      "id": "finalize-price",
+      "name": "Finalize With Price",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "var d = $input.item.json;\nreturn [{ json: { phone: d.phone, chatId: d.chatId, response: d.draft || 'اهلاً! كيف اقدر اساعدك؟' } }];"
+      },
+      "id": "finalize-noprice",
+      "name": "Finalize No Price",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "passThrough"
+      },
+      "id": "merge",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3088,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.response }}",
+        "additionalFields": {}
+      },
+      "id": "tg-send",
+      "name": "Telegram Send",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3312,
+        304
+      ],
+      "webhookId": "2695a78c-f917-42a5-a813-ca2ed45b393f",
+      "credentials": {
+        "telegramApi": {
+          "id": "dly4NI6xE4lQxF2O",
+          "name": "Arcadia Laila Sales Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var d = $input.item.json;\nvar SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nvar SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nawait this.helpers.httpRequest({\n  method: 'POST',\n  url: SUPABASE_URL + '/rest/v1/conversations',\n  headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },\n  body: JSON.stringify({ phone: d.phone, channel: 'telegram', role: 'assistant', message: d.response })\n});\nreturn [{ json: { phone: d.phone, chatId: d.chatId, response: d.response } }];"
+      },
+      "id": "log-bot-code",
+      "name": "Log Bot Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        304
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Telegram": {
+      "main": [
+        [
+          {
+            "node": "Upsert Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Lead": {
+      "main": [
+        [
+          {
+            "node": "Log User Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log User Message": {
+      "main": [
+        [
+          {
+            "node": "Get Chat History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Chat History": {
+      "main": [
+        [
+          {
+            "node": "Build Gemini Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Gemini Prompt": {
+      "main": [
+        [
+          {
+            "node": "Gemini 1.5 Pro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 1.5 Pro": {
+      "main": [
+        [
+          {
+            "node": "Extract & Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract & Route": {
+      "main": [
+        [
+          {
+            "node": "Needs Price?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Price?": {
+      "main": [
+        [
+          {
+            "node": "Build Calc Body",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finalize No Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Calc Body": {
+      "main": [
+        [
+          {
+            "node": "Run Calculator V2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Calculator V2": {
+      "main": [
+        [
+          {
+            "node": "Finalize With Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finalize With Price": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finalize No Price": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Telegram Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Send": {
+      "main": [
+        [
+          {
+            "node": "Log Bot Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 301961594,
+          "message": {
+            "message_id": 14,
+            "from": {
+              "id": 493831958,
+              "is_bot": false,
+              "first_name": "Моха",
+              "username": "moxa999",
+              "language_code": "ar"
+            },
+            "chat": {
+              "id": 493831958,
+              "first_name": "Моха",
+              "username": "moxa999",
+              "type": "private"
+            },
+            "date": 1776959499,
+            "text": "السلام عليكم"
+          }
+        }
+      }
+    ]
+  },
+  "versionId": "6f4daa57-e86f-460b-bd16-d021bb320e5f",
+  "versionCounter": 62,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-23T14:55:41.597Z",
+      "createdAt": "2026-04-23T14:55:41.597Z",
+      "role": "workflow:owner",
+      "workflowId": "a3Q8FrIhgCAYBLm1",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

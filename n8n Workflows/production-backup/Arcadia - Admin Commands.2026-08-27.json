@@ -1,0 +1,197 @@
+{
+  "updatedAt": "2026-08-27T21:56:33.080Z",
+  "createdAt": "2026-04-22T10:13:43.798Z",
+  "id": "WpGY5QWDog6XDwim",
+  "name": "Arcadia - Admin Commands",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "node1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "admin-commands",
+        "responseMode": "responseNode"
+      }
+    },
+    {
+      "id": "node2",
+      "name": "Admin Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Admin Commands Handler — n8n Code Node\n// Webhook منفصل لأرقام الإدارة فقط\n// ========================================\n// /status                   → ملخص الـ leads\n// /lead +966XXXXXXXXX       → تفاصيل عميل\n// /assign +966X <اسم>       → تعيين موظف\n// /pause +966X              → إيقاف follow-ups\n// /resume +966X [stage]     → استئناف follow-ups\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\n// ── Checkpoint 2: Admin allowlist ─────────────────────\nconst ADMIN_PHONES = ['966XXXXXXXXX', '966YYYYYYYYY']; // ← استبدل بأرقامك\n\nconst raw         = $input.first().json;\nconst msgData     = raw.data || raw;\nconst senderPhone = msgData?.key?.remoteJid?.replace('@s.whatsapp.net', '');\nconst msgText     = (\n  msgData?.message?.conversation ||\n  msgData?.message?.extendedTextMessage?.text || ''\n).trim();\n\n// ── Security Gate ─────────────────────────────────────\nif (!senderPhone || !ADMIN_PHONES.includes(senderPhone)) {\n  console.log(`[ADMIN] REJECTED — ${senderPhone}`);\n  return [{ json: { reply: null, rejected: true } }];\n}\n\nif (!msgText.startsWith('/')) {\n  return [{ json: { reply: null } }];\n}\n\nconst parts = msgText.split(/\\s+/);\nconst cmd   = parts[0].toLowerCase();\nconsole.log(`[ADMIN] ${senderPhone} → ${cmd}`);\n\n// ── Helpers ───────────────────────────────────────────\nasync function sb(method, path, body) {\n  const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {\n    method,\n    headers: {\n      'apikey': SUPABASE_KEY,\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=representation',\n    },\n    body: body ? JSON.stringify(body) : undefined,\n  });\n  return r.json();\n}\n\nfunction formatLead(l) {\n  const fu = l.next_followup\n    ? new Date(l.next_followup).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })\n    : 'لا يوجد';\n  return [\n    `📋 *${l.name || 'بدون اسم'}*`,\n    `📱 ${l.phone}`,\n    `🏷️ المرحلة: *${l.stage}*`,\n    `🌍 الوجهة: ${l.destination || '—'}`,\n    `🔁 Follow-ups: ${l.follow_up_count}/2`,\n    `⏰ القادم: ${fu}`,\n    `⏸️ موقوف: ${l.paused ? 'نعم' : 'لا'}`,\n    `👤 المسؤول: ${l.assigned_to || 'غير محدد'}`,\n    `📝 ملاحظات: ${l.notes || '—'}`,\n  ].join('\\n');\n}\n\nconst DELAYS = { quoted: 30, interested: 120, followup: 1440 };\nlet reply = '';\n\n// ── /status ───────────────────────────────────────────\nif (cmd === '/status') {\n  const all = await sb('GET', 'leads?select=stage,paused,next_followup,follow_up_count');\n  if (!Array.isArray(all)) { reply = '❌ خطأ في الاتصال بقاعدة البيانات'; }\n  else {\n    const counts = {};\n    let pendingFU = 0;\n    all.forEach(l => {\n      counts[l.stage] = (counts[l.stage] || 0) + 1;\n      if (!l.paused && l.next_followup && l.follow_up_count < 2) pendingFU++;\n    });\n    reply = [\n      `📊 *ملخص الـ Leads*`,\n      `──────────────────`,\n      `📥 إجمالي: ${all.length}`,\n      `💬 quoted: ${counts.quoted || 0}`,\n      `💡 interested: ${counts.interested || 0}`,\n      `🔄 followup: ${counts.followup || 0}`,\n      `📋 manual_quote: ${counts.manual_quote || 0}`,\n      `✅ closed: ${counts.closed || 0}`,\n      `❌ lost: ${counts.lost || 0}`,\n      `──────────────────`,\n      `⏰ Follow-ups معلقة: ${pendingFU}`,\n    ].join('\\n');\n  }\n}\n\n// ── /lead <phone> ─────────────────────────────────────\nelse if (cmd === '/lead' && parts[1]) {\n  const phone = parts[1].replace('+', '');\n  const data  = await sb('GET', `leads?phone=eq.${phone}&select=*`);\n  reply = (!Array.isArray(data) || data.length === 0)\n    ? `❌ لا يوجد عميل بهذا الرقم: ${phone}`\n    : formatLead(data[0]);\n}\n\n// ── /assign <phone> <name> ────────────────────────────\nelse if (cmd === '/assign' && parts[1] && parts[2]) {\n  const phone = parts[1].replace('+', '');\n  const name  = parts.slice(2).join(' ');\n  const data  = await sb('PATCH', `leads?phone=eq.${phone}`, { assigned_to: name });\n  reply = (Array.isArray(data) && data.length > 0)\n    ? `✅ تم تعيين *${name}* لـ ${phone}`\n    : `❌ لم يُعثر على العميل: ${phone}`;\n}\n\n// ── /pause <phone> ────────────────────────────────────\nelse if (cmd === '/pause' && parts[1]) {\n  const phone = parts[1].replace('+', '');\n  const data  = await sb('PATCH', `leads?phone=eq.${phone}`, { paused: true });\n  reply = (Array.isArray(data) && data.length > 0)\n    ? `⏸️ تم إيقاف follow-ups لـ ${phone}`\n    : `❌ لم يُعثر على العميل: ${phone}`;\n}\n\n// ── /resume <phone> [stage] ───────────────────────────\nelse if (cmd === '/resume' && parts[1]) {\n  const phone      = parts[1].replace('+', '');\n  const newStage   = parts[2] || null;\n  const leads      = await sb('GET', `leads?phone=eq.${phone}&select=*`);\n\n  if (!Array.isArray(leads) || leads.length === 0) {\n    reply = `❌ لم يُعثر على العميل: ${phone}`;\n  } else {\n    const lead     = leads[0];\n    const useStage = newStage || lead.stage;\n    const delay    = DELAYS[useStage];\n    const nextFU   = delay ? new Date(Date.now() + delay * 60 * 1000).toISOString() : null;\n    const update   = { paused: false, next_followup: nextFU };\n    if (newStage) update.stage = newStage;\n    const res = await sb('PATCH', `leads?phone=eq.${phone}`, update);\n    const fuStr = nextFU\n      ? new Date(nextFU).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })\n      : 'لا يوجد';\n    reply = (Array.isArray(res) && res.length > 0)\n      ? `▶️ تم استئناف follow-ups لـ ${phone}\\n⏰ القادم: ${fuStr}`\n      : `❌ خطأ في التحديث`;\n  }\n}\n\n// ── Unknown ───────────────────────────────────────────\nelse {\n  reply = [\n    `❓ الأوامر المتاحة:`,\n    `/status`,\n    `/lead +966XXXXXXXXX`,\n    `/assign +966X اسم الموظف`,\n    `/pause +966X`,\n    `/resume +966X [stage]`,\n  ].join('\\n');\n}\n\nreturn [{ json: { reply, to: senderPhone } }];\n"
+      }
+    },
+    {
+      "id": "node3",
+      "name": "Check Reply",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true
+          },
+          "conditions": [
+            {
+              "leftValue": "={{.reply}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node4",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/send-message",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{.to}}"
+            },
+            {
+              "name": "message",
+              "value": "={{.reply}}"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Admin Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin Logic": {
+      "main": [
+        [
+          {
+            "node": "Check Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reply": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "8320f192-9c41-4703-98b3-7a876b268a87",
+  "versionCounter": 5,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T10:13:43.799Z",
+      "createdAt": "2026-04-22T10:13:43.799Z",
+      "role": "workflow:owner",
+      "workflowId": "WpGY5QWDog6XDwim",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

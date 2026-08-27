@@ -1,0 +1,216 @@
+{
+  "updatedAt": "2026-08-27T21:56:41.735Z",
+  "createdAt": "2026-04-22T01:30:41.836Z",
+  "id": "rRVnifjRVeiTCrsq",
+  "name": "Laila V5 Test",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "daabbc75-6c48-45ca-8dfc-8423ae1e2c8a",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "laila-v5-test",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "7b1da574-a37b-4c8a-b26c-969521a44315",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        100
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "7692c291-4b9c-40b9-bd8c-46abda21476f",
+      "name": "Parse CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════════\n//  Parse + CRM — Laila V5\n//  المهام:\n//  1. استخراج بيانات الرسالة\n//  2. Guard: fromMe / empty / bot_paused / admin\n//  3. حفظ رسالة العميل في conversations\n//  4. ACQUIRE LOCK → إذا مقفول → pending_messages → EXIT\n//  5. LOAD lead_state أو CREATE جديد\n//  6. تحميل chatHistory + managerInstructions\n// ═══════════════════════════════════════════════════════════\n\nconst SB     = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SB_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst LOCK_TIMEOUT_S = 30;\nconst ADMIN_PHONES   = ['380936582617'];\n\nconst h = {\n  apikey:          SB_KEY,\n  Authorization:   'Bearer ' + SB_KEY,\n  'Content-Type':  'application/json',\n  Prefer:          'return=representation'\n};\n\nasync function sbGet(path) {\n  return this.helpers.httpRequest({ method:'GET', url:`${SB}/rest/v1/${path}`, headers:h });\n}\nasync function sbPost(path, body) {\n  return this.helpers.httpRequest({ method:'POST', url:`${SB}/rest/v1/${path}`, headers:h, body });\n}\nasync function sbPatch(path, body) {\n  return this.helpers.httpRequest({ method:'PATCH', url:`${SB}/rest/v1/${path}`, headers:h, body });\n}\nasync function sbRpc(fn, body) {\n  return this.helpers.httpRequest({ method:'POST', url:`${SB}/rest/v1/rpc/${fn}`, headers:h, body });\n}\n\n// ─── Parse Webhook ────────────────────────────────────────\nconst req  = $input.first().json;\nconst data = req.data || {};\nconst key  = data.key  || {};\nconst msg  = data.message || {};\n\nconst phone       = (key.remoteJid || '').replace(/@(s\\.whatsapp\\.net|c\\.us)/, '');\nconst fromMe      = key.fromMe === true;\nconst textContent = (\n  msg.conversation ||\n  msg.extendedTextMessage?.text ||\n  msg.text || ''\n).trim();\nconst execId = $execution?.id || ('exec_' + Date.now());\n\n// ─── GUARD 1: fromMe / empty ─────────────────────────────\nif (fromMe || !phone || !textContent) {\n  return [{ json:{ skip:true, reason:'fromMe_or_empty' } }];\n}\n\n// ─── GUARD 2: BOT_PAUSED (من system_config) ──────────────\nlet botPaused = false;\ntry {\n  const cfg = await sbGet.call(this, 'system_config?key=eq.bot_paused&select=value');\n  botPaused  = cfg?.[0]?.value === 'true';\n} catch(e) { /* table قد لا تكون موجودة بعد — نكمل */ }\n\nif (botPaused) {\n  return [{ json:{ skip:true, reason:'bot_paused', phone,\n    pauseResponse:'خدمتنا متوقفة مؤقتاً، سنعود قريباً 🙏' } }];\n}\n\n// ─── GUARD 3: Admin Command ──────────────────────────────\nconst isAdmin   = ADMIN_PHONES.includes(phone);\nconst isCommand = textContent.startsWith('/');\nif (isAdmin && isCommand) {\n  return [{ json:{ isAdminCommand:true, phone, textContent, execId } }];\n}\n\n// ─── Language detection ───────────────────────────────────\nconst isArabic = /[\\u0600-\\u06FF]/.test(textContent);\nconst language = isArabic ? 'ar' : 'en';\n\n// ─── 1. حفظ رسالة العميل ─────────────────────────────────\ntry {\n  await sbPost.call(this, 'conversations', { phone, role:'user', message:textContent });\n} catch(e) {\n  console.log('[CRM] save user msg error:', e.message?.slice(0,60));\n}\n\n// ─── 2. ACQUIRE LOCK ────────────────────────────────────\nlet lockAcquired = false;\ntry {\n  const r = await sbRpc.call(this, 'acquire_lead_lock', {\n    p_phone: phone, p_holder: execId, p_timeout_s: LOCK_TIMEOUT_S\n  });\n  lockAcquired = r === true;\n  console.log('[LOCK] acquired:', lockAcquired, 'holder:', execId);\n} catch(e) {\n  console.log('[LOCK] RPC error:', e.message?.slice(0,60));\n  lockAcquired = true; // migration غير مكتملة → تابع بدون lock\n}\n\nif (!lockAcquired) {\n  console.log('[LOCK] LOCKED — queueing:', phone);\n  try {\n    const lead = await sbGet.call(this, `lead_state?phone=eq.${phone}&is_active=eq.true&select=id`);\n    await sbPost.call(this, 'pending_messages', {\n      phone,\n      lead_id: lead?.[0]?.id || null,\n      message: textContent\n    });\n  } catch(e) {\n    console.log('[QUEUE] enqueue error:', e.message?.slice(0,60));\n  }\n  return [{ json:{ skip:true, reason:'locked', phone } }];\n}\n\n// ─── 3. LOAD lead_state ──────────────────────────────────\nlet lead = null;\ntry {\n  const rows = await sbGet.call(this,\n    `lead_state?phone=eq.${phone}&is_active=eq.true&select=*`);\n  lead = rows?.[0] || null;\n} catch(e) {\n  console.log('[LEAD] load error:', e.message?.slice(0,80));\n}\n\n// ─── 4. CREATE lead إذا لا يوجد ──────────────────────────\nif (!lead) {\n  try {\n    const now = new Date().toISOString();\n    const created = await sbPost.call(this, 'lead_state', {\n      phone,\n      is_active:     true,\n      language,\n      status:        'new',\n      locked_at:     now,\n      lock_holder:   execId,\n      first_contact: now,\n      last_contact:  now\n    });\n    lead = created?.[0] || {\n      phone, is_active:true, language, status:'new',\n      kids_ages:'[]', kids_count:0, offer_count:0, followup_count:0\n    };\n    console.log('[LEAD] created new:', phone);\n  } catch(e) {\n    console.log('[LEAD] create error:', e.message?.slice(0,80));\n    // fallback in-memory — المحرك سيشتغل بدون DB\n    lead = {\n      phone, is_active:true, language, status:'new',\n      kids_ages:'[]', kids_count:0, offer_count:0, followup_count:0\n    };\n  }\n}\n\n// normalize kids_ages من string لـ array\nif (typeof lead.kids_ages === 'string') {\n  try { lead.kids_ages = JSON.parse(lead.kids_ages); }\n  catch { lead.kids_ages = []; }\n}\nif (!Array.isArray(lead.kids_ages)) lead.kids_ages = [];\n\n// ─── 5. chatHistory (للـ AI formatter) ───────────────────\nlet chatHistory = '';\ntry {\n  const msgs = await sbGet.call(this,\n    `conversations?phone=eq.${phone}&order=id.asc&limit=30&select=role,message`);\n  chatHistory = (msgs || []).map(m =>\n    (m.role === 'user' ? 'العميل' : 'ليلى') + ': ' + m.message\n  ).join('\\n');\n} catch(e) { /* اختياري */ }\n\n// ─── 6. Manager instructions ─────────────────────────────\nlet managerInstructions = '';\ntry {\n  const inst = await sbGet.call(this,\n    'manager_instructions?active=eq.true&order=created_at.desc&limit=5&select=instruction');\n  if (inst?.length) {\n    managerInstructions = inst.map(i => '- ' + i.instruction).join('\\n');\n  }\n} catch(e) { /* اختياري */ }\n\n// ─── Output ──────────────────────────────────────────────\nreturn [{\n  json: {\n    phone,\n    textContent,\n    execId,\n    isAdmin,\n    language,\n    lead,            // ← lead state كامل من DB\n    chatHistory,\n    managerInstructions,\n    lockAcquired: true\n  }\n}];\n"
+      }
+    },
+    {
+      "id": "1dae893c-d90d-42d2-9cf6-10de7d8809ad",
+      "name": "Decision Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════════\n//  Decision Engine — Laila V5\n//  يُنفَّذ بعد Parse+CRM مباشرة\n//  Input:  prev = { phone, textContent, execId, lead, chatHistory, ... }\n//  Output: { ...prev, response, action, newLeadState }\n// ═══════════════════════════════════════════════════════════\n\n// ─── Config ───────────────────────────────────────────────\nconst CONFIG = {\n  SESSION_RESET_GAP_H: 4,\n  FOLLOWUP_DELAY_H:    3,\n  LOCK_TIMEOUT_S:      30,\n  SUPPORT_LINK:        'https://wa.me/380936582617',\n};\n\nconst DESTINATIONS = {\n  KZ: { is_active:true,  pricing_ready:true,  flag:'🇰🇿', label:'كازاخستان',\n        cities:['Almaty','resort'], multi_city:true,\n        city_q:'تفضلون ألماتي أو تحبون نضيف المنتجع للبرنامج؟' },\n  RU: { is_active:true,  pricing_ready:true,  flag:'🇷🇺', label:'روسيا',\n        cities:['Moscow','Saint Petersburg'], multi_city:true,\n        city_q:'تفضلون موسكو أو سانت بطرسبرغ، أو تحبون المدينتين؟' },\n  PL: { is_active:true,  pricing_ready:false, flag:'🇵🇱', label:'بولندا',\n        cities:['Warsaw'], multi_city:false, city_q:null,\n        manual_msg:'شكراً! استلمنا طلبك لبولندا. فريقنا سيتواصل خلال 24 ساعة 🙏' },\n  UZ: { is_active:true,  pricing_ready:false, flag:'🇺🇿', label:'أوزبكستان',\n        cities:['Tashkent'], multi_city:false, city_q:null,\n        manual_msg:'شكراً! استلمنا طلبك لأوزبكستان. فريقنا سيتواصل خلال 24 ساعة 🙏' },\n};\n\nconst PE_URL = 'https://n8n.arcadia-tour.cloud/webhook/pricing-engine';\n\n// ─── Helpers ─────────────────────────────────────────────\nconst now  = () => new Date().toISOString();\nconst addH = (h) => new Date(Date.now() + h * 3600000).toISOString();\nconst hoursSince = (ts) => ts ? (Date.now() - new Date(ts).getTime()) / 3600000 : 999;\n\nfunction extractFromMsg(msg) {\n  const ex = {};\n\n  // dest\n  if (/كازاخستان|kazakhstan/i.test(msg)) ex.dest = 'KZ';\n  else if (/روسيا|russia/i.test(msg))    ex.dest = 'RU';\n  else if (/بولندا|poland/i.test(msg))   ex.dest = 'PL';\n  else if (/أوزبكستان|uzbekistan/i.test(msg)) ex.dest = 'UZ';\n\n  // city KZ\n  if (/ألماتي|الماتي|almaty/i.test(msg))         ex.city = 'Almaty';\n  else if (/منتجع|أكواخ|أوي قورقاي/i.test(msg))  ex.city = 'resort';\n  // city RU\n  else if (/موسكو|moscow/i.test(msg))             ex.city = 'Moscow';\n  else if (/سانت|saint|بطرسبرغ/i.test(msg))      ex.city = 'Saint Petersburg';\n\n  // multi-city\n  if (/المدينتين|كلاهما|موسكو.{1,15}سانت|سانت.{1,15}موسكو/i.test(msg)) {\n    ex.multi_city = true;\n    ex.city       = 'multi';\n  }\n  if (/ألماتي.{1,15}منتجع|منتجع.{1,15}ألماتي/i.test(msg)) {\n    ex.multi_city = true;\n    ex.city       = 'multi';\n  }\n\n  // nights\n  const nightsM = msg.match(/(\\d+)\\s*(?:ليالٍ|ليالي|ليلة)/);\n  if (nightsM) ex.nights = parseInt(nightsM[1]);\n  else {\n    const daysM = msg.match(/(\\d+)\\s*(?:يوم|أيام)/);\n    if (daysM) ex.nights = parseInt(daysM[1]) - 1;\n  }\n\n  // adults\n  if (/شخصين/i.test(msg))              ex.adults = 2;\n  else if (/شخص واحد|شخص فقط/i.test(msg)) ex.adults = 1;\n  else {\n    const aM = msg.match(/(\\d+)\\s*(?:أشخاص|شخص|بالغين|بالغ)/);\n    if (aM) ex.adults = parseInt(aM[1]);\n  }\n\n  // kids\n  const kM = msg.match(/(\\d+)\\s*(?:طفل|أطفال)/);\n  if (kM) ex.kids_count = parseInt(kM[1]);\n\n  // kids ages\n  const ages = [];\n  const a1 = msg.matchAll(/(\\d+)\\s*(?:سنة|سنوات|عام)/g);\n  for (const m of a1) { const n=parseInt(m[1]); if(n>0&&n<18) ages.push(n); }\n  if (ages.length) ex.kids_ages = [...new Set(ages)];\n\n  return ex;\n}\n\nfunction applyExtracted(lead, ex) {\n  if (ex.dest)      lead.dest      = ex.dest;\n  if (ex.city)      lead.city      = ex.city;\n  if (ex.nights)    lead.nights    = ex.nights;\n  if (ex.adults)    lead.adults    = ex.adults;\n  if (ex.kids_count) lead.kids_count = ex.kids_count;\n  if (ex.kids_ages?.length) lead.kids_ages = ex.kids_ages;\n  if (ex.multi_city) { lead.multi_city = true; }\n}\n\nfunction clearDoneAwaiting(lead) {\n  const aw = lead.awaiting_field;\n  if (aw === 'dest'      && lead.dest)   lead.awaiting_field = null;\n  if (aw === 'city'      && lead.city)   lead.awaiting_field = null;\n  if (aw === 'nights'    && lead.nights) lead.awaiting_field = null;\n  if (aw === 'adults'    && lead.adults) lead.awaiting_field = null;\n  if (aw === 'kids_ages' && lead.kids_ages.length >= lead.kids_count)\n                                         lead.awaiting_field = null;\n}\n\nfunction clearLeadFields(lead, fields) {\n  const nulls = { dest:null, city:null, nights:null, adults:null,\n                  kids_count:0, kids_ages:[], multi_city:false, segments:null,\n                  last_offer:null, awaiting_field:null, next_followup_at:null,\n                  last_handoff_reason:null, handoff_at:null };\n  for (const f of fields) { if (f in nulls) lead[f] = nulls[f]; }\n}\n\nfunction detectIntent(msg) {\n  if (/\\b(نعم|أحجز|أكيد|تمام|موافق|confirm|book|أبي أحجز)\\b/i.test(msg))\n    return 'confirm';\n  if (/غالي|أرخص|أقل|مو مناسب|expensive|cheaper|وفر/i.test(msg))\n    return 'too_expensive';\n  if (/خيار ثاني|فندق ثاني|غير الفندق|بديل|alternative|other hotel/i.test(msg))\n    return 'alternative';\n  if (/مو مهتم|مو محتاج|إلغاء|cancel|لاحقاً|وقت آخر/i.test(msg))\n    return 'not_interested';\n  return 'other';\n}\n\nfunction parseAltType(msg) {\n  if (/نفس|مشابه|same|similar/i.test(msg))                   return 'same_tier';\n  if (/أعلى|أفخم|luxury|upgrade|5 نجوم|فخم/i.test(msg))     return 'upgrade';\n  if (/أقل|أرخص|أبسط|downgrade|3 نجوم|اقتصادي/i.test(msg)) return 'downgrade';\n  return 'unclear';\n}\n\nfunction getMinTier(packages) {\n  if (!packages?.length) return null;\n  const order = ['economy','silver','gold'];\n  const tiers = packages.map(p => p.tierAr || p.tier || '').map(t =>\n    t.includes('اقتصادي') ? 'economy' : t.includes('فضي') ? 'silver' : 'gold');\n  return tiers.sort((a,b) => order.indexOf(a)-order.indexOf(b))[0];\n}\n\nfunction buildHotelLink(lead) {\n  const hotels = lead.last_offer?.packages?.map(p=>p.hotelName).filter(Boolean);\n  if (!hotels?.length)\n    return 'أرسل لنا أولاً تفاصيل الرحلة وسنرسل معلومات الفندق 🏨';\n  return hotels.map(n => {\n    const q = encodeURIComponent(n + ' hotel');\n    return `🏨 *${n}*\\n🔗 https://www.google.com/search?q=${q}`;\n  }).join('\\n\\n') + '\\n\\n_للحجز تواصل معنا مباشرة_';\n}\n\nfunction buildCloseMsg() {\n  return `ممتاز! 🎉 للتأكيد والدفع تواصل مع فريقنا مباشرة:\\n${CONFIG.SUPPORT_LINK}\\nنتطلع لخدمتكم!`;\n}\n\nfunction buildNudge(lead) {\n  const dest = DESTINATIONS[lead.dest]?.label || 'الوجهة';\n  return `الباقة متاحة الآن. لا تتأخرون حتى لا تُحجز الأماكن 🔥\\nتحبون نثبت رحلتكم إلى ${dest}؟`;\n}\n\nfunction buildUrgencyNudge(lead) {\n  return `نعرف الأسعار مهمة. هذا أفضل سعر عندنا لهذه المواصفات.\\nتحبون نساعدكم بخيار يناسبكم أكثر؟`;\n}\n\nfunction formatPackages(pkgs, lead, opts={}) {\n  const dest = DESTINATIONS[lead.dest];\n  const TIERS = { 0:'🥉 اقتصادية', 1:'🥈 فضية', 2:'🥇 ذهبية' };\n  const prefix = opts.prefix || `عندي لكم 3 باقات شاملة لـ${dest?.label||''} ${dest?.flag||''} — ${lead.nights} ليالٍ:\\n`;\n  const lines = pkgs.slice(0,3).map((p,i) => {\n    const tier = TIERS[i] || TIERS[2];\n    return `*${tier}*\\n- فندق: ${p.hotelName} ${'⭐'.repeat(p.stars||4)}\\n- ${p.roomType||'غرفة مزدوجة'}\\n- ${p.mealPlan||'إفطار يومي'}\\n- السعر: *$${p.totalUSD?.toLocaleString()}*`;\n  }).join('\\n\\n');\n  return prefix + lines + '\\n\\nأي باقة يناسبكم أكثر؟ 😊';\n}\n\n// ─── PE Call ─────────────────────────────────────────────\nasync function callPE(body) {\n  try {\n    const r = await this.helpers.httpRequest({ method:'POST', url:PE_URL,\n      headers:{'Content-Type':'application/json'}, body });\n    if (r.ok || r.packages?.length) return r;\n    return { ok:false, noMore: r.noMore || false };\n  } catch(e) {\n    console.log('[PE] error:', e.message?.slice(0,80));\n    return { ok:false, noMore:false };\n  }\n}\n\nfunction buildPEInput(lead, opts={}) {\n  if (lead.multi_city && lead.dest==='RU') {\n    return { destination:'RU', adults:lead.adults,\n      segments:[{city:'Moscow',nights:Math.ceil(lead.nights/2)},\n                {city:'Saint Petersburg',nights:Math.floor(lead.nights/2)}],\n      childrenAges: lead.kids_ages?.length ? lead.kids_ages : undefined };\n  }\n  if (lead.multi_city && lead.dest==='KZ') {\n    return { destination:'KZ', adults:lead.adults,\n      segments:[{city:'Almaty',nights:Math.ceil(lead.nights/2)},\n                {city:'resort',nights:Math.floor(lead.nights/2)}],\n      childrenAges: lead.kids_ages?.length ? lead.kids_ages : undefined };\n  }\n  const body = {\n    destination:   lead.dest,\n    city:          lead.city === 'resort' ? 'Almaty' : lead.city,\n    nights:        lead.nights,\n    adults:        lead.adults,\n    childrenAges:  lead.kids_ages?.length ? lead.kids_ages : undefined,\n    resort:        lead.city === 'resort' ? true : undefined,\n    withGuide:     false,\n  };\n  if (opts.exclude)      body.exclude      = opts.exclude;\n  if (opts.maxTierBelow) body.maxTierBelow = opts.maxTierBelow;\n  return body;\n}\n\n// ─── Main Flow ────────────────────────────────────────────\nconst prev = $input.first().json;\n\n// skip من Parse+CRM\nif (prev.skip) return [{ json:prev }];\n\n// admin command → سيُعالَج في node منفصل\nif (prev.isAdminCommand) return [{ json:prev }];\n\nconst { phone, textContent: msg, execId, language } = prev;\nlet lead = { ...prev.lead };\n\n// ═══ STEP 1: MERGE + CLEAR ═══════════════════════════════\nconst ex = extractFromMsg(msg);\napplyExtracted(lead, ex);\nclearDoneAwaiting(lead);\n\n// ✅ احسب gap من القيمة القديمة قبل أي تحديث\nconst gapH = hoursSince(lead.last_contact);\n\n// تحديث timestamps\nlead.last_user_message_at = now();\nlead.last_contact         = now();\n\n// ═══ STEP 2: SESSION RESET ═══════════════════════════════\nconst isGreeting = /السلام|هلا|مرحبا|صباح|مساء|hi\\b|hello/i.test(msg);\nconst newTrip    = /وجهة جديدة|رحلة ثانية|سفرة ثانية|رحلة مختلفة/i.test(msg);\nconst activeS    = ['quoted','interested','followup'].includes(lead.status);\nconst closedS    = ['closed','lost'].includes(lead.status);\n\n// Re-entry لـ closed/lost\nif (closedS && ((isGreeting && gapH > CONFIG.SESSION_RESET_GAP_H) || newTrip)) {\n  clearLeadFields(lead, ['dest','city','nights','adults','kids_count','kids_ages',\n    'multi_city','segments','last_offer','awaiting_field','next_followup_at',\n    'last_handoff_reason','handoff_at']);\n  lead.status        = 'collecting_info';\n  lead.awaiting_field = null;\n  const replyMsg = lead.status==='closed'\n    ? 'يا هلا، أهلاً بك مرة ثانية! 😊 وجهتكم هالمرة وين؟'\n    : 'يا هلا! وجهتكم وين؟ 🌍';\n  return [{ json:{ ...prev, lead, response:replyMsg, action:'session_reset',\n    newLeadState:{ ...lead, last_action:'session_reset' } } }];\n}\n\n// closed/lost بدون re-entry intent\nif (closedS) {\n  if (lead.status === 'closed') {\n    return [{ json:{ ...prev, lead, response:'شكراً لتواصلك! إذا أردت رحلة جديدة نحن هنا 🙏',\n      action:'closed_noop', newLeadState:{ ...lead, last_action:'closed_noop' } } }];\n  }\n  return [{ json:{ ...prev, lead, skip:true, reason:'lost_silence' } }];\n}\n\n// Active session reset\nif (activeS && ((isGreeting && gapH > CONFIG.SESSION_RESET_GAP_H) || newTrip)) {\n  clearLeadFields(lead, ['dest','city','nights','adults','kids_count','kids_ages',\n    'multi_city','segments','last_offer','awaiting_field','next_followup_at']);\n  lead.status = 'collecting_info';\n  return [{ json:{ ...prev, lead, response:'يا هلا! وجهتكم الجديدة وين؟ 🌍',\n    action:'session_reset', newLeadState:{ ...lead, last_action:'session_reset' } } }];\n}\n\n// ═══ STEP 3: INTENT GATE (أولوية عالية) ══════════════════\n// إذا طلب برنامج سياحي\nif (/برنامج|جدول الرحلة|خطة السفر|itinerary|schedule/i.test(msg)) {\n  return [{ json:{ ...prev, lead, action:'send_itinerary',\n    newLeadState:{ ...lead, last_action:'send_itinerary' } } }];\n  // يُعالَج في Itinerary node منفصل\n}\n\n// إذا طلب رابط/صورة فندق\nif (/صور الفندق|رابط الفندق|موقع الفندق|لينك الفندق|hotel link|hotel photo/i.test(msg)) {\n  const linkResp = buildHotelLink(lead);\n  return [{ json:{ ...prev, lead, response:linkResp, action:'send_hotel_link',\n    newLeadState:{ ...lead, last_action:'send_hotel_link' } } }];\n}\n\n// ═══ STEP 4: DEST CONFIG GATE ════════════════════════════\nif (lead.dest) {\n  const cfg = DESTINATIONS[lead.dest];\n  if (!cfg || !cfg.is_active) {\n    const resp = 'للأسف ما عندنا رحلات لهذه الوجهة حالياً.\\nعندنا: كازاخستان 🇰🇿، روسيا 🇷🇺، بولندا 🇵🇱 — أيها يناسبك؟';\n    return [{ json:{ ...prev, lead, response:resp, action:'dest_not_available',\n      newLeadState:{ ...lead, last_action:'dest_not_available' } } }];\n  }\n}\n\n// ═══ STEP 5: DECISION ENGINE (status-based) ══════════════\nconst status = (lead.status === 'new') ? 'collecting_info' : lead.status;\n\n// ────────────────── collecting_info ──────────────────────\nif (status === 'collecting_info') {\n\n  if (lead.status === 'new') lead.status = 'collecting_info';\n\n  // pricing_ready=false → جمع البيانات → manual_quote\n  const cfg = lead.dest ? DESTINATIONS[lead.dest] : null;\n  if (cfg && !cfg.pricing_ready && lead.nights && lead.adults) {\n    return [{ json:{ ...prev, lead, response: cfg.manual_msg,\n      action:'manual_quote', newLeadState:{ ...lead, status:'manual_quote',\n        awaiting_field:null, last_action:'manual_quote' } } }];\n  }\n\n  // FIELDS GATE\n  if (!lead.dest) {\n    return [{ json:{ ...prev, lead, response:'وين تحبون تسافرون؟ 🌍',\n      action:'ask_dest', newLeadState:{ ...lead, status:'collecting_info',\n        awaiting_field:'dest', last_action:'ask_dest' } } }];\n  }\n\n  const destCfg = DESTINATIONS[lead.dest];\n\n  // multi-city gate\n  if (lead.multi_city) {\n    if (!lead.nights) {\n      return [{ json:{ ...prev, lead, response:'كم ليلة إجمالي للرحلة؟',\n        action:'ask_nights', newLeadState:{ ...lead, awaiting_field:'nights', last_action:'ask_nights' } } }];\n    }\n  } else {\n    // single city gate\n    if (!lead.city && destCfg?.cities?.length > 1) {\n      return [{ json:{ ...prev, lead, response: destCfg.city_q,\n        action:'ask_city', newLeadState:{ ...lead, awaiting_field:'city', last_action:'ask_city' } } }];\n    }\n    if (!lead.city && destCfg?.cities?.length === 1) {\n      lead.city = destCfg.cities[0]; // auto-fill\n    }\n  }\n\n  if (!lead.nights) {\n    return [{ json:{ ...prev, lead, response:'كم ليلة تودون تقضون؟',\n      action:'ask_nights', newLeadState:{ ...lead, awaiting_field:'nights', last_action:'ask_nights' } } }];\n  }\n\n  if (!lead.adults) {\n    return [{ json:{ ...prev, lead, response:'كم عدد الأشخاص البالغين؟',\n      action:'ask_adults', newLeadState:{ ...lead, awaiting_field:'adults', last_action:'ask_adults' } } }];\n  }\n\n  if (lead.kids_count > 0 && lead.kids_ages.length < lead.kids_count) {\n    const miss = lead.kids_count - lead.kids_ages.length;\n    const q = miss === lead.kids_count ? 'ما أعمار الأطفال؟' : `ما أعمار باقي الأطفال الـ${miss}؟`;\n    return [{ json:{ ...prev, lead, response:q,\n      action:'ask_kids_ages', newLeadState:{ ...lead, awaiting_field:'kids_ages', last_action:'ask_kids_ages' } } }];\n  }\n\n  // ── كل الحقول مكتملة → PE CALL ──\n  const peInput  = buildPEInput(lead);\n  const peResult = await callPE.call(this, peInput);\n  console.log('[PE] result:', JSON.stringify(peResult).slice(0,200));\n\n  if (!peResult.ok && peResult.noMore) {\n    return [{ json:{ ...prev, lead, response:`ما في خيارات لهذه المواصفات. تواصل مع فريقنا: ${CONFIG.SUPPORT_LINK}`,\n      action:'no_options', newLeadState:{ ...lead, last_action:'no_options' } } }];\n  }\n  if (!peResult.ok || !peResult.packages?.length) {\n    return [{ json:{ ...prev, lead, response:'فيه مشكلة تقنية، جرب مرة ثانية.',\n      action:'pe_error', newLeadState:{ ...lead, last_action:'pe_error' } } }];\n  }\n\n  const resp = formatPackages(peResult.packages, lead);\n  return [{ json:{ ...prev, lead, response:resp, action:'quote',\n    newLeadState:{ ...lead, status:'quoted', awaiting_field:'confirmation',\n      next_followup_at: addH(CONFIG.FOLLOWUP_DELAY_H),\n      last_offer:{ packages:peResult.packages, pe_input:peInput, sent_at:now() },\n      offer_count:(lead.offer_count||0)+1, last_action:'quoted' } } }];\n}\n\n// ────────────────── quoted ───────────────────────────────\nif (status === 'quoted') {\n\n  // alternative choice parser\n  if (lead.awaiting_field === 'alternative_choice') {\n    const altType = parseAltType(msg);\n    if (altType === 'unclear') {\n      return [{ json:{ ...prev, lead, response:'تبي نفس الفئة، أو فندق أعلى، أو أقل؟',\n        action:'alternative_ask', newLeadState:{ ...lead, awaiting_field:'alternative_choice' } } }];\n    }\n    const lastHotel = lead.last_offer?.packages?.at(-1)?.hotelName;\n    const peInput   = buildPEInput(lead, {\n      exclude:      lastHotel,\n      maxTierBelow: altType === 'downgrade' ? getMinTier(lead.last_offer?.packages) : undefined,\n      upgrade:      altType === 'upgrade'\n    });\n    const peRes = await callPE.call(this, peInput);\n    if (!peRes.ok || peRes.noMore) {\n      return [{ json:{ ...prev, lead, response:`ما في بديل لهذا الخيار. ${CONFIG.SUPPORT_LINK}`,\n        action:'no_options', newLeadState:{ ...lead, awaiting_field:'confirmation', last_action:'no_options' } } }];\n    }\n    const resp = formatPackages(peRes.packages, lead, { prefix:'تفضل الخيار البديل:\\n' });\n    return [{ json:{ ...prev, lead, response:resp, action:`alternative_${altType}`,\n      newLeadState:{ ...lead, last_offer:{ packages:peRes.packages, pe_input:peInput, sent_at:now() },\n        offer_count:(lead.offer_count||0)+1, awaiting_field:'confirmation',\n        last_action:`alternative_${altType}` } } }];\n  }\n\n  const intent = detectIntent(msg);\n\n  if (intent === 'confirm') {\n    return [{ json:{ ...prev, lead, response:buildCloseMsg(), action:'close',\n      newLeadState:{ ...lead, status:'closed', awaiting_field:null, last_action:'closed_by_user',\n        last_user_intent:'confirm' } } }];\n  }\n\n  if (intent === 'too_expensive') {\n    const curMinTier = getMinTier(lead.last_offer?.packages);\n    const peInput    = buildPEInput(lead, {\n      exclude:      lead.last_offer?.packages?.at(-1)?.hotelName,\n      maxTierBelow: curMinTier\n    });\n    const peRes = await callPE.call(this, peInput);\n    if (!peRes.ok || peRes.noMore) {\n      return [{ json:{ ...prev, lead,\n        response:'هذا أفضل سعر متاح عندنا. تحب نعدّل عدد الليالي؟',\n        action:'no_cheaper', newLeadState:{ ...lead, status:'interested', last_user_intent:'price_objection' } } }];\n    }\n    const resp = formatPackages(peRes.packages, lead, { prefix:'عندي خيار أوفر:\\n' });\n    return [{ json:{ ...prev, lead, response:resp, action:'requote_cheaper',\n      newLeadState:{ ...lead, status:'interested', awaiting_field:'confirmation',\n        last_offer:{ packages:peRes.packages, pe_input:peInput, sent_at:now() },\n        offer_count:(lead.offer_count||0)+1, last_user_intent:'price_objection',\n        last_action:'requote_cheaper' } } }];\n  }\n\n  if (intent === 'alternative') {\n    return [{ json:{ ...prev, lead,\n      response:'وش اللي تدور فيه؟ فندق ثاني بنفس الفئة، أو أعلى، أو أقل؟',\n      action:'alternative_ask', newLeadState:{ ...lead, awaiting_field:'alternative_choice',\n        last_user_intent:'alternative', last_action:'ask_alternative' } } }];\n  }\n\n  return [{ json:{ ...prev, lead, response:buildNudge(lead), action:'sales_nudge',\n    newLeadState:{ ...lead, last_action:'sales_nudge' } } }];\n}\n\n// ────────────────── interested ───────────────────────────\nif (status === 'interested') {\n  const intent = detectIntent(msg);\n\n  if (intent === 'confirm') {\n    return [{ json:{ ...prev, lead, response:buildCloseMsg(), action:'close',\n      newLeadState:{ ...lead, status:'closed', awaiting_field:null,\n        last_action:'closed_by_user', last_user_intent:'confirm' } } }];\n  }\n\n  if (intent === 'not_interested') {\n    return [{ json:{ ...prev, lead,\n      response:'شكراً لتواصلك! إذا غيرت رأيك أو احتجت مساعدة نحن هنا 🙏',\n      action:'lost', newLeadState:{ ...lead, status:'lost', last_action:'lost' } } }];\n  }\n\n  if (intent === 'too_expensive' || intent === 'alternative') {\n    if ((lead.offer_count||0) >= 2) {\n      return [{ json:{ ...prev, lead,\n        response:`فريقنا قد يملك حلولاً أخرى. تواصل معنا: ${CONFIG.SUPPORT_LINK}`,\n        action:'handoff_to_human', newLeadState:{ ...lead, status:'handoff',\n          last_handoff_reason:'price_limit_reached', handoff_at:now(), last_action:'handoff' } } }];\n    }\n    const peInput = buildPEInput(lead, { maxTierBelow: getMinTier(lead.last_offer?.packages) });\n    const peRes   = await callPE.call(this, peInput);\n    if (!peRes.ok || peRes.noMore) {\n      return [{ json:{ ...prev, lead,\n        response:`ما في خيار أوفر. فريقنا يساعدك: ${CONFIG.SUPPORT_LINK}`,\n        action:'handoff_to_human', newLeadState:{ ...lead, status:'handoff',\n          last_handoff_reason:'no_cheaper_options', handoff_at:now() } } }];\n    }\n    const resp = formatPackages(peRes.packages, lead, { prefix:'آخر خيار عندي:\\n' });\n    return [{ json:{ ...prev, lead, response:resp, action:'requote_cheaper',\n      newLeadState:{ ...lead, awaiting_field:'confirmation',\n        last_offer:{ packages:peRes.packages, pe_input:peInput, sent_at:now() },\n        offer_count:(lead.offer_count||0)+1, last_action:'requote_cheaper' } } }];\n  }\n\n  return [{ json:{ ...prev, lead, response:buildUrgencyNudge(lead), action:'sales_nudge',\n    newLeadState:{ ...lead, last_action:'urgency_nudge' } } }];\n}\n\n// ────────────────── followup ─────────────────────────────\nif (status === 'followup') {\n  const intent = detectIntent(msg);\n  if (intent === 'confirm') {\n    return [{ json:{ ...prev, lead, response:buildCloseMsg(), action:'close',\n      newLeadState:{ ...lead, status:'closed', awaiting_field:null } } }];\n  }\n  if (intent === 'not_interested') {\n    return [{ json:{ ...prev, lead,\n      response:'شكراً لتواصلك! إذا احتجتنا في أي وقت نحن هنا 🙏',\n      action:'lost', newLeadState:{ ...lead, status:'lost' } } }];\n  }\n  // عودة إيجابية → أعد تفعيل\n  const offerSummary = lead.last_offer?.packages?.[0]\n    ? `${lead.last_offer.packages[0].hotelName} من $${lead.last_offer.packages[0].totalUSD}`\n    : 'عرضنا السابق';\n  return [{ json:{ ...prev, lead,\n    response:`يا هلا! ${offerSummary} — هل تودون نكمل؟`,\n    action:'reactivate', newLeadState:{ ...lead, status:'interested', awaiting_field:'confirmation' } } }];\n}\n\n// ────────────────── manual_quote ─────────────────────────\nif (status === 'manual_quote') {\n  return [{ json:{ ...prev, lead,\n    response:'فريقنا سيتواصل معك قريباً. إذا عندك تفاصيل إضافية أرسلها هنا 🙏',\n    action:'manual_followup', newLeadState:{ ...lead, last_action:'manual_followup' } } }];\n}\n\n// ────────────────── handoff ──────────────────────────────\nif (status === 'handoff') {\n  const isNewReq = /وجهة|سعر|بكج|أبي أروح|رحلة|أسعار/i.test(msg);\n  if (isNewReq) {\n    clearLeadFields(lead, ['dest','city','nights','adults','kids_count','kids_ages',\n      'multi_city','segments','last_offer','awaiting_field','next_followup_at',\n      'last_handoff_reason','handoff_at']);\n    lead.status = 'collecting_info';\n    return [{ json:{ ...prev, lead, response:'يا هلا! وجهتكم وين؟ 🌍',\n      action:'session_reset', newLeadState:{ ...lead, last_action:'session_reset' } } }];\n  }\n  return [{ json:{ ...prev, lead,\n    response:`فريقنا سيتواصل معك. للاستفسار المباشر: ${CONFIG.SUPPORT_LINK}`,\n    action:'handoff_reassure', newLeadState:{ ...lead, last_action:'handoff_reassure' } } }];\n}\n\n// ─── Fallback (status غير متوقع) ─────────────────────────\nreturn [{ json:{ ...prev, lead,\n  response:'يا هلا! كيف أقدر أساعدك؟ 😊',\n  action:'fallback', newLeadState:{ ...lead, status:'collecting_info',\n    awaiting_field:null, last_action:'fallback' } } }];\n"
+      }
+    },
+    {
+      "id": "20bab82b-f54d-45e8-943d-636ee54eea8a",
+      "name": "Send WA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const prev=$input.first().json;\nif(!prev.response||prev.skip)return[{json:prev}];\nconsole.log('[SEND] to:',prev.phone,'|',prev.response?.slice(0,60));\nreturn[{json:{...prev,sent:true}}];"
+      }
+    },
+    {
+      "id": "f4d2ac08-225c-4217-9ee6-e9c58ec2200c",
+      "name": "Save Unlock",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// ═══════════════════════════════════════════════════════════\n//  Save + Unlock — Laila V5\n//  الترتيب الصحيح:\n//  1. إرسال WhatsApp (في Send WhatsApp node منفصل)\n//  2. حفظ رسالة البوت في conversations\n//  3. حفظ lead_state + RELEASE LOCK (PATCH واحد)\n//  4. معالجة pending_messages\n// ═══════════════════════════════════════════════════════════\n\nconst SB     = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SB_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nconst h = {\n  apikey: SB_KEY, Authorization:`Bearer ${SB_KEY}`,\n  'Content-Type':'application/json', Prefer:'return=representation'\n};\n\nconst prev = $input.first().json;\n\n// skip / silence\nif (prev.skip || !prev.response || prev.reason === 'lost_silence') {\n  // حتى في skip: RELEASE LOCK إذا كان مقفولاً\n  if (prev.execId && prev.phone && prev.lockAcquired) {\n    try {\n      await this.helpers.httpRequest({ method:'POST',\n        url:`${SB}/rest/v1/rpc/release_lead_lock`, headers:h,\n        body:{ p_phone:prev.phone, p_holder:prev.execId } });\n    } catch(_) {}\n  }\n  return [{ json: prev }];\n}\n\nconst { phone, execId, response, lead, newLeadState, action } = prev;\n\nlet saveOk  = false;\nlet stateOk = false;\n\ntry {\n  // ── 1. حفظ رسالة البوت في conversations ──────────────\n  await this.helpers.httpRequest({ method:'POST',\n    url:`${SB}/rest/v1/conversations`, headers:h,\n    body:{ phone, role:'assistant', message:response } });\n  saveOk = true;\n\n  // ── 2. حفظ lead_state + RELEASE LOCK في PATCH واحد ──\n  if (newLeadState?.id) {\n    const patchBody = {\n      ...newLeadState,\n      last_bot_message_at: new Date().toISOString(),\n      updated_at:          new Date().toISOString(),\n      locked_at:           null,   // ← RELEASE LOCK\n      lock_holder:         null\n    };\n    // إزالة حقول غير قابلة للـ PATCH\n    delete patchBody.id;\n    delete patchBody.created_at;\n    delete patchBody.first_contact;\n\n    await this.helpers.httpRequest({ method:'PATCH',\n      url:`${SB}/rest/v1/lead_state?id=eq.${newLeadState.id}`,\n      headers:h, body: patchBody });\n    stateOk = true;\n    console.log(`[SAVE] action=${action} status=${newLeadState.status} awaiting=${newLeadState.awaiting_field}`);\n  } else {\n    // لا يوجد id (in-memory lead فقط) → فك القفل بـ RPC\n    await this.helpers.httpRequest({ method:'POST',\n      url:`${SB}/rest/v1/rpc/release_lead_lock`, headers:h,\n      body:{ p_phone:phone, p_holder:execId } });\n    stateOk = true;\n  }\n\n} catch(err) {\n  console.log(`[SAVE ERROR] action=${action} save=${saveOk} state=${stateOk}:`, err.message?.slice(0,80));\n\n  // ─── send_failed: سجّل الخطأ على الـ lead + unlock ──\n  try {\n    const patchErr = {\n      last_action:  (action||'') + '_save_failed',\n      locked_at:    null,\n      lock_holder:  null,\n      updated_at:   new Date().toISOString()\n    };\n    if (newLeadState?.id) {\n      await this.helpers.httpRequest({ method:'PATCH',\n        url:`${SB}/rest/v1/lead_state?id=eq.${newLeadState.id}`,\n        headers:h, body: patchErr });\n    }\n  } catch(e2) {\n    // worst case → RPC release\n    try {\n      await this.helpers.httpRequest({ method:'POST',\n        url:`${SB}/rest/v1/rpc/release_lead_lock`, headers:h,\n        body:{ p_phone:phone, p_holder:execId } });\n    } catch(_) {}\n  }\n} finally {\n  // ضمان نهائي: إذا فشل كل شيء → force release بـ RPC\n  if (!stateOk && execId && phone) {\n    try {\n      await this.helpers.httpRequest({ method:'POST',\n        url:`${SB}/rest/v1/rpc/release_lead_lock`, headers:h,\n        body:{ p_phone:phone, p_holder:execId } });\n    } catch(_) {}\n  }\n}\n\n// ── 3. معالجة pending_messages بعد unlock ────────────────\ntry {\n  const pending = await this.helpers.httpRequest({ method:'GET',\n    url:`${SB}/rest/v1/pending_messages?phone=eq.${phone}&processed=eq.false&order=received_at.asc&limit=1`,\n    headers:h });\n\n  if (pending?.length > 0) {\n    const pm = pending[0];\n    console.log('[QUEUE] processing pending:', pm.id, pm.message?.slice(0,30));\n\n    // mark attempt\n    await this.helpers.httpRequest({ method:'PATCH',\n      url:`${SB}/rest/v1/pending_messages?id=eq.${pm.id}`,\n      headers:h, body:{ attempt_count:(pm.attempt_count||0)+1 } });\n\n    // re-trigger webhook\n    try {\n      await this.helpers.httpRequest({ method:'POST',\n        url:'https://n8n.arcadia-tour.cloud/webhook/laila-v5',\n        headers:{'Content-Type':'application/json'},\n        body:{ data:{ key:{ remoteJid:`${phone}@s.whatsapp.net`, fromMe:false },\n                      message:{ conversation: pm.message },\n                      messageType:'conversation' },\n               _pending_id: pm.id } });\n\n      await this.helpers.httpRequest({ method:'PATCH',\n        url:`${SB}/rest/v1/pending_messages?id=eq.${pm.id}`,\n        headers:h, body:{ processed:true, processed_at:new Date().toISOString() } });\n      console.log('[QUEUE] dequeued ok:', pm.id);\n    } catch(e) {\n      await this.helpers.httpRequest({ method:'PATCH',\n        url:`${SB}/rest/v1/pending_messages?id=eq.${pm.id}`,\n        headers:h, body:{ error_text: e.message?.slice(0,200) } });\n    }\n  }\n} catch(e) {\n  console.log('[QUEUE] check error:', e.message?.slice(0,60));\n}\n\nreturn [{ json:{ ...prev, saveOk, stateOk } }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Parse CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse CRM": {
+      "main": [
+        [
+          {
+            "node": "Decision Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Engine": {
+      "main": [
+        [
+          {
+            "node": "Send WA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WA": {
+      "main": [
+        [
+          {
+            "node": "Save Unlock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "b54e70fb-567f-46c9-8de9-7419d8da3f46",
+  "versionCounter": 18,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T01:30:41.837Z",
+      "createdAt": "2026-04-22T01:30:41.837Z",
+      "role": "workflow:owner",
+      "workflowId": "rRVnifjRVeiTCrsq",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,94 @@
+{
+  "updatedAt": "2026-08-27T21:56:27.682Z",
+  "createdAt": "2026-04-22T10:14:01.848Z",
+  "id": "Lwfkjpr1dX2TfiUv",
+  "name": "Arcadia - Set FU on Quote [HELPER]",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "n1",
+      "name": "Set Follow-up",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Set Follow-up After Bot Sends Quote\n// بعد ما البوت يرسل السعر للعميل\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\n\nconst DELAYS = {\n  quoted:       30,\n  interested:   120,\n  followup:     1440,\n  // manual_quote / closed / lost / handoff → no follow-up\n};\n\nconst ctx         = $input.first().json;\nconst phone       = ctx.phone;\nconst newStage    = ctx.newStage || 'quoted';\nconst destination = ctx.destination || null;\nconst name        = ctx.name || null;\n\nif (!phone || !DELAYS[newStage]) {\n  return $input.all(); // محظور → skip\n}\n\nconst nextFollowup = new Date(Date.now() + DELAYS[newStage] * 60 * 1000).toISOString();\n\n// Upsert بدون conflict على phone\nawait fetch(`${SUPABASE_URL}/rest/v1/leads`, {\n  method: 'POST',\n  headers: {\n    'apikey': SUPABASE_KEY,\n    'Authorization': `Bearer ${SUPABASE_KEY}`,\n    'Content-Type': 'application/json',\n    'Prefer': 'resolution=merge-duplicates,return=representation',\n  },\n  body: JSON.stringify({\n    phone,\n    name,\n    destination,\n    stage: newStage,\n    follow_up_count: 0,\n    next_followup:   nextFollowup,\n    paused: false,\n  }),\n});\n\nreturn $input.all();\n"
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "15c1ae1c-1b9f-4ada-9808-6fdd6a872934",
+  "versionCounter": 2,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T10:14:01.850Z",
+      "createdAt": "2026-04-22T10:14:01.850Z",
+      "role": "workflow:owner",
+      "workflowId": "Lwfkjpr1dX2TfiUv",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

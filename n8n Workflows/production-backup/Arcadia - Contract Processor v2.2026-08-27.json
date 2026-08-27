@@ -1,0 +1,742 @@
+{
+  "updatedAt": "2026-04-13T08:32:55.335Z",
+  "createdAt": "2026-04-12T22:52:43.318Z",
+  "id": "JgmXxnAcvrguH1H9",
+  "name": "Arcadia - Contract Processor v2",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "c9de00e9-e7d2-401f-a728-b96881be256f",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        304
+      ],
+      "webhookId": "contract-trigger-hook",
+      "credentials": {
+        "telegramApi": {
+          "id": "TU1NkHGYdUXtFy9Q",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst upd = $input.first().json;\nconst msg = upd.message || {};\nconst chatId = msg.chat?.id;\nconst text = (msg.text || '').trim();\n\n// Text approval commands: \"موافق UUID\" or \"رفض UUID\"\nif (text) {\n  const approveMatch = text.match(/^(موافق|approve)\\s+([a-f0-9-]{8,})/i);\n  const rejectMatch  = text.match(/^(رفض|reject)\\s+([a-f0-9-]{8,})/i);\n\n  if (approveMatch) {\n    return [{ json: { isApproval: true, action: 'approve', contractId: approveMatch[2], chatId, skip: false } }];\n  }\n  if (rejectMatch) {\n    return [{ json: { isApproval: true, action: 'reject', contractId: rejectMatch[2], chatId, skip: false } }];\n  }\n  return []; // ignore other texts\n}\n\n// Document upload\nif (!msg.document) return [];\n\nconst doc = msg.document;\nconst fileName = doc.file_name || 'contract.pdf';\nconst ext = fileName.split('.').pop().toLowerCase();\n\nif (!['pdf', 'xlsx', 'xls'].includes(ext)) {\n  return [{ json: {\n    isApproval: false, skip: true, chatId,\n    error: `❌ نوع الملف .${ext} غير مدعوم. أرسل PDF أو Excel فقط.`\n  }}];\n}\n\nreturn [{ json: {\n  isApproval: false, skip: false, chatId,\n  fileId: doc.file_id, fileName,\n  mimeType: doc.mime_type || 'application/pdf', ext\n}}];\n"
+      },
+      "id": "27c1c7c7-aa41-4085-b29f-c7020def334b",
+      "name": "Check File Type",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "62a5a433-43f5-48fa-8f69-4455a720ab01",
+      "name": "IF Valid File",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        680,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{ $('Check File Type').item.json.chatId }},\n  \"text\": \"{{ $('Check File Type').item.json.error }}\"\n}",
+        "options": {}
+      },
+      "id": "a5ce781b-52e6-47b8-bb42-0984014dfd5e",
+      "name": "Send Error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chat_id\": {{ $('Check File Type').item.json.chatId }},\n  \"text\": \"📄 جاري معالجة العقد: {{ $('Check File Type').item.json.fileName }}\\n⏳ انتظر...\"\n}",
+        "options": {}
+      },
+      "id": "27b1a938-544b-4548-9a4e-25efface1055",
+      "name": "Processing Notice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/getFile?file_id={{ $('Check File Type').item.json.fileId }}",
+        "options": {}
+      },
+      "id": "d537ddd1-94cc-4c43-a572-90baf46af1d8",
+      "name": "Get File Path",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.telegram.org/file/bot{{ $env.TELEGRAM_BOT_TOKEN }}/{{ $json.result.file_path }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          },
+          "timeout": 120000
+        }
+      },
+      "id": "dc6fccbd-1314-4078-b697-36fe63bb3f41",
+      "name": "Download File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst binaryData = $input.first().binary;\nconst checkFile = $('Check File Type').item.json;\nconst ext = (checkFile.ext || 'pdf').toLowerCase();\n\nconst mimeMap = {\n  'pdf':  'application/pdf',\n  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n  'xls':  'application/vnd.ms-excel'\n};\n// Use TELEGRAM metadata mimeType (correct) — HTTP response always returns octet-stream\nconst mimeType = mimeMap[ext] || checkFile.mimeType || 'application/pdf';\n\nlet base64Data = '';\nif (binaryData) {\n  const firstKey = Object.keys(binaryData)[0];\n  if (firstKey) base64Data = binaryData[firstKey].data || '';\n}\nif (!base64Data) throw new Error('فشل تحميل الملف — binary data فارغ');\n\nconst prompt = `أنت خبير في تحليل عقود الفنادق السياحية. استخرج من هذا الملف المعلومات التالية بدقة تامة وأرجع JSON فقط.\n\nالشكل المطلوب:\n{\n  \"hotel_name\": \"اسم الفندق بالإنجليزي\",\n  \"hotel_name_ar\": \"اسم الفندق بالعربي أو null\",\n  \"destination\": \"اسم المدينة بالإنجليزي\",\n  \"star_rating\": 4,\n  \"contract_start\": \"YYYY-MM-DD\",\n  \"contract_end\": \"YYYY-MM-DD\",\n  \"currency\": \"RUB أو USD أو EUR\",\n  \"rooms\": [{\"room_type\":\"SNG/DBL/TRP\",\"room_name\":\"...\",\"max_adults\":2}],\n  \"seasons\": [\n    {\n      \"season_name\": \"اسم الموسم\",\n      \"start_date\": \"YYYY-MM-DD\",\n      \"end_date\": \"YYYY-MM-DD\",\n      \"rates\": [{\"room_type\":\"SNG\",\"meal_plan\":\"BB/RO/HB\",\"sgl_rate\":1000,\"dbl_rate\":1500,\"extra_adult\":300,\"extra_child\":150}]\n    }\n  ],\n  \"markup_percent\": 15,\n  \"commission_percent\": 10,\n  \"notes\": \"ملاحظات مهمة أو null\"\n}\n\nلا تضف أي نص قبل أو بعد JSON. قيم غير موجودة = null.`;\n\nreturn [{ json: { mimeType, base64Data, prompt, chatId: checkFile.chatId, fileName: checkFile.fileName, ext } }];\n"
+      },
+      "id": "a6c5d7df-327f-4b5c-aeb3-ae63d7c532d8",
+      "name": "Prepare Gemini Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={{ $env.GEMINI_API_KEY }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      {\n        \"inline_data\": {\n          \"mime_type\": \"{{ $json.mimeType }}\",\n          \"data\": \"{{ $json.base64Data }}\"\n        }\n      },\n      {\n        \"text\": {{ JSON.stringify($json.prompt) }}\n      }\n    ]\n  }],\n  \"generationConfig\": {\n    \"temperature\": 0.1,\n    \"maxOutputTokens\": 65536\n  }\n}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "5c08e154-ad30-4dc9-a808-ecb318431f5b",
+      "name": "Gemini Extract",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst geminiResp = $input.first().json;\nconst prev = $('Prepare Gemini Request').item.json;\n\nlet rawText = '';\ntry {\n  rawText = geminiResp.candidates[0].content.parts[0].text;\n} catch(e) {\n  return [{ json: { success:false, chatId:prev.chatId, fileName:prev.fileName, error:'فشل قراءة Gemini: '+e.message } }];\n}\n\n// Clean markdown fences\nlet clean = rawText.trim().replace(/^```(?:json)?\\n?/, '').replace(/\\n?```$/, '').trim();\n\n// Try to fix truncated JSON by finding last valid closing brace\nfunction tryParse(str) {\n  try { return JSON.parse(str); } catch(e) { return null; }\n}\n\nlet data = tryParse(clean);\n\n// If failed, try trimming to last complete property\nif (!data) {\n  // Find last complete '}' at depth 0 of the outer object\n  let depth = 0, lastValid = -1;\n  for (let i = 0; i < clean.length; i++) {\n    if (clean[i] === '{') depth++;\n    else if (clean[i] === '}') { depth--; if (depth === 0) lastValid = i; }\n  }\n  if (lastValid > 0) {\n    data = tryParse(clean.slice(0, lastValid + 1));\n  }\n}\n\nif (!data) {\n  return [{ json: { success:false, chatId:prev.chatId, fileName:prev.fileName, error:'JSON غير صالح من Gemini' } }];\n}\n\nconst missing = ['hotel_name','destination','contract_start','contract_end'].filter(f=>!data[f]);\nif (missing.length) {\n  return [{ json: { success:false, chatId:prev.chatId, fileName:prev.fileName, error:'بيانات ناقصة: '+missing.join(', ') } }];\n}\n\nconst roomsCount = (data.rooms||[]).length;\nconst seasonsCount = (data.seasons||[]).length;\n\nlet summary = '📋 *تم استخراج بيانات العقد*\\n\\n';\nsummary += '🏨 *الفندق:* ' + data.hotel_name;\nif (data.hotel_name_ar) summary += ' (' + data.hotel_name_ar + ')';\nsummary += '\\n📍 *الوجهة:* ' + data.destination;\nsummary += '\\n⭐ *التصنيف:* ' + (data.star_rating||'—') + ' نجوم';\nsummary += '\\n📅 *العقد:* ' + data.contract_start + ' → ' + data.contract_end;\nsummary += '\\n💰 *العملة:* ' + (data.currency||'—');\nsummary += '\\n🛏 *الغرف:* ' + roomsCount;\nsummary += '\\n📆 *المواسم:* ' + seasonsCount;\nif (data.notes) summary += '\\n📝 ' + data.notes;\n\nreturn [{ json: {\n  success: true, chatId: prev.chatId, fileName: prev.fileName, summary,\n  raw_extracted: JSON.stringify(data),\n  hotel_name: data.hotel_name, hotel_name_ar: data.hotel_name_ar||null,\n  destination: data.destination, star_rating: data.star_rating||null,\n  contract_start: data.contract_start, contract_end: data.contract_end\n}}];\n"
+      },
+      "id": "82025190-789b-407b-9a85-f9045def8993",
+      "name": "Validate & Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "success-check",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "69c49c61-84ba-4410-9b91-4c7cbbe07c0b",
+      "name": "IF Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\": {{ $json.chatId }}, \"text\": {{ JSON.stringify(\"❌ خطأ:\n\" + ($json.error||\"خطأ غير معروف\")) }}}",
+        "options": {}
+      },
+      "id": "024a182e-cd08-441c-a748-17c539edf7e4",
+      "name": "Send Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/contracts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"hotel_name\": {{ JSON.stringify($json.hotel_name) }},\n  \"hotel_name_ar\": {{ JSON.stringify($json.hotel_name_ar) }},\n  \"destination\": {{ JSON.stringify($json.destination) }},\n  \"star_rating\": {{ $json.star_rating || 'null' }},\n  \"contract_start\": {{ JSON.stringify($json.contract_start) }},\n  \"contract_end\": {{ JSON.stringify($json.contract_end) }},\n  \"source_file\": {{ JSON.stringify($json.fileName) }},\n  \"raw_extracted\": {{ JSON.stringify($json.raw_extracted) }},\n  \"status\": \"pending\"\n}",
+        "options": {}
+      },
+      "id": "1e0641d1-86ef-433d-852f-1b62b73126a8",
+      "name": "Save Pending Contract",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const contract = $input.first().json;\nconst contractId = Array.isArray(contract) ? contract[0].id : contract.id;\nconst prev = $('Validate & Format').item.json;\n\nreturn [{\n  json: {\n    contractId,\n    chatId: prev.chatId,\n    fileName: prev.fileName,\n    summary: prev.summary\n  }\n}];"
+      },
+      "id": "9e2f99d2-4f99-41be-802d-300092a36bdd",
+      "name": "Prepare Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\": {{ $json.chatId }}, \"text\": {{ JSON.stringify($json.summary + \"\\n\\n🆔 *رقم العقد:*\\n`\" + $json.contractId + \"`\\n\\n✅ للاعتماد أرسل:\\n`موافق \" + $json.contractId + \"`\\n\\n❌ للرفض أرسل:\\n`رفض \" + $json.contractId + \"`\") }}, \"parse_mode\": \"Markdown\"}",
+        "options": {}
+      },
+      "id": "0536bfde-6c58-48f3-a8ee-f2452c291c2e",
+      "name": "Send Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2660,
+        420
+      ]
+    },
+    {
+      "id": "is-callback",
+      "name": "Is Approval?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cb1",
+              "leftValue": "={{ $json.isApproval }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "is-approve",
+      "name": "Is Approve?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        680,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "ap1",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "caseSensitive": false
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "process-contract",
+      "name": "Process Contract",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/rpc/process_contract",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"contract_id\": \"{{ $('Check File Type').item.json.contractId }}\" }"
+      }
+    },
+    {
+      "id": "delete-contract",
+      "name": "Delete Contract",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        260
+      ],
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/contracts?id=eq.{{ $('Check File Type').item.json.contractId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_KEY }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "notify-approved",
+      "name": "Notify Approved",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\": {{ $('Check File Type').item.json.chatId }}, \"text\": \"✅ *تم اعتماد العقد وحفظ البيانات في قاعدة البيانات بنجاح.*\", \"parse_mode\": \"Markdown\"}"
+      }
+    },
+    {
+      "id": "notify-rejected",
+      "name": "Notify Rejected",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        260
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/botREDACTED_TELEGRAM_BOT_TOKEN/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"chat_id\": {{ $('Check File Type').item.json.chatId }}, \"text\": \"❌ تم رفض العقد وحذفه من قاعدة البيانات.\"}"
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check File Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check File Type": {
+      "main": [
+        [
+          {
+            "node": "Is Approval?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Valid File": {
+      "main": [
+        [
+          {
+            "node": "Processing Notice",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get File Path",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File Path": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gemini Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Gemini Request": {
+      "main": [
+        [
+          {
+            "node": "Gemini Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Extract": {
+      "main": [
+        [
+          {
+            "node": "Validate & Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Format": {
+      "main": [
+        [
+          {
+            "node": "IF Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Success": {
+      "main": [
+        [
+          {
+            "node": "Save Pending Contract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Pending Contract": {
+      "main": [
+        [
+          {
+            "node": "Prepare Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Approve?": {
+      "main": [
+        [
+          {
+            "node": "Process Contract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Contract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Contract": {
+      "main": [
+        [
+          {
+            "node": "Notify Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Contract": {
+      "main": [
+        [
+          {
+            "node": "Notify Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Approval?": {
+      "main": [
+        [
+          {
+            "node": "Is Approve?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF Valid File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "6552ed52-598e-4232-881e-16e783d6ea82",
+  "versionCounter": 68,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-12T22:52:43.321Z",
+      "createdAt": "2026-04-12T22:52:43.321Z",
+      "role": "workflow:owner",
+      "workflowId": "JgmXxnAcvrguH1H9",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,130 @@
+{
+  "updatedAt": "2026-08-27T21:56:40.686Z",
+  "createdAt": "2026-04-22T10:13:43.650Z",
+  "id": "nZJRnS1boutOG6lB",
+  "name": "Arcadia - Follow-up Cron",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "node1",
+      "name": "Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node2",
+      "name": "Follow-up Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\n// ============================================================\n// Follow-up Cron v2 — smart messages based on sales_state\n// ============================================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'eyJ-REDACTED-SERVICE-ROLE';\nconst SB_HEADERS = {\n  apikey: SUPABASE_KEY,\n  Authorization: `Bearer ${SUPABASE_KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nconst DELAYS = { quoted: 30, interested: 120, followup: 1440 };\nconst BLOCKED = ['closed','lost','handoff','manual_quote','new'];\n\n// ── رسائل حسب followup_type / sales_state ─────────────────────\nfunction buildMessage(lead) {\n  const n   = lead.name        || 'بك';\n  const dst = lead.destination || 'الوجهة';\n  const ft  = lead.followup_type;\n  const ss  = lead.sales_state;\n  const idx = lead.follow_up_count || 0;  // 0 = أول follow-up, 1 = ثاني\n\n  // 1. أرخص / اعتراض سعر\n  if (ft === 'cheaper_option' || ss === 'price_objection') {\n    return idx === 0\n      ? `هلا ${n} 👋\\nلقيت لك خيار بسعر أوفر لـ${dst}! تحب أشاركه معك؟ 😊`\n      : `${n} مرحباً 🌟\\nالعرض الاقتصادي لـ${dst} لا يزال متاحاً — خبرنا قبل ما ينتهي!`;\n  }\n\n  // 2. يريد بديلاً\n  if (ft === 'send_alternative' || ss === 'requesting_alt') {\n    return idx === 0\n      ? `هلا ${n} 👋\\nجهّزت لك خيار مختلف لـ${dst} — تحب أشوفك الآن؟ 🏨`\n      : `${n} 😊 لو لسه بتفكر، عندي خيارات متعددة تناسب ميزانيتك!`;\n  }\n\n  // 3. جاهز للحجز\n  if (ss === 'ready_to_book') {\n    return idx === 0\n      ? `هلا ${n} 🎉\\nباقي خطوة واحدة لحجز رحلتك لـ${dst}! تحب نكمل الآن؟`\n      : `${n} 👋 الأماكن محدودة لـ${dst} — نكمل الحجز قبل ما تنتهي؟`;\n  }\n\n  // 4. عميل دافئ / مهتم\n  if (ss === 'warm_lead' || ft === 'interest_follow_up') {\n    return idx === 0\n      ? `هلا ${n} 😊\\nكيف حالك؟ لو قررت الحجز لـ${dst} نرتب كل شيء خلال دقائق!`\n      : `${n} مرحباً 🌍\\nلو محتاج تفاصيل إضافية عن ${dst} أخبرنا — نحن هنا!`;\n  }\n\n  // 5. تذكير بعد quote (الافتراضي)\n  if (ft === 'quote_follow_up' || lead.stage === 'quoted') {\n    return idx === 0\n      ? `هلا ${n} 👋\\nبس أتأكد وصلك العرض؟ لو عندك أي سؤال أو تعديل نحن هنا 😊`\n      : `مرحباً ${n} 🌟\\nاليوم آخر يوم نضمن نفس السعر لـ${dst} — تحب نكمل الحجز؟`;\n  }\n\n  // 6. عام / followup\n  return idx === 0\n    ? `هلا ${n} 👋\\nمجرد تذكير ودي — لو في أي وقت تحب نتكلم عن رحلة ${dst} نحن موجودين 😊`\n    : `${n} مرحباً 🌟\\nفرص السفر لـ${dst} متاحة — خبرنا لما يناسبك!`;\n}\n\n// ── Helpers ───────────────────────────────────────────────────\nasync function sbGet(path) {\n  return await this.helpers.httpRequest({\n    method: 'GET', url: `${SUPABASE_URL}/rest/v1/${path}`,\n    headers: SB_HEADERS, json: true,\n  });\n}\nasync function sbPatch(path, body) {\n  return await this.helpers.httpRequest({\n    method: 'PATCH', url: `${SUPABASE_URL}/rest/v1/${path}`,\n    headers: SB_HEADERS, body, json: true,\n  });\n}\nasync function sendWhatsApp(phone, message) {\n  await this.helpers.httpRequest({\n    method: 'POST', url: 'https://n8n.arcadia-tour.cloud/webhook/send-message',\n    headers: { 'Content-Type': 'application/json' },\n    body: { phone, message }, json: true,\n  });\n}\n\n// ── Main ──────────────────────────────────────────────────────\nconst now     = new Date();\nconst results = { sent: [], skipped: [], errors: [] };\nconst stageFilter = BLOCKED.map(s => `stage=neq.${s}`).join('&');\n\nconst dueLeads = await sbGet.call(this,\n  `leads?paused=eq.false&follow_up_count=lt.2&next_followup=lte.${now.toISOString()}&${stageFilter}&select=*`\n);\n\nif (!Array.isArray(dueLeads) || dueLeads.length === 0) {\n  return [{ json: { status: 'idle', checked_at: now.toISOString() } }];\n}\n\nfor (const lead of dueLeads) {\n  try {\n    // تخطى إذا needs_human = true (يحتاج تدخل بشري)\n    if (lead.needs_human) {\n      results.skipped.push({ id: lead.lead_id, reason: 'needs_human', phone: lead.phone });\n      continue;\n    }\n\n    // تخطى إذا intent_score منخفض جداً (< 2)\n    if (lead.intent_score !== null && lead.intent_score < 2) {\n      results.skipped.push({ id: lead.lead_id, reason: 'low_intent:' + lead.intent_score });\n      continue;\n    }\n\n    const message  = buildMessage(lead);\n    const newCount = (lead.follow_up_count || 0) + 1;\n    const delay    = DELAYS[lead.stage];\n    const nextFU   = newCount < 2 && delay\n      ? new Date(Date.now() + delay * 60 * 1000).toISOString()\n      : null;\n\n    // log intended message before sending (for audit even on failure)\n    console.log(`[CRON] msg to ${lead.phone}: ${message.slice(0,80)}`);\n    results.attempted = results.attempted || [];\n    results.attempted.push({ phone: lead.phone, sales_state: lead.sales_state, followup_type: lead.followup_type, message_preview: message.slice(0,80) });\n\n    await sendWhatsApp.call(this, lead.phone, message);\n    await sbPatch.call(this, `leads?lead_id=eq.${lead.lead_id}`, {\n      follow_up_count: newCount,\n      next_followup: nextFU,\n    });\n\n    results.sent.push({\n      id:           lead.lead_id,\n      phone:        lead.phone,\n      stage:        lead.stage,\n      sales_state:  lead.sales_state  || null,\n      followup_type:lead.followup_type || null,\n      intent_score: lead.intent_score  ?? null,\n      fu_index:     newCount - 1,\n      message_preview: message.slice(0, 60),\n    });\n\n    console.log(`[CRON] sent to ${lead.phone} | ss=${lead.sales_state} ft=${lead.followup_type} idx=${newCount-1}`);\n  } catch(err) {\n    results.errors.push({ id: lead.lead_id, error: err.message });\n  }\n}\n\nreturn [{ json: { ...results, checked_at: now.toISOString() } }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "Schedule": {
+      "main": [
+        [
+          {
+            "node": "Follow-up Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": {
+    "node:Schedule": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "pinData": null,
+  "versionId": "aacc0119-6969-4889-9da6-b1e98dd900fb",
+  "versionCounter": 31,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-04-22T10:13:43.659Z",
+      "createdAt": "2026-04-22T10:13:43.659Z",
+      "role": "workflow:owner",
+      "workflowId": "nZJRnS1boutOG6lB",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-27T21:28:50.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-28",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

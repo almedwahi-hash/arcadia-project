@@ -2,34 +2,70 @@
 **التاريخ:** 27 أغسطس 2026  
 **المشروع:** arcadia-project · Supabase `xfibcjhshpmqkrhlpsoa`  
 **Branch:** `cursor/phase1-multi-agent-29b5` · PR #7  
-**الحالة:** 🔴 Phase 1 غير CLOSED — Foundation ✅ | n8n Operational ❌ BLOCKED
+**الحالة:** 🟡 Phase 1 Operational — Inbound + Error Handler ✅ live | Full Laila E2E ⏸️ pending Working Copy activation approval
 
 ---
 
 ## ملخص تنفيذي
 
 Phase 1 Foundation (Supabase) **مكتمل ومعتمد**.  
-Phase 1 Operational (n8n live) **غير مكتمل** — محجوب بسبب عدم حقن `N8N_API_URL` / `N8N_API_KEY` في Cloud Agent pod.
+Phase 1 Operational (n8n) **جزئياً مكتمل** — credentials حقنت، export/import/live tests نجحت للـ Error Handler + inbound scenarios. **Laila V4 Working Copy لا يزال inactive** بانتظار موافقتك.
 
 | البند | الحالة |
 |-------|--------|
 | SQL migration + backfill | ✅ |
 | Security matrix + legacy review | ✅ |
 | DB integration tests (5 scenarios) | ✅ |
-| n8n sub-workflows + Error Handler JSON | ✅ في repo |
-| patch / export / operational scripts | ✅ في repo |
-| Production export من n8n | ❌ |
-| Laila Working Copy من production | ❌ |
-| Error Handler live test | ❌ |
-| Laila 8-scenario live test | ❌ |
+| n8n sub-workflows + Error Handler JSON | ✅ imported |
+| Production export من n8n | ✅ `n8n Workflows/production-backup/*.2026-08-27.json` |
+| Laila Working Copy (Laila V4 - Final) | ✅ patched + imported inactive `LN7Pr1RThjJQrAbY` |
+| Central Error Handler live test | ✅ exec `59390` → `workflow_failures` row |
+| Laila inbound scenarios (4/4 via scenario runner) | ✅ new / existing / duplicate / no provider_id |
+| Laila full E2E (pricing/send/AI failure) | ⏸️ requires Working Copy activation |
 | Booking Agent | ⏸️ لم يبدأ |
 | Orchestrator | ⏸️ لم يبدأ |
 
-**القرار:** لا نغلق Phase 1 حتى n8n operational + live tests. لا نبدأ Booking Agent قبل الإغلاق.
+**القرار:** Inbound + Error Handler live ✅. لا نفعّل Working Copy production ولا نغلق Phase 1 نهائياً حتى موافقتك على تفعيل Working Copy + اختبار E2E الكامل.
 
 ---
 
-## Blocker الحالي — n8n Credentials
+## n8n Credentials — ✅ resolved (27 Aug 2026 ~22:00 UTC)
+
+```bash
+bash scripts/check_n8n_credentials.sh
+# OK: N8N_API_URL + N8N_API_KEY injected
+```
+
+---
+
+## Live Test Results (27 Aug 2026)
+
+### Error Handler
+| Field | Value |
+|-------|-------|
+| Test workflow | `Arcadia - Phase1 Error Handler Test` (`vtzHLp4yiTfmBaVb`) |
+| Test execution | `59389` (intentional error) |
+| Handler execution | `59390` (success) |
+| Supabase | row in `workflow_failures` for `Arcadia - Phase1 Error Handler Test` |
+| Anti-recursion | ✅ only skips `Arcadia - Central Error Handler` itself |
+
+### Laila Inbound Scenarios (via `Arcadia - Phase1 Laila Scenario Test` webhook)
+| Scenario | Exec ID | Result |
+|----------|---------|--------|
+| new_customer | 59391 | ✅ proceed=true, lead_interaction inserted |
+| existing_customer | 59393 | ✅ proceed=true, conversation_id reused |
+| duplicate_whatsapp | 59395 | ✅ proceed=false, stop_reason=duplicate_provider_message_id |
+| missing_provider_id | 59397 | ✅ proceed=true (dedupe skipped) |
+| pricing_success | — | ⏸️ deferred |
+| manual_quote | — | ⏸️ deferred |
+| send_failure | — | ⏸️ deferred |
+| ai_node_failure | — | ⏸️ deferred |
+
+**ملف النتائج:** `deliverables/arcadia-phase1-live-test-results.json`
+
+---
+
+## Blocker السابق — n8n Credentials (archived)
 
 ### ما ظهر في Cloud Agent pod (27 Aug 2026 ~21:38 UTC)
 

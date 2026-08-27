@@ -33,12 +33,22 @@ import urllib.request
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKUP_DIR = ROOT / "n8n Workflows" / "production-backup"
 WF_DIR = ROOT / "n8n Workflows"
 REPORT_PATH = ROOT / "deliverables" / "arcadia-phase1-live-test-results.json"
 TODAY = date.today().isoformat()
+
+SUPABASE_REST = "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1"
+
+
+def supabase_service_key() -> str:
+    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    if not key:
+        raise RuntimeError("Set SUPABASE_SERVICE_ROLE_KEY for Supabase HTTP node patching during import.")
+    return key
 
 DISCOVER_TERMS = (
     "arcadia",
@@ -63,6 +73,7 @@ LOCAL_WORKFLOWS = [
     "Arcadia - Phase1 Outbound Log.json",
     "Arcadia - Phase1 Pricing Action Log.json",
     "Arcadia - Phase1 Error Handler Test.json",
+    "Arcadia - Phase1 Laila Scenario Test.json",
 ]
 
 READONLY_WF_KEYS = {
@@ -134,6 +145,21 @@ class N8nClient:
         payload = self._request("GET", f"/executions/{execution_id}")
         return payload.get("data", payload)
 
+    def activate_workflow(self, wf_id: str) -> dict:
+        payload = self._request("POST", f"/workflows/{wf_id}/activate")
+        return payload.get("data", payload)
+
+    def deactivate_workflow(self, wf_id: str) -> dict:
+        payload = self._request("POST", f"/workflows/{wf_id}/deactivate")
+        return payload.get("data", payload)
+
+    def list_executions(self, workflow_id: str | None = None, limit: int = 5) -> list[dict]:
+        path = f"/executions?limit={limit}"
+        if workflow_id:
+            path += f"&workflowId={workflow_id}"
+        payload = self._request("GET", path)
+        return payload.get("data", payload) if isinstance(payload, dict) else payload
+
     def wait_execution(self, execution_id: str, timeout_s: int = 90) -> dict:
         deadline = time.time() + timeout_s
         last = {}
@@ -148,11 +174,67 @@ class N8nClient:
         return last
 
 
+def normalize_n8n_api_base(raw_url: str) -> str:
+    """Map UI or project URLs to REST base .../api/v1."""
+    url = raw_url.strip().rstrip("/")
+    if not url:
+        return url
+    if url.endswith("/api/v1"):
+        return url
+    idx = url.find("/api/v1")
+    if idx != -1:
+        return url[: idx + len("/api/v1")]
+    parsed = urlparse(url)
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}/api/v1"
+    return url
+
+
+def n8n_public_base(api_base: str) -> str:
+    """https://host/api/v1 -> https://host"""
+    parsed = urlparse(api_base)
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def trigger_webhook(api_base: str, path: str, payload: dict, *, test_mode: bool = False) -> tuple[int, str]:
+    """POST to n8n webhook (production or test URL). Returns (status_code, body)."""
+    base = n8n_public_base(api_base)
+    prefix = "webhook-test" if test_mode else "webhook"
+    url = f"{base}/{prefix}/{path.lstrip('/')}"
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            return resp.status, resp.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode("utf-8", errors="replace")
+
+
+def wait_for_new_execution(
+    client: N8nClient, workflow_id: str, after_iso: str, timeout_s: int = 90
+) -> dict | None:
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        for ex in client.list_executions(workflow_id=workflow_id, limit=10):
+            started = ex.get("startedAt") or ""
+            if started >= after_iso:
+                ex_id = str(ex.get("id", ""))
+                if ex_id:
+                    detail = client.wait_execution(ex_id, timeout_s=max(10, int(deadline - time.time())))
+                    detail["id"] = ex_id
+                    return detail
+        time.sleep(2)
+    return None
+
+
 def load_client() -> N8nClient:
-    base = os.environ.get("N8N_API_URL", "").strip()
+    raw = os.environ.get("N8N_API_URL", "").strip()
     key = os.environ.get("N8N_API_KEY", "").strip()
-    if not base or not key:
+    if not raw or not key:
         raise SystemExit("Set N8N_API_URL and N8N_API_KEY environment variables.")
+    base = normalize_n8n_api_base(raw)
+    if base != raw.rstrip("/"):
+        print(f"Using n8n REST base: {base}", file=sys.stderr)
     return N8nClient(base, key)
 
 
@@ -223,16 +305,34 @@ def export_production(client: N8nClient) -> list[Path]:
 
 
 def find_laila_export() -> Path:
-    candidates = sorted(BACKUP_DIR.glob("*Laila*Telegram*V5*.json"))
-    candidates = [p for p in candidates if "Phase1 Working" not in p.name and "Working" not in p.name]
-    if not candidates:
-        raise SystemExit(f"No Laila V5 export in {BACKUP_DIR}")
-    return candidates[0]
+    backup = BACKUP_DIR
+    dated = lambda pat: sorted(backup.glob(pat), key=lambda p: p.stat().st_mtime, reverse=True)
+
+    def pick(candidates: list[Path]) -> Path | None:
+        for p in candidates:
+            n = p.name.lower()
+            if any(x in n for x in ("backup", "test", "copy", "work", "_backup")):
+                continue
+            return p
+        return candidates[0] if candidates else None
+
+    # Production reality (Aug 2026): active WA sales = Laila V4 - Final; web chat = Laila
+    for pattern in (
+        "Laila V4 - Final.*.json",
+        "Laila.*.json",
+        "*Laila*V5*.json",
+        "*Laila*Telegram*.json",
+    ):
+        cands = [p for p in dated(pattern) if not p.name.endswith(".json.json")]
+        found = pick(cands)
+        if found:
+            return found
+    raise SystemExit(f"No Laila production export in {BACKUP_DIR}")
 
 
 def patch_laila_working_copy() -> Path:
     laila_export = find_laila_export()
-    out = WF_DIR / "Arcadia - Laila Telegram V5 Phase1 Working.json"
+    out = WF_DIR / "Laila V4 - Final Phase1 Working.json"
     subprocess.run(
         [
             sys.executable,
@@ -248,15 +348,69 @@ def patch_laila_working_copy() -> Path:
 
 
 def strip_for_api(wf: dict) -> dict:
-    out = {k: v for k, v in wf.items() if k not in READONLY_WF_KEYS}
-    out.setdefault("settings", {})
-    out.setdefault("connections", {})
-    out.setdefault("nodes", [])
+    allowed = {"name", "nodes", "connections", "settings", "staticData"}
+    return {k: wf[k] for k in allowed if k in wf and wf[k] is not None}
+
+
+def fix_error_workflow_id(wf: dict, name_to_id: dict[str, str]) -> dict:
+    out = json.loads(json.dumps(wf))
+    settings = out.setdefault("settings", {})
+    eh = settings.get("errorWorkflow")
+    if isinstance(eh, str) and eh in name_to_id:
+        settings["errorWorkflow"] = name_to_id[eh]
     return out
 
 
-def upsert_local_workflow(client: N8nClient, path: Path, activate: bool = False) -> dict:
+def fix_supabase_http_nodes(wf: dict) -> dict:
+    """Replace missing supabaseApi credentials with header auth (matches production Laila pattern)."""
+    out = json.loads(json.dumps(wf))
+    for node in out.get("nodes", []):
+        if node.get("type") != "n8n-nodes-base.httpRequest":
+            continue
+        params = node.setdefault("parameters", {})
+        blob = json.dumps(params)
+        if "supabaseApi" not in blob and "supabase.co" not in blob and "$env.SUPABASE_URL" not in blob:
+            continue
+        params.pop("authentication", None)
+        params.pop("nodeCredentialType", None)
+        url = str(params.get("url", ""))
+        # Fix corrupted expression URLs from earlier imports
+        if "={{ https://" in url or "={{ http://" in url:
+            url = re.sub(
+                r"=\{\{\s*(https?://[^\s/]+)\s*\}\}(/rest/v1/\S+)?",
+                lambda m: (m.group(1) + (m.group(2) or "")),
+                url,
+            )
+        if "$env.SUPABASE_URL" in url:
+            url = url.replace("={{ $env.SUPABASE_URL }}", SUPABASE_REST.rsplit("/rest/v1", 1)[0])
+            url = url.replace("$env.SUPABASE_URL", "https://xfibcjhshpmqkrhlpsoa.supabase.co")
+        if url.startswith("={{") and "$env" not in url and "supabase.co" not in url:
+            pass
+        elif not url.startswith("http") and not url.startswith("={{"):
+            url = SUPABASE_REST + (url if url.startswith("/") else "")
+        params["url"] = url
+        params["sendHeaders"] = True
+        hp = params.setdefault("headerParameters", {"parameters": []})
+        names = {p.get("name") for p in hp.get("parameters", [])}
+        for name, val in (
+            ("apikey", supabase_service_key()),
+            ("Authorization", f"Bearer {supabase_service_key()}"),
+            ("Content-Type", "application/json"),
+        ):
+            if name not in names:
+                hp["parameters"].append({"name": name, "value": val})
+        node.pop("credentials", None)
+        node["alwaysOutputData"] = True
+    return out
+
+
+def upsert_local_workflow(
+    client: N8nClient, path: Path, activate: bool = False, name_to_id: dict[str, str] | None = None
+) -> dict:
     wf = json.loads(path.read_text(encoding="utf-8"))
+    wf = fix_supabase_http_nodes(wf)
+    if name_to_id:
+        wf = fix_error_workflow_id(wf, name_to_id)
     name = wf.get("name", path.stem)
     existing = {w["name"]: w for w in client.list_workflows()}
     body = strip_for_api(wf)
@@ -302,19 +456,32 @@ def import_all(client: N8nClient) -> dict[str, str]:
     # 2) Patch Laila working copy from export
     working_path = patch_laila_working_copy()
 
-    # 3) Import base sub-workflows first
+    # 3) Import base sub-workflows first (Central Error Handler before others for errorWorkflow ids)
     name_to_id: dict[str, str] = {}
+    import_order = [
+        "Arcadia - Central Error Handler.json",
+        "Arcadia - Phase1 Inbound Pipeline.json",
+        "Arcadia - Phase1 Outbound Log.json",
+        "Arcadia - Phase1 Pricing Action Log.json",
+    ]
+    for rel in import_order:
+        wf = upsert_local_workflow(client, WF_DIR / rel, activate=False, name_to_id=name_to_id)
+        name_to_id[wf["name"]] = str(wf["id"])
     for rel in LOCAL_WORKFLOWS:
-        if rel == "Arcadia - Phase1 Error Handler Test.json":
+        if rel in import_order or rel in (
+            "Arcadia - Phase1 Error Handler Test.json",
+            "Arcadia - Phase1 Laila Scenario Test.json",
+        ):
             continue
-        wf = upsert_local_workflow(client, WF_DIR / rel, activate=False)
+        wf = upsert_local_workflow(client, WF_DIR / rel, activate=False, name_to_id=name_to_id)
         name_to_id[wf["name"]] = str(wf["id"])
 
     # 4) Import wired Laila working copy (inactive)
     working = json.loads(working_path.read_text(encoding="utf-8"))
     working = wire_execute_workflow_ids(working, name_to_id)
+    working = fix_error_workflow_id(working, name_to_id)
     working_path.write_text(json.dumps(working, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    laila_wf = upsert_local_workflow(client, working_path, activate=False)
+    laila_wf = upsert_local_workflow(client, working_path, activate=False, name_to_id=name_to_id)
     name_to_id[laila_wf["name"]] = str(laila_wf["id"])
 
     # 5) Import error handler test wired to central handler id
@@ -324,9 +491,19 @@ def import_all(client: N8nClient) -> dict[str, str]:
         test_wf_json.setdefault("settings", {})["errorWorkflow"] = name_to_id["Arcadia - Central Error Handler"]
     test_tmp = WF_DIR / ".tmp-error-handler-test-import.json"
     test_tmp.write_text(json.dumps(test_wf_json, indent=2) + "\n", encoding="utf-8")
-    test_wf = upsert_local_workflow(client, test_tmp, activate=False)
+    test_wf = upsert_local_workflow(client, test_tmp, activate=False, name_to_id=name_to_id)
     name_to_id[test_wf["name"]] = str(test_wf["id"])
     test_tmp.unlink(missing_ok=True)
+
+    # 6) Import Laila scenario test runner (inactive)
+    scenario_path = WF_DIR / "Arcadia - Phase1 Laila Scenario Test.json"
+    scenario_json = json.loads(scenario_path.read_text(encoding="utf-8"))
+    scenario_json = wire_execute_workflow_ids(scenario_json, name_to_id)
+    scenario_tmp = WF_DIR / ".tmp-laila-scenario-test-import.json"
+    scenario_tmp.write_text(json.dumps(scenario_json, indent=2) + "\n", encoding="utf-8")
+    scenario_wf = upsert_local_workflow(client, scenario_tmp, activate=False, name_to_id=name_to_id)
+    name_to_id[scenario_wf["name"]] = str(scenario_wf["id"])
+    scenario_tmp.unlink(missing_ok=True)
 
     mapping_path = ROOT / "deliverables" / "arcadia-phase1-n8n-id-map.json"
     mapping_path.write_text(json.dumps(name_to_id, indent=2) + "\n", encoding="utf-8")
@@ -349,7 +526,7 @@ def link_error_handlers(client: N8nClient, name_to_id: dict[str, str]) -> None:
         n = name.lower()
         if "phase1 working" in n or "phase1 inbound" in n or "phase1 outbound" in n:
             continue
-        if "error handler test" in n:
+        if "error handler test" in n or "laila scenario test" in n:
             continue
         roles = classify_workflow(name)
         if not any(r in roles for r in ("laila", "followup", "admin", "pricing")):
@@ -368,58 +545,163 @@ def link_error_handlers(client: N8nClient, name_to_id: dict[str, str]) -> None:
 
 def test_error_handler(client: N8nClient, name_to_id: dict[str, str]) -> dict:
     test_name = "Arcadia - Phase1 Error Handler Test"
+    eh_name = "Arcadia - Central Error Handler"
     test_id = name_to_id.get(test_name)
-    if not test_id:
+    eh_id = name_to_id.get(eh_name)
+    if not test_id or not eh_id:
         for wf in client.list_workflows():
             if wf.get("name") == test_name:
                 test_id = str(wf["id"])
-                break
+            if wf.get("name") == eh_name:
+                eh_id = str(wf["id"])
     if not test_id:
         raise SystemExit("Error Handler Test workflow not imported")
 
-    before = datetime.now(timezone.utc).isoformat()
-    exec_info = client.execute_workflow(test_id)
-    execution_id = str(exec_info.get("executionId") or exec_info.get("id") or "")
-    result = client.wait_execution(execution_id) if execution_id else exec_info
-    return {
-        "test": "error_handler",
-        "workflow_id": test_id,
-        "execution_id": execution_id,
-        "status": result.get("status"),
-        "started_after": before,
-        "note": "Verify workflow_failures row + Telegram alert manually in dashboard if API lacks message proof",
-    }
+    # Central Error Handler must be active to receive errorWorkflow callbacks
+    client.activate_workflow(eh_id)
+    was_active = False
+    try:
+        detail = client.get_workflow(test_id)
+        was_active = bool(detail.get("active"))
+        if not was_active:
+            client.activate_workflow(test_id)
+
+        before = datetime.now(timezone.utc).isoformat()
+        status_code, body = trigger_webhook(client.base, "phase1-error-handler-test", {"test": True})
+        result = wait_for_new_execution(client, test_id, before, timeout_s=60)
+        execution_id = str(result.get("id", "")) if result else ""
+
+        # Error handler workflow should also have run
+        eh_result = wait_for_new_execution(client, eh_id, before, timeout_s=30)
+
+        return {
+            "test": "error_handler",
+            "workflow_id": test_id,
+            "error_handler_id": eh_id,
+            "webhook_status": status_code,
+            "webhook_body_preview": body[:200],
+            "test_execution_id": execution_id,
+            "test_execution_status": result.get("status") if result else None,
+            "error_handler_execution_id": str(eh_result.get("id", "")) if eh_result else None,
+            "error_handler_execution_status": eh_result.get("status") if eh_result else None,
+            "started_after": before,
+            "note": "Verify workflow_failures row + Telegram alert in Supabase/dashboard",
+        }
+    finally:
+        if not was_active:
+            try:
+                client.deactivate_workflow(test_id)
+            except RuntimeError:
+                pass
 
 
 def test_laila_scenarios(client: N8nClient, name_to_id: dict[str, str]) -> list[dict]:
-    working_name = next((n for n in name_to_id if "phase1 working" in n.lower()), None)
-    if not working_name:
-        raise SystemExit("Laila Phase1 Working workflow not found")
-    working_id = name_to_id[working_name]
+    scenario_name = "Arcadia - Phase1 Laila Scenario Test"
+    scenario_id = name_to_id.get(scenario_name)
+    if not scenario_id:
+        for wf in client.list_workflows():
+            if wf.get("name") == scenario_name:
+                scenario_id = str(wf["id"])
+                break
+    if not scenario_id:
+        raise SystemExit("Laila Scenario Test workflow not imported")
 
+    test_phone = "971509999001"
+    ts = datetime.now(timezone.utc).strftime("%H%M%S")
     scenarios = [
-        ("new_customer", {"body": {"entry": [{"changes": [{"value": {"messages": [{"id": "wa_test_new_001", "from": "971500000001", "type": "text", "text": {"body": "hello new"}}]}}]}]}}),
-        ("existing_customer", {"body": {"entry": [{"changes": [{"value": {"messages": [{"id": "wa_test_exist_002", "from": "971500000001", "type": "text", "text": {"body": "second msg"}}]}}]}]}}),
-        ("duplicate_whatsapp", {"body": {"entry": [{"changes": [{"value": {"messages": [{"id": "wa_test_exist_002", "from": "971500000001", "type": "text", "text": {"body": "dup"}}]}}]}]}}),
-        ("telegram_inbound", {"message": {"message_id": 9001, "chat": {"id": 123456789}, "text": "telegram test"}}),
+        (
+            "new_customer",
+            {
+                "scenario": "new_customer",
+                "phone": test_phone,
+                "provider_message_id": f"wa_phase1_test_new_{ts}",
+                "text": "hello new customer phase1 test",
+                "channel": "whatsapp",
+            },
+        ),
+        (
+            "existing_customer",
+            {
+                "scenario": "existing_customer",
+                "phone": test_phone,
+                "provider_message_id": f"wa_phase1_test_exist_{ts}",
+                "text": "second message same customer",
+                "channel": "whatsapp",
+            },
+        ),
+        (
+            "duplicate_whatsapp",
+            {
+                "scenario": "duplicate_whatsapp",
+                "phone": test_phone,
+                "provider_message_id": f"wa_phase1_test_exist_{ts}",
+                "text": "duplicate should stop",
+                "channel": "whatsapp",
+            },
+        ),
+        (
+            "missing_provider_id",
+            {
+                "scenario": "missing_provider_id",
+                "phone": test_phone,
+                "text": "no provider id — skip dedupe path",
+                "channel": "whatsapp",
+            },
+        ),
     ]
 
+    was_active = bool(client.get_workflow(scenario_id).get("active"))
+    if not was_active:
+        client.activate_workflow(scenario_id)
+
     results: list[dict] = []
-    for label, payload in scenarios:
-        try:
-            exec_info = client.execute_workflow(working_id, payload)
-            execution_id = str(exec_info.get("executionId") or exec_info.get("id") or "")
-            detail = client.wait_execution(execution_id) if execution_id else exec_info
-            results.append({"scenario": label, "execution_id": execution_id, "status": detail.get("status"), "ok": True})
-        except Exception as e:
-            results.append({"scenario": label, "ok": False, "error": str(e)})
+    try:
+        for label, payload in scenarios:
+            before = datetime.now(timezone.utc).isoformat()
+            try:
+                status_code, body = trigger_webhook(client.base, "phase1-laila-scenario-test", payload)
+                ex = wait_for_new_execution(client, scenario_id, before, timeout_s=90)
+                parsed_body = None
+                try:
+                    parsed_body = json.loads(body) if body.strip().startswith("{") else body[:300]
+                except json.JSONDecodeError:
+                    parsed_body = body[:300]
+                proceed = isinstance(parsed_body, dict) and parsed_body.get("proceed")
+                stop_reason = isinstance(parsed_body, dict) and parsed_body.get("stop_reason")
+                ok = (
+                    ex is not None
+                    and ex.get("status") == "success"
+                    and (
+                        status_code in (200, 201)
+                        or (label == "duplicate_whatsapp" and proceed is False and stop_reason == "duplicate_provider_message_id")
+                        or (label != "duplicate_whatsapp" and proceed is True)
+                    )
+                )
+                results.append(
+                    {
+                        "scenario": label,
+                        "webhook_status": status_code,
+                        "execution_id": str(ex.get("id", "")) if ex else None,
+                        "execution_status": ex.get("status") if ex else None,
+                        "response_preview": parsed_body,
+                        "ok": ok,
+                    }
+                )
+            except Exception as e:
+                results.append({"scenario": label, "ok": False, "error": str(e)})
+    finally:
+        if not was_active:
+            try:
+                client.deactivate_workflow(scenario_id)
+            except RuntimeError:
+                pass
 
     for label in ("pricing_success", "manual_quote", "send_failure", "ai_node_failure"):
         results.append(
             {
                 "scenario": label,
                 "ok": None,
-                "note": "Requires pinned test path or controlled node failure — run after working copy execute baseline succeeds",
+                "note": "Requires full Laila Working Copy activation — deferred until user approval",
             }
         )
     return results

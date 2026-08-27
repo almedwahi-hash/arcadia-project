@@ -2,17 +2,23 @@
   "name": "Arcadia - Phase1 Error Handler Test",
   "nodes": [
     {
-      "parameters": {},
-      "id": "manual-trigger",
-      "name": "Manual Trigger (disable after test)",
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [0, 0]
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "phase1-error-handler-test",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger (deactivate after test)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "webhookId": "phase1-eh-test-webhook"
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "throw new Error('Phase1 intentional failure — safe to delete this workflow after test');"
+        "jsCode": "throw new Error('Phase1 intentional failure — safe to deactivate this workflow after test');"
       },
       "id": "intentional-fail",
       "name": "Intentional Fail Node",
@@ -22,7 +28,7 @@
     }
   ],
   "connections": {
-    "Manual Trigger (disable after test)": {
+    "Webhook Trigger (deactivate after test)": {
       "main": [
         [
           {
@@ -39,6 +45,6 @@
     "errorWorkflow": "Arcadia - Central Error Handler"
   },
   "meta": {
-    "description": "TEMPORARY — Run once manually to verify Central Error Handler. Settings.errorWorkflow must point to imported Central Error Handler workflow ID after import. DELETE or deactivate after test."
+    "description": "TEMPORARY — POST /webhook/phase1-error-handler-test to verify Central Error Handler. Deactivate after test."
   }
 }

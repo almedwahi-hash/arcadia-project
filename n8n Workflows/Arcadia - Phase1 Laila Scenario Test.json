@@ -1,0 +1,112 @@
+{
+  "name": "Arcadia - Phase1 Laila Scenario Test",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "phase1-laila-scenario-test",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "scenario-webhook",
+      "name": "Scenario Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "phase1-laila-scenario-test"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build Phase1 payload from scenario POST body (Evolution API or Meta WA format)\nconst body = $input.first().json.body || $input.first().json;\nconst scenario = body.scenario || 'custom';\nconst data = body.data || body;\nconst key = data.key || {};\nconst waMsg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\nconst phone = String(body.phone || key.remoteJid?.replace('@s.whatsapp.net','') || waMsg?.from || '').trim();\nconst providerMessageId = body.provider_message_id || key.id || waMsg?.id || null;\nconst text = body.text || body.textContent || waMsg?.text?.body || '';\nreturn [{ json: {\n  scenario,\n  phone,\n  textContent: text,\n  remoteJid: phone ? phone + '@s.whatsapp.net' : null,\n  phase1: {\n    phone,\n    provider_message_id: providerMessageId ? String(providerMessageId) : null,\n    channel: body.channel || 'whatsapp',\n    message_text: text,\n    message_type: body.message_type || 'text',\n    metadata: { scenario, test: true }\n  }\n}}];"
+      },
+      "id": "scenario-normalize",
+      "name": "Scenario Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "nztIELsQqVpdDVua",
+          "cachedResultName": "Arcadia - Phase1 Inbound Pipeline"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "run-inbound",
+      "name": "Arcadia - Phase1 Inbound Pipeline",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r = $input.first()?.json;\nconst norm = $('Scenario Normalize').first()?.json || {};\nif (!r) {\n  return [{ json: { scenario: norm.scenario, proceed: false, stop_reason: 'empty_inbound_result' } }];\n}\nreturn [{ json: {\n  scenario: norm.scenario,\n  proceed: r.proceed,\n  stop_reason: r.stop_reason,\n  lead_id: r.lead_id,\n  customer_id: r.customer_id,\n  conversation_id: r.conversation_id,\n  provider_message_id: r.phase1?.provider_message_id\n}}];"
+      },
+      "id": "scenario-output",
+      "name": "Scenario Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Scenario Webhook": {
+      "main": [
+        [
+          {
+            "node": "Scenario Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scenario Normalize": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Inbound Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arcadia - Phase1 Inbound Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Scenario Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "meta": {
+    "description": "Phase1 inbound scenario runner — tests dedupe/customer/lead without activating Laila Working Copy."
+  }
+}
