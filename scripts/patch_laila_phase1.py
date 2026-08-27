@@ -29,7 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BACKUP_DIR = ROOT / "n8n Workflows" / "production-backup"
 DEFAULT_INPUT = BACKUP_DIR / "Arcadia - Laila Telegram V5.2026-08-27.json"
-DEFAULT_OUTPUT = ROOT / "n8n Workflows" / "Arcadia - Laila Telegram V5 Phase1 Working.json"
+DEFAULT_OUTPUT = ROOT / "n8n Workflows" / "Laila V4 - Final Phase1 Final Candidate.json"
 DIFF_OUTPUT = ROOT / "deliverables" / "arcadia-phase1-laila-diff.json"
 
 SUBFLOW_INBOUND = "Arcadia - Phase1 Inbound Pipeline"
@@ -145,6 +145,64 @@ def pricing_path_report(wf: dict) -> dict:
     return report
 
 
+PREPARE_PRICING_OBSERVABILITY_JS = """// Phase1 observability — parse Decision Engine response (no pricing logic change)
+const de = $input.first().json;
+const ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json || {};
+const response = String(de.response || '');
+const priceUsd = response.match(/\\$[\\d,]+/)?.[0] || response.match(/([\\d,]{3,})\\s*USD/i)?.[0] || null;
+const manualPath = /no_hotel|يدوي|human|موظف|فريق/i.test(response);
+const hasPrice = !!priceUsd || /\\$[\\d,]{2,}|USD\\s*[\\d,]+|دولار/.test(response);
+return [{ json: {
+  phone: de.phone,
+  remoteJid: de.remoteJid,
+  response: de.response,
+  isManager: de.isManager,
+  followup: de.followup,
+  lead_id: ctx.lead_id,
+  customer_id: ctx.customer_id,
+  channel: ctx.phase1?.channel || 'whatsapp',
+  action_type: 'get_price',
+  status: manualPath && !hasPrice ? 'failed' : (hasPrice ? 'success' : 'failed'),
+  output_summary: (priceUsd || response).slice(0, 500),
+  input_summary: String(ctx.phase1?.message_text || '').slice(0, 500),
+  metadata: { phase1: 'pricing_observability', source: 'decision_engine_response' }
+}}];"""
+
+
+def wire_decision_engine_pricing_observability(
+    out: dict, conns: dict, ai_node: dict, meta: dict
+) -> bool:
+    """Wire observability-only Pricing Action Log after Decision Engine (Laila V4 path)."""
+    if find_node_by_names(out, {"Phase1 Prepare Pricing Action"}):
+        return False
+    save_node = find_node_by_names(out, {"Save Response"})
+    if not save_node:
+        return False
+    de = ai_node
+    prep = {
+        "parameters": {"mode": "runOnceForAllItems", "jsCode": PREPARE_PRICING_OBSERVABILITY_JS},
+        "id": nid(),
+        "name": "Phase1 Prepare Pricing Action",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [de["position"][0] + 100, de["position"][1] + 120],
+    }
+    pricing_exec = make_execute_workflow_node(
+        SUBFLOW_PRICING, de["position"][0] + 220, de["position"][1] + 120
+    )
+    pricing_exec["continueOnFail"] = True
+    pricing_exec["onError"] = "continueRegularOutput"
+    out["nodes"].extend([prep, pricing_exec])
+    meta["inserted_nodes"].extend([prep["name"], pricing_exec["name"]])
+    conns[de["name"]] = {"main": [[{"node": prep["name"], "type": "main", "index": 0}]]}
+    conns[prep["name"]] = {"main": [[{"node": SUBFLOW_PRICING, "type": "main", "index": 0}]]}
+    conns[SUBFLOW_PRICING] = {"main": [[{"node": save_node["name"], "type": "main", "index": 0}]]}
+    meta["rewired"].append(
+        f"{de['name']} -> Phase1 Prepare Pricing Action -> Pricing Action Log -> {save_node['name']}"
+    )
+    return True
+
+
 def make_execute_workflow_node(name: str, x: int, y: int) -> dict:
     return {
         "parameters": {
@@ -176,11 +234,16 @@ def patch_workflow(wf: dict) -> tuple[dict, dict]:
     if not send_node:
         meta["warnings"].append("Send node not found — outbound log must be wired on send SUCCESS branch manually")
 
-    pricing_node = find_pricing_node(out)
-    if not pricing_node:
-        meta["warnings"].append("Pricing node not found — wire Phase1 Pricing Action Log manually after get_price")
-
     conns = out.setdefault("connections", {})
+
+    pricing_node = find_pricing_node(out)
+    pricing_wired = False
+    if ai_node and ai_node.get("name") == "Decision Engine":
+        pricing_wired = wire_decision_engine_pricing_observability(out, conns, ai_node, meta)
+    elif pricing_node:
+        pricing_wired = True  # handled in RPC/tool block below
+    if not pricing_wired and not pricing_node:
+        meta["warnings"].append("Pricing node not found — wire Phase1 Pricing Action Log manually after get_price")
 
     norm_node = {
         "parameters": {
@@ -366,7 +429,7 @@ return [{ json: {
         conns["Phase1 Prepare Outbound"] = {"main": [[{"node": SUBFLOW_OUTBOUND, "type": "main", "index": 0}]]}
         meta["rewired"].append(f"{send_node['name']} success -> Phase1 Prepare Outbound -> Outbound Log")
 
-    if pricing_node:
+    if pricing_node and not pricing_wired and pricing_node.get("name") != "Decision Engine":
         prepare_pricing = {
             "parameters": {
                 "mode": "runOnceForAllItems",
@@ -412,8 +475,7 @@ return [{ json: {
     settings["executionOrder"] = settings.get("executionOrder", "v1")
 
     base_name = out.get("name") or "Laila Production"
-    if "Phase1 Working" not in base_name:
-        out["name"] = base_name + " Phase1 Working"
+    out["name"] = "Laila V4 - Final Phase1 Final Candidate"
 
     meta["pricing_path"] = pricing_path_report(out)
     meta["source_nodes"] = {

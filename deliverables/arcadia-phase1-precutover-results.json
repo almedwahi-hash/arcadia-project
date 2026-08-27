@@ -1,0 +1,34 @@
+{
+  "started_at": "2026-08-27T22:34:32.197022+00:00",
+  "smoke": [
+    {
+      "scenario": "new_customer",
+      "execution_id": "59482",
+      "status": "error",
+      "provider_message_id": "wa_smoke_new_20260827223433"
+    },
+    {
+      "scenario": "duplicate",
+      "execution_id": "59487",
+      "status": "success"
+    },
+    {
+      "scenario": "pricing_success",
+      "execution_id": "59489",
+      "status": "error",
+      "expected_usd": 781
+    },
+    {
+      "scenario": "manual_quote",
+      "execution_id": "59494",
+      "status": "error"
+    },
+    {
+      "scenario": "ai_node_failure",
+      "execution_id": "59500",
+      "status": "error",
+      "error_handler_execution_id": "59502"
+    }
+  ],
+  "finished_at": "2026-08-27T22:35:20.706924+00:00"
+}

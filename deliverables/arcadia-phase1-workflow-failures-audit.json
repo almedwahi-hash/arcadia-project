@@ -1,0 +1,49 @@
+{
+  "audited_at": "2026-08-27T22:36:00+00:00",
+  "baseline_count": 53,
+  "after_e2e_count": 77,
+  "delta": 24,
+  "window": "created_at > 2026-08-27T22:15:00Z",
+  "summary_by_workflow": {
+    "Laila V4 - Final Phase1 Working": 16,
+    "Arcadia - Phase1 Inbound Pipeline": 14,
+    "Arcadia - Phase1 Laila Scenario Test": 6,
+    "Arcadia - Phase1 Error Handler Test": 2
+  },
+  "delta_24_breakdown": {
+    "inbound_subworkflow_side_effect": {
+      "count": 8,
+      "execution_ids": ["59402", "59406", "59410", "59414", "59418", "59422", "59426", "59430"],
+      "cause": "Insert Inbound / message_type errors during early E2E (fixed before Final Candidate)",
+      "intentional": true
+    },
+    "working_copy_parent_mirror": {
+      "count": 8,
+      "execution_ids": ["59401", "59405", "59409", "59413", "59417", "59421", "59425", "59429"],
+      "cause": "errorWorkflow logs parent when inbound subflow fails",
+      "intentional": true
+    },
+    "send_whatsapp_evolution_502": {
+      "count": 6,
+      "execution_ids": ["59434", "59439", "59444", "59449", "59452", "59457"],
+      "last_node": "Send WhatsApp",
+      "intentional": true,
+      "note": "Evolution API 502 — expected during E2E on test numbers"
+    },
+    "send_failure_intentional": {
+      "count": 1,
+      "execution_id": "59462",
+      "last_node": "Send WhatsApp",
+      "intentional": true
+    },
+    "ai_node_failure_intentional": {
+      "count": 1,
+      "execution_id": "59467",
+      "last_node": "Decision Engine",
+      "intentional": true
+    }
+  },
+  "production_errors_unexpected": false,
+  "production_workflow_failures_in_window": 0,
+  "recommendation": "Do not delete — all rows are Phase1 test artifacts. Label in ops dashboard if needed."
+}

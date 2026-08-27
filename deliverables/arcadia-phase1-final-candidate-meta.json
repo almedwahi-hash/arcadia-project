@@ -1,0 +1,25 @@
+{
+  "final_candidate_file": "n8n Workflows/Laila V4 - Final Phase1 Final Candidate.json",
+  "production_source": "n8n Workflows/production-backup/Laila V4 - Final.2026-08-27.json",
+  "n8n_workflow_id": "RSVg9pYlWWa5yege",
+  "production_workflow_id": "XZKft5t8qjygv6Kb",
+  "production_node_count": 8,
+  "final_candidate_node_count": 15,
+  "added_nodes": [
+    "Phase1 Normalize Inbound",
+    "Arcadia - Phase1 Inbound Pipeline",
+    "Phase1 IF Proceed (not duplicate)",
+    "Phase1 Prepare Pricing Action",
+    "Arcadia - Phase1 Pricing Action Log",
+    "Phase1 Prepare Outbound",
+    "Arcadia - Phase1 Outbound Log"
+  ],
+  "rewired": [
+    "Parse + CRM -> Phase1 Normalize Inbound -> Inbound Pipeline -> IF Proceed -> Decision Engine",
+    "Decision Engine -> Phase1 Prepare Pricing Action -> Pricing Action Log -> Save Response",
+    "Send WhatsApp -> Phase1 Prepare Outbound -> Outbound Log"
+  ],
+  "settings_error_workflow": "Arcadia - Central Error Handler",
+  "pricing_path": "Decision Engine webhook -> web chat Laila -> quote_options (unchanged)",
+  "persisted_pricing_action_log": true
+}
