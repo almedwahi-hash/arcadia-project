@@ -84,6 +84,23 @@ function parseRequestedTourDays(text) {
   return null;
 }
 
+function detectTourModify(text, history) {
+  let requestedTourDays = parseRequestedTourDays(text);
+  const trimmed = String(text || '').trim();
+  if (requestedTourDays == null) {
+    const cm = trimmed.match(/^(?:طيب\s*)?(\d+)\s*[?؟]?\s*$/);
+    if (cm && /(?:جول|جولات|أيام جولات|tour_days)/i.test(String(history || '').slice(-1200))) {
+      requestedTourDays = parseInt(cm[1], 10);
+    }
+  }
+  const modifyRx =
+    /(?:خليها|خلها|خلي|ابي|أبي|اريد|أريد|ابغى|بغى|حط|خل|رجعها|رجع|ارجعها|ارجع|اخليها|اخلي|لو\s+اخلي)/i;
+  const hasModifyVerb =
+    modifyRx.test(text) ||
+    (/^(?:طيب\s*)?\d+\s*[?؟]?\s*$/.test(trimmed) && requestedTourDays != null);
+  return { requestedTourDays, hasModifyVerb };
+}
+
 function tripContextSummary(trip) {
   if (!trip) return '';
   const parts = [];
@@ -162,8 +179,8 @@ const goodbyeRx = /(لا\s*خلاص|خلاص\s*شكر|شكر\s*بس|ما\s*بغ�
 const aiQuestionRx = /(موظف|موظفه|موظفة|إنسان|بشر|human|robot|روبوت|bot\b|ai\b|ذكاء\s*اصطناع|انت\s*ذكاء|أنت\s*ذكاء|انتي\s*موظف|أنتي\s*موظف)/i;
 const driverLangRx = /(السواق|السائق|سائق|driver).*(عربي|arabic|يتكلم|يتحدث|speak)/i;
 const opsFactRx = /(الغاء|إلغاء|cancellation|طريق[ةه]\s*الدفع|payment\s*method|مرافق|facility|policy)/i;
-const tourModifyRx =
-  /(?:خليها|خلها|خلي|ابي|أبي|اريد|أريد|ابغى|بغى|حط|خل)\s*(?:لي|ل)?\s*(?:\d+|جولتين|جولين|ثلاث|ثلاثة|أ?ربع|خمس|ست|ستة)(?:\s*(?:جول|جولات|أيام))?/i;
+const priceConfirmRx = /(?:هذا|هذ)\s*السعر|السعر\s*(?:هذا|مع|على|حسب)/i;
+const sameHotelRx = /(?:الفندق|فندق)\s*(?:نفس|زي|مثل)\s*(?:اللي|الذي|قبل|السابق|اول|أول)/i;
 const tourFlexRx =
   /(?:المفترض|مفروض|يعني|6\s*جولات?\s*او|جولات?\s*او\s*كم|ينفع\s*ن|نقدر\s*ن(?:زيد|قلل|عدل)|ممكن\s*ن(?:زيد|قلل|عدل))/i;
 const packageCompositionRx =
@@ -254,8 +271,9 @@ try {
 
 const tripFromHistory = parseTripContext(chatHistory);
 const tripCtx = mergeTripContext(tripFromHistory, parseLeadNotes(lead?.notes));
-const requestedTourDays = parseRequestedTourDays(trimmed);
-const hasModifyVerb = tourModifyRx.test(trimmed);
+const tourModify = detectTourModify(trimmed, chatHistory);
+const requestedTourDays = tourModify.requestedTourDays;
+const hasModifyVerb = tourModify.hasModifyVerb;
 
 // Backfill lead CRM from chat when empty (root cause: quotes never persisted)
 if (tripFromHistory && lead && !leadHasStoredTrip(lead) && phone && !isManager) {
@@ -293,9 +311,11 @@ if (goodbyeRx.test(trimmed)) conversationIntent = 'goodbye';
 else if (aiQuestionRx.test(trimmed)) conversationIntent = 'ai_identity';
 else if (driverLangRx.test(trimmed) || (opsFactRx.test(trimmed) && !/طريق[ةه]\s*الدفع/.test(trimmed))) conversationIntent = 'ops_unknown';
 else if (hotelOnlyRx.test(trimmed)) conversationIntent = 'hotel_only';
+else if (hasModifyVerb && requestedTourDays != null && tripCtx?.city) conversationIntent = 'package_tour_modify';
+else if (priceConfirmRx.test(trimmed) && /جول/.test(trimmed) && tripCtx?.city) conversationIntent = 'package_price_confirm';
+else if (sameHotelRx.test(trimmed) && tripCtx?.hotel) conversationIntent = 'package_same_hotel';
 else if (priceObjectionRx.test(trimmed)) conversationIntent = 'price_objection';
 else if (isReturningCustomer) conversationIntent = 'returning_customer';
-else if (hasModifyVerb && requestedTourDays != null && tripCtx?.city) conversationIntent = 'package_tour_modify';
 else if (tourFlexRx.test(trimmed) && /جول/.test(trimmed) && tripCtx?.city) conversationIntent = 'package_tour_flexibility';
 else if (packageCompositionRx.test(trimmed) && tripCtx?.city) conversationIntent = 'package_composition';
 

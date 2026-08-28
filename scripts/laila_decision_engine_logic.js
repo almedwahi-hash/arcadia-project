@@ -18,8 +18,7 @@ const OPS_UNKNOWN = 'أتأكد لك من الفريق وأرجع لك 👍';
 const AI_IDENTITY =
   'أنا مساعدة أركاديا بالذكاء الاصطناعي 😊 وإذا احتاج طلبك تدخل موظف من الفريق أحوله لهم.';
 const GOODBYE = 'العفو، حياك الله 🌷';
-const FALLBACK_HANDOFF =
-  'أهلاً 👋 صار خطأ تقني بسيط، جرّب ترسل طلبك مرة ثانية أو تواصل معنا واتساب: https://wa.me/380936582617';
+const PRICING_RETRY = 'لحظة أتأكد لك من السعر بعد التعديل 👍';
 
 const MONTHS = {
   يناير: 1, فبراير: 2, مارس: 3, ابريل: 4, أبريل: 4, april: 4,
@@ -35,13 +34,24 @@ function arToEnDigits(s) {
 function sanitizeReply(s) {
   let t = String(s || '');
   t = t.replace(/\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g, '$2');
-  const wa = t.match(/https:\/\/wa\.me\/\d+/g) || [];
-  if (wa.length > 1) {
-    t = t.replace(/https:\/\/wa\.me\/\d+/g, '').trim() + '\n\n' + wa[0];
-  }
+  t = t.replace(/https:\/\/wa\.me\/\d+[^\s\n]*/g, '');
+  t = t.replace(/تواصل مباشرة[^\n]*/gi, '');
+  t = t.replace(/ما قدرت أكمل طلبك[^\n]*/gi, '');
+  t = t.replace(/خدمة عملائنا[^\n]*/gi, '');
   t = t.replace(/\n*‏?إذا تحتاج لأي مساعدة إضافية[^\n]*/gi, '');
+  t = t.replace(/\n*‏?إذا يناسبك خبرني[^\n]*/gi, '');
+  t = t.replace(/\n*‏?أنا هنا ل(?:مساعدتك|خدمتك)[^\n]*/gi, '');
   t = t.replace(/\n*‏?(?:هل )?تر(?:غب|يد).*?(?:عرض رسمي|تجهيز العرض)[^\n]*/gi, '');
   return t.trim();
+}
+
+function isCircularHandoff(s) {
+  return /wa\.me|تواصل مباشرة|ما قدرت أكمل طلبك|خدمة عملائنا/.test(String(s || ''));
+}
+
+function tourDaysLabel(n) {
+  if (n === 2) return 'جولتين';
+  return `${n} أيام جولات`;
 }
 
 function addDays(iso, days) {
@@ -99,25 +109,26 @@ async function fetchQuoteOptions(tripCtx, mode) {
 async function fetchQuotePackage(tripCtx, forceTourDays) {
   if (!KEY || !tripCtx?.city || forceTourDays == null) return null;
   const dates = resolveDates(tripCtx, chatHistory);
+  const body = {
+    p_city: tripCtx.city,
+    p_checkin: dates.checkin,
+    p_checkout: dates.checkout,
+    p_adults: tripCtx.adults || 2,
+    p_rooms: 0,
+    p_star: null,
+    p_mode: 'recommended',
+    p_markup: 0.2,
+    p_include_transfer: true,
+    p_force_tour_days: forceTourDays,
+    p_hotel_name: tripCtx.hotel || null,
+  };
+  if (!tripCtx.hotel) body.p_hotel_tier = 'cheapest';
   try {
     const data = await this.helpers.httpRequest({
       method: 'POST',
       url: SB + '/rest/v1/rpc/quote_package',
       headers: HDR,
-      body: {
-        p_city: tripCtx.city,
-        p_checkin: dates.checkin,
-        p_checkout: dates.checkout,
-        p_adults: tripCtx.adults || 2,
-        p_rooms: 0,
-        p_star: null,
-        p_mode: 'recommended',
-        p_markup: 0.2,
-        p_include_transfer: true,
-        p_force_tour_days: forceTourDays,
-        p_hotel_tier: 'cheapest',
-        p_hotel_name: tripCtx.hotel || null,
-      },
+      body,
       json: true,
     });
     if (data && data.error) return null;
@@ -183,8 +194,7 @@ function formatTourFlexibility(quoteData, option, tripCtx) {
 function formatTourModify(pkg, tourDays, adults) {
   const pax = adults || 2;
   const paxLabel = pax === 2 ? 'شخصين' : `${pax} أشخاص`;
-  const tourLabel = tourDays === 2 ? 'جولتين' : `${tourDays} أيام جولات`;
-  return `تمام 👍 خليتها ${tourLabel}. السعر بعد التعديل صار ${pkg.final_price_usd} دولار لـ${paxLabel}.`;
+  return `تمام، خليتها ${tourDaysLabel(tourDays)} 👍 السعر صار ${pkg.final_price_usd} دولار لـ${paxLabel}.`;
 }
 
 function formatQuoteReply(tripCtx, quoteData, intro) {
@@ -243,7 +253,33 @@ if (intent === 'goodbye') {
     response = formatTourModify(pkg, requestedTourDays, trip.adults);
     await persistPackagePrefs.call(this, trip, requestedTourDays, pkg.final_price_usd, hotelName);
   } else {
-    response = OPS_UNKNOWN;
+    response = PRICING_RETRY;
+    await flagNeedsHuman.call(this);
+  }
+} else if (intent === 'package_price_confirm' && trip?.city) {
+  routedBy = 'deterministic:package_price_confirm';
+  const askedDays = requestedTourDays ?? trip.tour_days;
+  if (askedDays != null && trip.tour_days === askedDays && trip.last_price) {
+    response = `أيوه، هذا السعر على نفس ${trip.hotel || 'الفندق'} مع ${tourDaysLabel(askedDays)} 👍`;
+  } else if (askedDays != null) {
+    const pkg = await fetchQuotePackage.call(this, trip, askedDays);
+    if (pkg) {
+      const hotelName = pkg.hotel?.name || trip.hotel || null;
+      response = `أيوه 👍 ${tourDaysLabel(askedDays)} على ${hotelName} — ${pkg.final_price_usd} دولار لشخصين.`;
+      await persistPackagePrefs.call(this, trip, askedDays, pkg.final_price_usd, hotelName);
+    } else {
+      response = PRICING_RETRY;
+      await flagNeedsHuman.call(this);
+    }
+  } else {
+    response = PRICING_RETRY;
+    await flagNeedsHuman.call(this);
+  }
+} else if (intent === 'package_same_hotel' && trip?.hotel) {
+  routedBy = 'deterministic:package_same_hotel';
+  response = `أيوه، نفس ${trip.hotel} 👍`;
+  if (trip.tour_days != null && trip.last_price) {
+    response += ` ${tourDaysLabel(trip.tour_days)} — ${trip.last_price} دولار لشخصين.`;
   }
 } else if ((intent === 'package_tour_flexibility' || intent === 'package_composition') && trip?.city) {
   routedBy = 'deterministic:' + intent;
@@ -301,7 +337,25 @@ if (!response) {
 
 response = sanitizeReply(response);
 
-if (intent === 'price_objection' && /ما قدرت أكمل طلبك|تواصل مباشرة/.test(response) && trip?.city) {
+const packageIntents = [
+  'package_tour_modify',
+  'package_price_confirm',
+  'package_same_hotel',
+  'package_tour_flexibility',
+  'package_composition',
+];
+
+if (isCircularHandoff(response) || (!response && packageIntents.includes(intent))) {
+  response = PRICING_RETRY;
+  routedBy = 'deterministic:pricing_retry';
+  await flagNeedsHuman.call(this);
+} else if (!response && trip?.city && /جول/.test(text)) {
+  response = PRICING_RETRY;
+  routedBy = 'deterministic:pricing_retry';
+  await flagNeedsHuman.call(this);
+}
+
+if (intent === 'price_objection' && isCircularHandoff(response) && trip?.city) {
   const quoteData = await fetchQuoteOptions.call(this, trip, 'no_tours');
   if (quoteData) {
     response = formatQuoteReply(trip, quoteData, 'تمام، خليني أشوف لك خيارات أوفر 👍');
@@ -309,7 +363,11 @@ if (intent === 'price_objection' && /ما قدرت أكمل طلبك|تواصل 
   }
 }
 
-if (!response) response = FALLBACK_HANDOFF;
+if (!response) {
+  response = PRICING_RETRY;
+  routedBy = 'deterministic:pricing_retry';
+  await flagNeedsHuman.call(this);
+}
 
 const followup = /دولار|\$|💵/.test(response);
 return [{ json: { phone, remoteJid, response, isManager, followup, routedBy } }];
