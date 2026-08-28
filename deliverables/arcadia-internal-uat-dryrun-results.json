@@ -1,0 +1,166 @@
+{
+  "uat_tag": "internal_uat_kz_almaty_20260828",
+  "tested_at": "2026-08-28T22:25:00+00:00",
+  "scenario": {
+    "destination": "Almaty, Kazakhstan",
+    "guests": "2 adults",
+    "duration": "8 days / 7 nights",
+    "hotel": "Mildom Residence Hotel (eco tier)",
+    "tours": 5,
+    "channel": "WhatsApp/Laila (harness not deployed — simulated acceptance via lead.stage=approved)"
+  },
+  "ids_created": {
+    "lead_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "quote_ref": "ARC-459161",
+    "phone": "uat_kz_almaty_20260828",
+    "client_name": "UAT KZ Almaty Guest",
+    "booking_id": "KA-2026-118",
+    "booking_request_key": "f47ac10b-58cc-4372-a567-0e02b2c3d479:ARC-459161",
+    "hotel_task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+    "hotel_draft_id": "f306841c-3ace-4f53-923b-df6170fc4bec",
+    "supplier_response_ids": [
+      "f5fda3a0-79ab-4a60-9eb0-099c959f88d3",
+      "52e4be49-c755-4bc1-ba4b-bbbf3663afaf"
+    ]
+  },
+  "overall_result": "FAIL — blocking operational defects found before customer canary",
+  "steps": [
+    {"step": 1, "name": "Customer starts conversation (Laila WhatsApp)", "result": "FAIL", "detail": "phase1-laila-scenario-test webhook 404 — workflow not registered/active"},
+    {"step": 2, "name": "Laila collects required trip information", "result": "NOT_TESTED", "detail": "Requires live Laila workflow; lead pre-seeded with UAT data"},
+    {"step": 3, "name": "Pricing Engine produces quote (no AI price)", "result": "PASS", "detail": "Quote ARC-459161 exists in DB; total_usd=1275 from packages/pricing engine"},
+    {"step": 4, "name": "Quote presented correctly", "result": "NOT_TESTED", "detail": "WhatsApp presentation not exercised; quote data verified in Supabase"},
+    {"step": 5, "name": "Simulate explicit customer acceptance", "result": "PASS", "detail": "lead.stage=approved, approved_quote_ref=ARC-459161"},
+    {"step": 6, "name": "Staff identifies lead_id and quote_ref", "result": "PASS", "detail": "lead f47ac10b-… / quote ARC-459161 — no manual DB hunting required after /book"},
+    {"step": 7, "name": "Safe /book <lead_id> <quote_ref> path", "result": "PASS", "detail": "booking-staff-book-test returned ok"},
+    {"step": 8, "name": "Exactly ONE DRAFT booking created", "result": "PASS", "detail": "booking_count=1 for booking_request_key; duplicate /book idempotent"},
+    {"step": 9, "name": "Customer/lead/quote linkage", "result": "PASS", "detail": "booking.lead_id + quote_ref + booking_request_key all match"},
+    {"step": 10, "name": "Booking dates, destination, pax, hotel, services", "result": "PASS", "detail": "See data_consistency; minor destination code normalization (KZ→kazakhstan)"},
+    {"step": 11, "name": "Deterministic booking tasks", "result": "PASS", "detail": "8 tasks: hotel + 2 airport + 5 tours; no duplicate task_keys"},
+    {"step": 12, "name": "Telegram Booking Ops receives booking", "result": "PASS", "detail": "staff_notify sent chat_id=493831958; agent_actions logged"},
+    {"step": 12, "name": "Tasks list callback (bk:tasks)", "result": "FAIL", "detail": "HTTP 200 empty body {}; Telegram may still receive message — webhook response broken"},
+    {"step": 13, "name": "Open hotel task (bk:task:open)", "result": "FAIL", "detail": "HTTP 200 empty body {} — same webhook response defect"},
+    {"step": 14, "name": "Generate supplier reservation draft", "result": "PASS", "detail": "draft f306841c-… status=draft via booking-supplier-draft webhook"},
+    {"step": 15, "name": "Verify draft facts vs quote/booking", "result": "PASS", "detail": "All core facts match; hotel directory phone/email null for Mildom"},
+    {"step": 16, "name": "Do NOT actually send supplier message", "result": "PASS", "detail": "auto_send=false; no supplier_message_sent agent_actions"},
+    {"step": 17, "name": "Staff marks sent manually", "result": "PASS", "detail": "draft status=sent_manually; task auto-transitioned to requested"},
+    {"step": 18, "name": "Simulate supplier confirmed + test ref", "result": "PASS", "detail": "First confirmation UAT-KZ-HTL-20260828 recorded"},
+    {"step": 19, "name": "Task status + lifecycle recompute", "result": "PASS", "detail": "hotel confirmed; lifecycle PARTIALLY_CONFIRMED"},
+    {"step": 20, "name": "Continue operational workflow", "result": "PASS", "detail": "airport:almaty:arrival → requested; additional drafts generated for airport tasks"}
+  ],
+  "negatives": [
+    {"name": "duplicate /book", "result": "PASS", "detail": "idempotent; same KA-2026-118"},
+    {"name": "wrong quote_ref", "result": "PASS", "detail": "blocked with start_request_failed/400"},
+    {"name": "quote other lead", "result": "PASS", "detail": "blocked (403 quote_belongs_to_another_lead)"},
+    {"name": "unauthorized Telegram user", "result": "PASS", "detail": "403 unauthorized"},
+    {"name": "malformed callback (draft not found)", "result": "PASS", "detail": "403 draft_not_found"},
+    {"name": "malformed callback (bk:invalid)", "result": "FAIL", "detail": "HTTP 200 empty body — should return structured error JSON"},
+    {"name": "duplicate supplier confirmation (same idempotency_key)", "result": "PASS", "detail": "second call idempotent:true"},
+    {"name": "duplicate supplier confirmation (different idempotency_key)", "result": "FAIL", "detail": "second confirmation overwrote confirmation_ref to UAT-KZ-HTL-DUP; two response rows created"},
+    {"name": "missing hotel supplier → needs_information", "result": "PASS", "detail": "status=needs_information, missing_fields=[hotel_name]"},
+    {"name": "missing airport supplier", "result": "PASS", "detail": "draft still generated (by design — airport transfers don't require supplier_name)"},
+    {"name": "duplicate customer message", "result": "NOT_TESTED", "detail": "Requires live Laila/WhatsApp channel"},
+    {"name": "missing required booking info", "result": "PASS", "detail": "wrong quote blocked; needs_information when hotel supplier null"}
+  ],
+  "data_consistency": {
+    "lead_to_quote": {
+      "approved_quote_ref": {"expected": "ARC-459161", "actual": "ARC-459161", "match": true},
+      "pax": {"expected": 2, "actual": 2, "match": true},
+      "destination": {"expected": "KZ/Almaty", "actual": "KZ", "match": true}
+    },
+    "quote_to_booking": {
+      "quote_ref": {"expected": "ARC-459161", "actual": "ARC-459161", "match": true},
+      "check_in": {"expected": "2026-06-05", "actual": "2026-06-05", "match": true},
+      "check_out": {"expected": "2026-06-12", "actual": "2026-06-12", "match": true},
+      "guest_count": {"expected": 2, "actual": 2, "match": true},
+      "total": {"expected": 1275, "actual": 1275, "match": true},
+      "hotel_eco": {"expected": "Mildom Residence Hotel", "actual": "Mildom Residence Hotel", "match": true},
+      "tours": {"expected": 5, "actual": 5, "match": true},
+      "destination_code": {"expected": "KZ", "actual": "kazakhstan", "match": "normalized", "note": "booking stores full country name"},
+      "days_count": {"expected": "8 days / 7 nights", "actual": "days_count=7", "match": "partial", "note": "field appears to store nights not calendar days"}
+    },
+    "booking_to_tasks": {
+      "task_count": {"expected": 8, "actual": 8, "match": true},
+      "hotel_task": {"expected": "hotel:almaty:1 / Mildom", "actual": "hotel:almaty:1 / Mildom Residence Hotel", "match": true},
+      "airport_tasks": {"expected": 2, "actual": 2, "match": true},
+      "tour_tasks": {"expected": 5, "actual": 5, "match": true},
+      "intercity_transfers": {"expected": 0, "actual": 0, "match": true, "note": "single-city Almaty quote — correct"}
+    },
+    "draft_to_source": {
+      "booking_id": {"match": true},
+      "dates": {"match": true},
+      "pax": {"match": true},
+      "hotel": {"match": true},
+      "city": {"match": true},
+      "quote_ref": {"match": true},
+      "lost_information": [],
+      "wrong_fields": []
+    }
+  },
+  "operational_issues": [
+    {
+      "severity": "BLOCKER",
+      "id": "UAT-DEF-001",
+      "title": "booking-task-callback-test returns HTTP 200 with empty body for Telegram UX callbacks",
+      "affected_callbacks": ["bk:tasks:{bookingId}", "bk:view:{bookingId}", "bk:task:{taskId}:open", "bk:invalid"],
+      "root_cause": "Respond to Webhook gated on $json.simulated===true but several code paths omit simulated field; false IF branch has no response",
+      "impact": "Automated UAT cannot verify these steps; staff Telegram UX may still fire but webhook callers get no structured feedback",
+      "recommended_fix": "Add simulated:true to all test-webhook return paths OR remove IF gate and always respond on test webhook path"
+    },
+    {
+      "severity": "HIGH",
+      "id": "UAT-DEF-002",
+      "title": "Duplicate supplier confirmation with new idempotency_key overwrites confirmation_ref",
+      "evidence": "Two booking_supplier_responses rows; task.confirmation_ref=UAT-KZ-HTL-DUP after second confirmed callback",
+      "impact": "Staff can accidentally overwrite a valid supplier reference",
+      "recommended_fix": "Block confirmed response when task.status=confirmed unless explicit override; or require same confirmation_ref"
+    },
+    {
+      "severity": "MEDIUM",
+      "id": "UAT-DEF-003",
+      "title": "Laila Phase1 scenario harness not deployed",
+      "evidence": "POST phase1-laila-scenario-test → 404 not registered",
+      "impact": "Cannot automate WhatsApp customer journey UAT",
+      "recommended_fix": "Deploy/activate Phase1 Laila scenario test workflow for internal UAT only"
+    },
+    {
+      "severity": "LOW",
+      "id": "UAT-OBS-001",
+      "title": "Mildom Residence Hotel missing phone/email in hotels directory",
+      "impact": "Supplier draft shows Direct Contract only; staff must look up contact manually"
+    },
+    {
+      "severity": "LOW",
+      "id": "UAT-OBS-002",
+      "title": "booking.days_count stores nights (7) not calendar days (8)",
+      "impact": "Potential staff confusion in Telegram summaries"
+    },
+    {
+      "severity": "INFO",
+      "id": "UAT-OBS-003",
+      "title": "Staff must know lead UUID for /book — no phone-based lookup in Telegram command",
+      "impact": "Operational friction; mitigated if notify message includes copy-paste /book command"
+    }
+  ],
+  "safety_checks": {
+    "booking_handoff_enabled": false,
+    "auto_send_enabled": false,
+    "reminder_watcher_enabled": false,
+    "supplier_messages_sent": 0,
+    "payments_created": 0,
+    "refunds_created": 0,
+    "real_suppliers_contacted": false,
+    "production_bookings_affected": false,
+    "uat_records_tagged": true,
+    "audit_history_preserved": true
+  },
+  "summary": {
+    "steps_passed": 15,
+    "steps_failed": 3,
+    "steps_not_tested": 3,
+    "steps_total": 21,
+    "negatives_passed": 9,
+    "negatives_failed": 2,
+    "negatives_not_tested": 1,
+    "recommendation": "DO NOT proceed to customer canary until UAT-DEF-001 and UAT-DEF-002 are reviewed/fixed"
+  }
+}
