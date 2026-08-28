@@ -29,7 +29,11 @@ async function sb(method, path, body, extra = {}) {
 
 async function sbRpc(fn, args) {
   const rows = await sb.call(this, 'POST', `rpc/${fn}`, args);
-  return Array.isArray(rows) ? rows[0] : rows;
+  let val = Array.isArray(rows) ? rows[0] : rows;
+  if (typeof val === 'string') {
+    try { val = JSON.parse(val); } catch (_e) { /* keep string */ }
+  }
+  return val;
 }
 
 async function loadAllowlist() {
@@ -158,6 +162,77 @@ async function handleView(bookingId, chatId) {
   ].join('\n');
 }
 
+function parseThresholdPct(cfgVal) {
+  if (cfgVal == null) return NaN;
+  if (typeof cfgVal === 'number') return cfgVal;
+  if (typeof cfgVal === 'object' && cfgVal.value != null) return Number(cfgVal.value);
+  return Number(cfgVal);
+}
+
+async function evaluateSupplierCostVariance(task, newCost, staffTag) {
+  const quoted = Number(task.quoted_cost_usd || (task.metadata && task.metadata.quoted_cost) || 0);
+  if (quoted <= 0) {
+    await sb.call(this, 'PATCH', `booking_tasks?task_id=eq.${encodeURIComponent(task.task_id)}`, {
+      metadata: { ...(task.metadata || {}), cost_review_required: true },
+    });
+    return { action: 'cost_review_required', baseline_available: false, task_id: task.task_id };
+  }
+
+  const thresholdRows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.supplier_price_change_threshold_pct&select=config_value');
+  const thresholdPct = parseThresholdPct(thresholdRows[0] && thresholdRows[0].config_value);
+  if (Number.isNaN(thresholdPct)) {
+    throw new Error('supplier_price_change_threshold_pct not configured');
+  }
+
+  const pctChange = ((newCost - quoted) / quoted) * 100;
+  if (pctChange <= thresholdPct) {
+    return { action: 'within_threshold', approval_required: false, pct_change: pctChange, threshold_pct: thresholdPct };
+  }
+
+  const idemKey = `supplier_price_change:${task.task_id}:${Math.round(newCost * 100) / 100}`;
+  const existing = await sb.call(this, 'GET', `human_approval_queue?action_type=eq.supplier_price_change&booking_id=eq.${encodeURIComponent(task.booking_id)}&idempotency_key=eq.${encodeURIComponent(idemKey)}&select=approval_id,status&limit=1`);
+  if (existing.length) {
+    return { action: 'approval_exists', idempotent: true, approval_id: existing[0].approval_id, status: existing[0].status };
+  }
+
+  const inserted = await sb.call(this, 'POST', 'human_approval_queue', {
+    action_type: 'supplier_price_change',
+    booking_id: task.booking_id,
+    task_id: task.task_id,
+    idempotency_key: idemKey,
+    requested_by_agent: staffTag,
+    reason: `Supplier cost +${pctChange.toFixed(1)}% exceeds threshold ${thresholdPct}%`,
+    status: 'pending',
+    payload: {
+      task_id: task.task_id,
+      task_key: task.task_key,
+      task_type: task.task_type,
+      quoted_cost_usd: quoted,
+      proposed_cost_usd: newCost,
+      old_cost_usd: task.supplier_cost_usd,
+      pct_change: pctChange,
+      threshold_pct: thresholdPct,
+    },
+  });
+
+  await sb.call(this, 'PATCH', `booking_tasks?task_id=eq.${encodeURIComponent(task.task_id)}`, {
+    metadata: {
+      ...(task.metadata || {}),
+      pending_supplier_price_change: true,
+      proposed_supplier_cost_usd: newCost,
+      quoted_cost_usd: quoted,
+    },
+  });
+
+  return {
+    action: 'approval_created',
+    idempotent: false,
+    approval_id: inserted[0].approval_id,
+    pct_change: pctChange,
+    threshold_pct: thresholdPct,
+  };
+}
+
 async function handleTasksList(bookingId, chatId) {
   const tasks = await sb.call(this, 'GET', `booking_tasks?booking_id=eq.${encodeURIComponent(bookingId)}&select=task_id,task_key,task_type,status,city,is_required&order=task_key`);
   const open = tasks.filter(t => ['pending', 'requested', 'awaiting_confirmation'].includes(t.status));
@@ -229,12 +304,7 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
     if (confirmData.notes) patch.notes = confirmData.notes;
     if (confirmData.supplier_cost_usd != null) {
       const newCost = Number(confirmData.supplier_cost_usd);
-      const variance = await sbRpc.call(this, 'maybe_create_supplier_price_change_approval', {
-        p_task_id: taskId,
-        p_proposed_cost: newCost,
-        p_requested_by: staffTag,
-        p_reason: confirmData.variance_reason || null,
-      });
+      const variance = await evaluateSupplierCostVariance.call(this, task, newCost, staffTag);
       if (variance.action === 'approval_created' || variance.action === 'approval_exists') {
         await sb.call(this, 'POST', 'agent_actions', {
           agent_name: 'booking',
@@ -245,25 +315,24 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
           output_summary: JSON.stringify(variance).slice(0, 500),
           status: 'success',
           metadata: { phase: '2.4A', task_id: taskId, telegram_user_id: userId },
-        });
+        }).catch(() => {});
         await tgAnswer.call(this, callbackId, 'Supplier cost approval required', true, simulated);
-        const lifecycle = await sbRpc.call(this, 'recompute_booking_lifecycle', { p_booking_id: task.booking_id });
         return {
-          ok: false,
-          error: 'supplier_price_change_approval_required',
+          ok: true,
+          blocked: true,
+          reason: 'supplier_price_change_approval_required',
           task_id: taskId,
           booking_id: task.booking_id,
-          lifecycle_status: lifecycle,
           variance,
         };
       }
       if (variance.action === 'cost_review_required') {
         await tgAnswer.call(this, callbackId, 'Cost review required — no baseline', true, simulated);
-        return { ok: false, error: 'cost_review_required', task_id: taskId, booking_id: task.booking_id, variance };
+        return { ok: true, blocked: true, reason: 'cost_review_required', task_id: taskId, booking_id: task.booking_id, variance };
       }
       if (variance.action === 'within_threshold' && newCost > 0) {
         patch.supplier_cost_usd = newCost;
-      } else if (newCost > 0 && task.quoted_cost_usd == null && !task.metadata?.quoted_cost) {
+      } else if (newCost > 0 && task.quoted_cost_usd == null && !(task.metadata && task.metadata.quoted_cost)) {
         patch.supplier_cost_usd = newCost;
       }
     }
@@ -353,16 +422,30 @@ if (parts[1] === 'tasks' && parts[2]) {
 }
 
 if (parts[1] === 'task' && parts[2] && parts[3] === 'to' && parts[4]) {
-  const result = await handleTaskTransition.call(this, {
-    taskId: parts[2],
-    toStatus: parts[4],
-    userId,
-    callbackId,
-    chatId,
-    confirmData,
-    simulated,
-  });
-  return [{ json: { ...result, phase: '2.4A', simulated } }];
+  try {
+    const result = await handleTaskTransition.call(this, {
+      taskId: parts[2],
+      toStatus: parts[4],
+      userId,
+      callbackId,
+      chatId,
+      confirmData,
+      simulated,
+    });
+    return [{ json: { ...result, phase: '2.4A', simulated } }];
+  } catch (err) {
+    const msg = String(err.message || err);
+    await sb.call(this, 'POST', 'agent_actions', {
+      agent_name: 'booking',
+      action_type: 'task_update_error',
+      source_channel: 'telegram:staff',
+      input_summary: callbackData.slice(0, 500),
+      output_summary: msg.slice(0, 500),
+      status: 'failed',
+      metadata: { phase: '2.4A', telegram_user_id: userId },
+    }).catch(() => {});
+    return [{ json: { ok: false, error: 'task_update_exception', message: msg, phase: '2.4A', simulated } }];
+  }
 }
 
 return [{ json: { ok: false, error: 'invalid_callback', callback_data: callbackData, phase: '2.4A' } }];
