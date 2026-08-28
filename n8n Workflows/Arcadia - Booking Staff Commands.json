@@ -1,0 +1,159 @@
+{
+  "name": "Arcadia - Booking Staff Commands",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "bsc-tg",
+      "name": "Telegram Message Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "name": "Arcadia Laila Sales Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-staff-book-test",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bsc-webhook",
+      "name": "Webhook book-test",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        500
+      ],
+      "webhookId": "booking-staff-book-test"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase 2.5 — Telegram /book <lead_id> <quote_ref> staff command\n// Authorized staff only — same Booking Agent Start entry path with staff_override=true\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\n\nconst HDR = {\n  apikey: KEY,\n  Authorization: `Bearer ${KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nasync function sb(method, path, body, extra = {}) {\n  const opts = { method, url: `${SB}/rest/v1/${path}`, headers: { ...HDR, ...extra }, json: true };\n  if (body !== undefined) opts.body = body;\n  return await this.helpers.httpRequest(opts);\n}\n\nasync function loadAllowlist() {\n  const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_staff_telegram_allowlist&select=config_value');\n  return (rows[0]?.config_value?.user_ids || []).map(String);\n}\n\nasync function loadCiProbe() {\n  const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_agent_ci_probe&select=config_value');\n  const cfg = rows[0]?.config_value || {};\n  if (cfg.enabled === true && cfg.probe_secret) return cfg.probe_secret;\n  return null;\n}\n\nasync function tgSend(chatId, text, simulated = false) {\n  if (simulated) return { skipped: true };\n  const token = $env.TELEGRAM_BOT_TOKEN || $env.LAILA_TELEGRAM_BOT_TOKEN;\n  if (!token) throw new Error('TELEGRAM_BOT_TOKEN required');\n  return await this.helpers.httpRequest({\n    method: 'POST',\n    url: `https://api.telegram.org/bot${token}/sendMessage`,\n    body: { chat_id: chatId, text, parse_mode: 'Markdown' },\n    json: true,\n  });\n}\n\nfunction parseInput(raw) {\n  const payload = raw.body ?? raw;\n  if (payload.simulate || payload.command_text) {\n    return {\n      userId: String(payload.telegram_user_id || ''),\n      chatId: payload.chat_id || payload.telegram_chat_id,\n      text: String(payload.command_text || '').trim(),\n      simulated: true,\n    };\n  }\n  const msg = payload.message || payload;\n  return {\n    userId: String(msg.from?.id || ''),\n    chatId: msg.chat?.id,\n    text: String(msg.text || '').trim(),\n    simulated: false,\n  };\n}\n\nconst raw = $input.first().json;\nconst { userId, chatId, text, simulated } = parseInput(raw);\n\nif (!text.startsWith('/book')) {\n  return [{ json: { ok: false, error: 'not_book_command', phase: '2.5', simulated } }];\n}\n\nconst allowlist = await loadAllowlist.call(this);\nif (!allowlist.includes(userId)) {\n  await sb.call(this, 'POST', 'agent_actions', {\n    agent_name: 'booking',\n    action_type: 'book_command_denied',\n    source_channel: 'telegram:staff',\n    input_summary: text.slice(0, 500),\n    output_summary: `unauthorized user ${userId}`,\n    status: 'failed',\n    metadata: { phase: '2.5', telegram_user_id: userId },\n  });\n  if (chatId) await tgSend.call(this, chatId, '⛔ `/book` — access denied.', simulated);\n  return [{ json: { ok: false, error: 'unauthorized', phase: '2.5', denied: true, simulated } }];\n}\n\nconst parts = text.split(/\\s+/).filter(Boolean);\nconst leadId = parts[1];\nconst quoteRef = parts[2] ? String(parts[2]).trim().toUpperCase() : null;\n\nif (!leadId || !quoteRef) {\n  const help = 'Usage: `/book <lead_id> <quote_ref>`\\nExample: `/book b6fada92-a0c4-45a9-a5f7-2e60897af3c8 ARC-367344`';\n  if (chatId) await tgSend.call(this, chatId, help, simulated);\n  return [{ json: { ok: false, error: 'invalid_syntax', phase: '2.5', simulated } }];\n}\n\nconst secret = $env.BOOKING_AGENT_START_SECRET || $env.BOOKING_AGENT_TEST_SECRET;\nconst ciProbe = await loadCiProbe.call(this);\n\nconst n8nBase = String($env.N8N_PUBLIC_URL || 'https://n8n.arcadia-tour.cloud').replace(/\\/$/, '');\nconst startUrl = `${n8nBase}/webhook/booking-agent/start`;\n\nconst startHeaders = { 'Content-Type': 'application/json' };\nif (secret) startHeaders['X-Booking-Agent-Secret'] = secret;\n\nlet resp;\ntry {\n  resp = await this.helpers.httpRequest({\n    method: 'POST',\n    url: startUrl,\n    headers: startHeaders,\n    body: {\n      lead_id: leadId,\n      quote_ref: quoteRef,\n      requested_by: `staff:${userId}`,\n      staff_override: true,\n      source: 'telegram:/book',\n      ci_probe: ciProbe || undefined,\n    },\n    json: true,\n  });\n} catch (err) {\n  const msg = String(err.message || err);\n  if (chatId) await tgSend.call(this, chatId, `❌ Booking start failed:\\n\\`${msg.slice(0, 200)}\\``, simulated);\n  return [{ json: { ok: false, error: 'start_request_failed', message: msg, phase: '2.5', simulated } }];\n}\n\nif (!resp.ok) {\n  const reason = resp.error || 'blocked';\n  if (chatId) {\n    await tgSend.call(this, chatId, [\n      '⛔ *Booking blocked*',\n      `Lead: \\`${leadId}\\``,\n      `Quote: \\`${quoteRef}\\``,\n      `Reason: \\`${reason}\\``,\n    ].join('\\n'), simulated);\n  }\n  return [{ json: { ok: false, blocked: true, ...resp, phase: '2.5', simulated } }];\n}\n\nif (resp.notify_staff && !resp.staff_notify?.sent) {\n  try {\n    await this.helpers.httpRequest({\n      method: 'POST',\n      url: `${n8nBase}/webhook/booking-staff-notify`,\n      headers: { 'Content-Type': 'application/json' },\n      body: { booking_id: resp.booking_id },\n      json: true,\n    });\n  } catch (_e) {\n    // staff notify failure should not fail /book — booking already created\n  }\n}\n\nconst lines = [\n  resp.idempotent ? '♻️ *Existing booking* (idempotent)' : '✅ *DRAFT booking created*',\n  `🆔 \\`${resp.booking_id}\\``,\n  `📋 Tasks: ${resp.task_count || '—'}`,\n  `💬 Quote: \\`${quoteRef}\\``,\n  `📊 Status: ${resp.lifecycle_status || 'DRAFT'} / ${resp.payment_status || 'unpaid'}`,\n];\nif (chatId) await tgSend.call(this, chatId, lines.join('\\n'), simulated);\n\nreturn [{\n  json: {\n    ok: true,\n    phase: '2.5',\n    simulated,\n    staff_override: true,\n    lead_id: leadId,\n    quote_ref: quoteRef,\n    ...resp,\n  },\n}];\n"
+      },
+      "id": "bsc-logic",
+      "name": "Book Command Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "sim",
+              "leftValue": "={{ $json.simulated === true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bsc-if-webhook",
+      "name": "IF Webhook Path",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.ok ? 200 : 400 }}"
+        }
+      },
+      "id": "bsc-respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        500
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Message Trigger": {
+      "main": [
+        [
+          {
+            "node": "Book Command Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook book-test": {
+      "main": [
+        [
+          {
+            "node": "Book Command Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Book Command Logic": {
+      "main": [
+        [
+          {
+            "node": "IF Webhook Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Webhook Path": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 2.5 staff /book <lead_id> <quote_ref> — authorized Telegram fallback to Booking Agent Start."
+  }
+}
