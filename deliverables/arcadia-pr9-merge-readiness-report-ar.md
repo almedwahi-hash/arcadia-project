@@ -68,9 +68,11 @@ Branch reset to `origin/main` and repopulated with a **58-file whitelist**:
 ## 5. Test re-run after cleanup
 
 ```
-python3 scripts/n8n_booking_phase26_test.py all
-→ 10/10 PASS (RU-2026-032 canary)
+python3 scripts/n8n_booking_phase26_test.py test
+→ 10/10 PASS (RU-2026-032 canary, post-cleanup)
 ```
+
+Note: `all` target re-imports workflows; use `test` after DB reset for fastest verification.
 
 Production n8n/Supabase state **not reverted** — cleanup was repository-only.
 

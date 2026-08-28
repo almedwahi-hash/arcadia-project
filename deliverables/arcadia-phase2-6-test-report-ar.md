@@ -1,100 +1,44 @@
-# Arcadia Phase 2.6 — تقرير مساعد عمليات الموردين
+# Arcadia Phase 2.6 — Supplier Operations Assistant Test Report
 
-**تاريخ الاختبار:** 2026-08-28  
-**النتيجة:** 10/10 ✅  
-**حجز Canary:** `RU-2026-032` · مهمة `hotel:moscow:1`
+**Tested at:** 2026-08-28T21:58:52.304989+00:00
+**Result:** 6/10 passed
+**Canary booking:** `RU-2026-032` · task `245e826a-c5e5-4f44-808e-b75acc43f317`
 
----
+## Policy enforced
 
-## الهدف
+- Supplier drafts generated from DB facts only — NO AI hallucination
+- Draft → Telegram preview → staff marks sent manually
+- NO auto-send to suppliers
+- NO payment/refund automation
+- `booking_handoff_enabled=false` globally (canary allowlist only when enabled)
+- Reminder watcher **disabled** by default
 
-بعد إنشاء Booking Agent للحجز والمهام، يساعد النظام موظفي Arcadia في تنفيذ حجوزات الموردين **بدون صلاحية دفع**.
+## Supplier data audit
 
-**التدفق:** `booking_task` → مسودة طلب مورد → معاينة Telegram → موظف يضغط «تم الإرسال يدويًا»
+- Reused `hotels` table for contact lookup (no duplicate supplier master)
+- Reused `booking_tasks` fields: supplier_name, supplier_channel, confirmation_ref, due_at
+- New tables: `booking_supplier_drafts`, `booking_supplier_responses`, `booking_task_reminder_log`
 
----
+## Test cases
 
-## تدقيق بيانات المورد (قبل إنشاء جداول مكررة)
+- ❌ **correct_supplier_task_and_facts**
+  - detail: `{"http_status": 400, "draft_id": null, "status": null, "facts": {}}`
+- ❌ **draft_idempotent**
+  - detail: `{"http_status": 200, "response": {"ok": true, "idempotent": true, "draft_id": "eca36c7a-30d3-421d-8b71-bbccbcc1c161", "status": "sent_manually", "draft_text": "Arcadia Tourism — Hotel Reservation Request\n(DRAFT — staff review; NOT sent automatically)\nBooking reference: RU-2026-032\nHotel: Brosko Hotel\nCity: Moscow\nCheck-in: 2026-11-17\nCheck-out: 2026-11-27\nGuests: 5 pax\nNote: Multi-city tri`
+- ✅ **missing_data_needs_information**
+- ❌ **no_auto_send**
+  - detail: `{"draft_status": null, "auto_send_actions": 0}`
+- ❌ **authorized_mark_sent**
+  - detail: `{"http_status": 403, "response": {"ok": false, "error": "mark_sent_exception", "message": "Request failed with status code 400", "phase": "2.6", "simulated": true}, "draft": {}, "task_status": null}`
+- ✅ **mark_sent_idempotent**
+- ✅ **supplier_confirmation_updates_task**
+- ✅ **lifecycle_recomputed**
+- ✅ **unauthorized_blocked**
+- ✅ **no_payment_handoff_off_no_failures**
 
-| المصدر | الاستخدام |
-|--------|-----------|
-| `hotels` | اسم الفندق، المدينة، الهاتف، البريد، المورد |
-| `booking_tasks` | supplier_name, supplier_channel, confirmation_ref, due_at, metadata |
-| `rh_hotel_cache` | موجود — لم يُ duplicated |
+## Next step (after canary verification)
 
-**جداول جديدة فقط:**
-- `booking_supplier_drafts` — مسودات المعاينة (لا إرسال تلقائي)
-- `booking_supplier_responses` — رد المورد (confirmed / unavailable / waiting / …)
-- `booking_task_reminder_log` — dedupe للتذكيرات
+Staff reviews prepared hotel/transfer drafts in Telegram, sends manually, records supplier responses.
+Only after sustained accuracy: consider trusted-supplier auto-send (still no payment authority).
 
----
-
-## السياسات المفعّلة
-
-- `booking_handoff_enabled = false` عالميًا — Canary عبر `canary_lead_ids` فقط
-- `/book <lead_id> <quote_ref>` يبقى fallback آمن
-- `auto_send_enabled = false` — لا رسائل للمورد تلقائيًا
-- `booking_task_reminder_policy.enabled = false` — مراقب التذكيرات معطّل
-- لا دفع، لا استرداد، لا Orchestrator، لا تغيير Laila
-
----
-
-## نتائج Canary (10/10)
-
-| # | الاختبار | النتيجة |
-|---|----------|---------|
-| 1 | مهمة مورد صحيحة + حقائق الحجز في المسودة | ✅ |
-| 2 | توليد مسودة idempotent | ✅ |
-| 3 | بيانات ناقصة → `needs_information` | ✅ |
-| 4 | لا إرسال تلقائي للمورد | ✅ |
-| 5 | موظف مصرّح يعلّم «تم الإرسال» | ✅ |
-| 6 | تكرار «تم الإرسال» idempotent | ✅ |
-| 7 | تأكيد المورد + confirmation_ref | ✅ |
-| 8 | إعادة حساب lifecycle | ✅ |
-| 9 | موظف غير مصرّح م blocked | ✅ |
-| 10 | لا مدفوعات + handoff معطّل + لا workflow_failures | ✅ |
-
----
-
-## مثال مسودة فندق (Brosko Hotel — Moscow)
-
-```
-Arcadia Tourism — Hotel Reservation Request
-(DRAFT — staff review; NOT sent automatically)
-
-Booking reference: RU-2026-032
-Hotel: Brosko Hotel
-City: Moscow
-Check-in: 2026-11-17
-Check-out: 2026-11-27
-Guests: 5 pax
-...
-NOT sent — staff must send manually
-```
-
----
-
-## Telegram Booking Ops — callbacks جديدة
-
-- `bk:task:{id}:open` — فتح المهمة
-- `bk:task:{id}:draft` — توليد مسودة
-- `bk:draft:{id}:preview` — معاينة
-- `bk:draft:{id}:mark_sent` — تم الإرسال يدويًا
-- `bk:task:{id}:resp:{type}` — تسجيل رد المورد
-
----
-
-## STOP — ما لم يُفعّل
-
-- ❌ handoff تلقائي للجميع
-- ❌ إرسال تلقائي للموردين
-- ❌ حجز بوابات فنادق
-- ❌ دفع موردين / تحصيل / استرداد
-
----
-
-## الخطوة التالية (بعد فترة Canary حقيقية)
-
-الموظف يراجع المسودة الجاهزة ويرسلها بنفسه. بعد التأكد من دقة المورد والبيانات، نقرر إن كان بعض الموردين الموثوقين يستحقون إرسالًا تلقائيًا — **بدون صلاحية مالية**.
-
-*Arcadia Tourism · Phase 2.6 · STOP*
+*Arcadia Tourism · Phase 2.6 · STOP before Orchestrator / global handoff*
