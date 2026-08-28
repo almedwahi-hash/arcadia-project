@@ -1,0 +1,80 @@
+{
+  "name": "Arcadia - Booking Staff Notify",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "bsn-trig",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-staff-notify",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "bsn-webhook",
+      "name": "Webhook staff-notify",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "booking-staff-notify"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase 2.3 — Booking Staff Notify (Execute Workflow Trigger)\n// Input: { booking_id, notify_type?: 'draft'|'test' }\n// NO AI — summary only, no sensitive PII beyond ops needs\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\n\nconst HDR = {\n  apikey: KEY,\n  Authorization: `Bearer ${KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nasync function sb(method, path, body, extra = {}) {\n  const opts = { method, url: `${SB}/rest/v1/${path}`, headers: { ...HDR, ...extra }, json: true };\n  if (body !== undefined) opts.body = body;\n  return await this.helpers.httpRequest(opts);\n}\n\nconst input = $input.first().json;\nconst payload = input.body ?? input;\nconst bookingId = String(payload.booking_id || '').trim();\nif (!bookingId) {\n  return [{ json: { ok: false, error: 'missing_booking_id', phase: '2.3' } }];\n}\n\nconst bookings = await sb.call(this, 'GET', `bookings?booking_id=eq.${encodeURIComponent(bookingId)}&select=booking_id,client_name,destination,arrival_date,departure_date,guest_count,quote_ref,lifecycle_status,payment_status,booking_source`);\nif (!bookings.length) {\n  return [{ json: { ok: false, error: 'booking_not_found', booking_id: bookingId, phase: '2.3' } }];\n}\nconst booking = bookings[0];\n\nconst tasks = await sb.call(this, 'GET', `booking_tasks?booking_id=eq.${encodeURIComponent(bookingId)}&select=task_id,task_key,task_type,status,city,is_required&order=task_key`);\nconst summary = { hotel: 0, airport_transfer: 0, intercity_transfer: 0, tour: 0, train: 0, guide: 0, other: 0 };\nfor (const t of tasks) {\n  if (['pending', 'requested', 'awaiting_confirmation'].includes(t.status)) {\n    summary[t.task_type] = (summary[t.task_type] || 0) + 1;\n  }\n}\nconst pendingCount = Object.values(summary).reduce((a, b) => a + b, 0);\n\nconst tgCfgRows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.telegram_booking_ops&select=config_value');\nconst tgCfg = tgCfgRows[0]?.config_value || {};\nconst chatId = tgCfg.chat_id;\nif (!chatId) {\n  return [{ json: { ok: false, error: 'telegram_chat_id_not_configured', booking_id: bookingId, phase: '2.3' } }];\n}\n\nconst token = $env.TELEGRAM_BOT_TOKEN || $env.LAILA_TELEGRAM_BOT_TOKEN;\nif (!token) throw new Error('TELEGRAM_BOT_TOKEN env required for Laila Sales Bot');\n\nconst lines = [\n  '📋 *New DRAFT Booking*',\n  '',\n  `🆔 \\`${booking.booking_id}\\``,\n  `👤 ${booking.client_name || 'Guest'}`,\n  `🌍 ${booking.destination || '—'}`,\n  `📅 ${booking.arrival_date || '—'} → ${booking.departure_date || '—'}`,\n  `👥 Pax: ${booking.guest_count || 1}`,\n  `💬 Quote: ${booking.quote_ref || '—'}`,\n  `📊 Tasks: ${tasks.length} total · ${pendingCount} pending`,\n  '',\n  '*Pending by type:*',\n  `🏨 Hotels: ${summary.hotel}`,\n  `✈️ Airport: ${summary.airport_transfer}`,\n  `🚌 Intercity: ${summary.intercity_transfer}`,\n  `🎯 Tours: ${summary.tour}`,\n].filter(Boolean);\n\nconst text = lines.join('\\n');\nconst replyMarkup = {\n  inline_keyboard: [\n    [\n      { text: '👁 View booking', callback_data: `bk:view:${bookingId}` },\n      { text: '📝 Pending tasks', callback_data: `bk:tasks:${bookingId}` },\n    ],\n  ],\n};\n\nconst tgResp = await this.helpers.httpRequest({\n  method: 'POST',\n  url: `https://api.telegram.org/bot${token}/sendMessage`,\n  headers: { 'Content-Type': 'application/json' },\n  body: { chat_id: chatId, text, parse_mode: 'Markdown', reply_markup: replyMarkup },\n  json: true,\n});\n\nawait sb.call(this, 'POST', 'agent_actions', {\n  agent_name: 'booking',\n  action_type: 'staff_notify',\n  booking_id: bookingId,\n  source_channel: 'telegram:booking_ops',\n  input_summary: `notify ${bookingId}`.slice(0, 500),\n  output_summary: `sent chat_id=${chatId} pending=${pendingCount}`,\n  status: 'success',\n  metadata: { phase: '2.3', message_id: tgResp?.result?.message_id, pending_count: pendingCount },\n});\n\nreturn [{\n  json: {\n    ok: true,\n    booking_id: bookingId,\n    chat_id: chatId,\n    message_id: tgResp?.result?.message_id,\n    pending_tasks: pendingCount,\n    phase: '2.3',\n  },\n}];\n"
+      },
+      "id": "bsn-logic",
+      "name": "Staff Notify Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Staff Notify Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook staff-notify": {
+      "main": [
+        [
+          {
+            "node": "Staff Notify Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 2.3 staff Telegram summary on DRAFT — no PII beyond ops needs"
+  }
+}

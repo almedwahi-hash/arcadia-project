@@ -1,0 +1,207 @@
+{
+  "tested_at": "2026-08-28T21:30:34.176807+00:00",
+  "cases": [
+    {
+      "name": "approved_exact_quote_one_booking",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "notify_staff": false,
+        "booking_id": "RU-2026-030",
+        "lifecycle_status": "PENDING_PAYMENT",
+        "payment_status": "unpaid",
+        "task_count": 13,
+        "task_keys": [
+          "hotel:moscow:3",
+          "airport:moscow:arrival",
+          "hotel:saint_petersburg:2",
+          "airport:moscow:departure",
+          "intercity_transfer:moscow-saint_petersburg:1",
+          "intercity_transfer:saint_petersburg-moscow:1",
+          "hotel:moscow:1",
+          "tour:moscow:1",
+          "tour:moscow:2",
+          "tour:moscow:3",
+          "tour:moscow:4",
+          "tour:saint_petersburg:1",
+          "tour:saint_petersburg:2"
+        ],
+        "phase": "2.5"
+      }
+    },
+    {
+      "name": "duplicate_no_duplicate_booking",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "notify_staff": false,
+        "booking_id": "RU-2026-030",
+        "lifecycle_status": "PENDING_PAYMENT",
+        "payment_status": "unpaid",
+        "task_count": 13,
+        "task_keys": [
+          "hotel:moscow:3",
+          "airport:moscow:arrival",
+          "hotel:saint_petersburg:2",
+          "airport:moscow:departure",
+          "intercity_transfer:moscow-saint_petersburg:1",
+          "intercity_transfer:saint_petersburg-moscow:1",
+          "hotel:moscow:1",
+          "tour:moscow:1",
+          "tour:moscow:2",
+          "tour:moscow:3",
+          "tour:moscow:4",
+          "tour:saint_petersburg:1",
+          "tour:saint_petersburg:2"
+        ],
+        "phase": "2.5"
+      },
+      "task_count": 13
+    },
+    {
+      "name": "wrong_quote_ref_blocked",
+      "passed": true,
+      "http_status": 400,
+      "response": {
+        "ok": false,
+        "error": "quote_not_found",
+        "quote_ref": "ARC-000000",
+        "phase": "2.5"
+      }
+    },
+    {
+      "name": "quote_other_lead_blocked",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "blocked": true,
+        "error": "quote_belongs_to_another_lead",
+        "lead_id": "ed03316f-cbf6-4d40-91d4-59f9cccba6df",
+        "quote_ref": "ARC-884991",
+        "owner_lead_id": "cb874bb1-d10c-4f0f-82c1-166ccbb3c75c",
+        "phase": "2.5"
+      }
+    },
+    {
+      "name": "non_approved_blocked",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "blocked": true,
+        "error": "lead_not_approved",
+        "lead_id": "ed03316f-cbf6-4d40-91d4-59f9cccba6df",
+        "stage": "quoted",
+        "hint": "Set leads.stage=approved with approved_quote_ref, or use authorized /book",
+        "phase": "2.5"
+      }
+    },
+    {
+      "name": "fresh_create_draft_booking",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": false,
+        "notify_staff": true,
+        "booking_id": "RU-2026-032",
+        "lifecycle_status": "DRAFT",
+        "payment_status": "unpaid",
+        "booking_request_key": "cb874bb1-d10c-4f0f-82c1-166ccbb3c75c:ARC-884991",
+        "task_count": 16,
+        "task_keys": [
+          "hotel:moscow:1",
+          "hotel:saint_petersburg:2",
+          "hotel:moscow:3",
+          "airport:moscow:arrival",
+          "airport:moscow:departure",
+          "intercity_transfer:moscow-saint_petersburg:1",
+          "intercity_transfer:saint_petersburg-moscow:1",
+          "tour:moscow:1",
+          "tour:moscow:2",
+          "tour:moscow:3",
+          "tour:moscow:4",
+          "tour:moscow:5",
+          "tour:moscow:6",
+          "tour:moscow:7",
+          "tour:moscow:8",
+          "tour:moscow:9"
+        ],
+        "services": [
+          "hotel",
+          "airport",
+          "tours",
+          "intercity_transfer"
+        ],
+        "lead_id": "cb874bb1-d10c-4f0f-82c1-166ccbb3c75c",
+        "quote_ref": "ARC-884991",
+        "staff_notify": {
+          "sent": true,
+          "message_id": 40,
+          "chat_id": 493831958
+        },
+        "phase": "2.5"
+      },
+      "task_count": 16,
+      "staff_notify": {
+        "sent": true,
+        "message_id": 40,
+        "chat_id": 493831958
+      },
+      "idempotent": false
+    },
+    {
+      "name": "staff_book_command_entry_path",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "phase": "2.5",
+        "simulated": true,
+        "staff_override": true,
+        "lead_id": "b6fada92-a0c4-45a9-a5f7-2e60897af3c8",
+        "quote_ref": "ARC-367344",
+        "idempotent": true,
+        "notify_staff": false,
+        "booking_id": "RU-2026-030",
+        "lifecycle_status": "PENDING_PAYMENT",
+        "payment_status": "unpaid",
+        "task_count": 13,
+        "task_keys": [
+          "hotel:moscow:3",
+          "airport:moscow:arrival",
+          "hotel:saint_petersburg:2",
+          "airport:moscow:departure",
+          "intercity_transfer:moscow-saint_petersburg:1",
+          "intercity_transfer:saint_petersburg-moscow:1",
+          "hotel:moscow:1",
+          "tour:moscow:1",
+          "tour:moscow:2",
+          "tour:moscow:3",
+          "tour:moscow:4",
+          "tour:saint_petersburg:1",
+          "tour:saint_petersburg:2"
+        ]
+      }
+    },
+    {
+      "name": "no_payment_automation",
+      "passed": true,
+      "payment_rows": 0,
+      "payment_status": "unpaid"
+    },
+    {
+      "name": "no_unexpected_workflow_failures",
+      "passed": true,
+      "recent_booking_failures": []
+    }
+  ],
+  "passed": 9,
+  "total": 9,
+  "all_passed": true
+}

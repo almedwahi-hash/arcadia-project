@@ -1,0 +1,59 @@
+{
+  "name": "Arcadia - Booking Stage Watcher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "id": "bsw-cron",
+      "name": "Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase 2.5 — Stage Watcher (cron)\n// Polls approved leads with explicit approved_quote_ref and invokes Booking Agent Start.\n// Feature-flagged via arcadia_system_config.booking_handoff_enabled\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\n\nconst HDR = {\n  apikey: KEY,\n  Authorization: `Bearer ${KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nasync function sb(method, path, body, extra = {}) {\n  const opts = { method, url: `${SB}/rest/v1/${path}`, headers: { ...HDR, ...extra }, json: true };\n  if (body !== undefined) opts.body = body;\n  return await this.helpers.httpRequest(opts);\n}\n\nconst cfgRows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_handoff_enabled&select=config_value');\nconst handoffCfg = cfgRows[0]?.config_value || {};\nconst enabled = handoffCfg.enabled === true;\n\nif (!enabled) {\n  return [{\n    json: {\n      ok: true,\n      skipped: true,\n      reason: 'booking_handoff_disabled',\n      phase: '2.5',\n    },\n  }];\n}\n\nconst canaryOnly = handoffCfg.canary_lead_ids || [];\nconst limit = Number(handoffCfg.batch_limit || 5);\n\nlet query = 'leads?stage=eq.approved&approved_quote_ref=not.is.null&booking_handoff_at=is.null&select=lead_id,approved_quote_ref,stage&order=updated_at.asc&limit=' + limit;\nif (canaryOnly.length) {\n  const ids = canaryOnly.map(id => encodeURIComponent(String(id))).join(',');\n  query = `leads?stage=eq.approved&approved_quote_ref=not.is.null&booking_handoff_at=is.null&lead_id=in.(${ids})&select=lead_id,approved_quote_ref,stage&order=updated_at.asc`;\n}\n\nconst leads = await sb.call(this, 'GET', query);\nconst secret = $env.BOOKING_AGENT_START_SECRET || $env.BOOKING_AGENT_TEST_SECRET;\nconst n8nBase = String($env.N8N_PUBLIC_URL || 'https://n8n.arcadia-tour.cloud').replace(/\\/$/, '');\nconst startUrl = `${n8nBase}/webhook/booking-agent/start`;\n\nconst results = [];\n\nfor (const lead of leads) {\n  const leadId = lead.lead_id;\n  const quoteRef = String(lead.approved_quote_ref || '').trim().toUpperCase();\n  if (!quoteRef) {\n    results.push({ lead_id: leadId, ok: false, error: 'missing_approved_quote_ref' });\n    continue;\n  }\n\n  const existing = await sb.call(this, 'GET', `bookings?booking_request_key=eq.${encodeURIComponent(`${leadId}:${quoteRef}`)}&select=booking_id&limit=1`);\n  if (existing.length) {\n    await sb.call(this, 'PATCH', `leads?lead_id=eq.${encodeURIComponent(leadId)}`, {\n      booking_handoff_at: new Date().toISOString(),\n    });\n    results.push({ lead_id: leadId, quote_ref: quoteRef, ok: true, idempotent: true, booking_id: existing[0].booking_id });\n    continue;\n  }\n\n  if (!secret) {\n    results.push({ lead_id: leadId, ok: false, error: 'missing_booking_agent_secret' });\n    continue;\n  }\n\n  try {\n    const resp = await this.helpers.httpRequest({\n      method: 'POST',\n      url: startUrl,\n      headers: {\n        'Content-Type': 'application/json',\n        'X-Booking-Agent-Secret': secret,\n      },\n      body: {\n        lead_id: leadId,\n        quote_ref: quoteRef,\n        requested_by: 'stage_watcher',\n        source: 'cron:booking-stage-watcher',\n      },\n      json: true,\n    });\n    results.push({\n      lead_id: leadId,\n      quote_ref: quoteRef,\n      ok: !!resp.ok,\n      booking_id: resp.booking_id || null,\n      idempotent: !!resp.idempotent,\n      notify_staff: resp.notify_staff,\n      error: resp.error || null,\n    });\n  } catch (err) {\n    results.push({\n      lead_id: leadId,\n      quote_ref: quoteRef,\n      ok: false,\n      error: String(err.message || err).slice(0, 300),\n    });\n  }\n}\n\nreturn [{\n  json: {\n    ok: true,\n    phase: '2.5',\n    processed: results.length,\n    enabled: true,\n    canary_only: canaryOnly.length > 0,\n    results,\n  },\n}];\n"
+      },
+      "id": "bsw-logic",
+      "name": "Stage Watcher Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Every 10 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Stage Watcher Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 2.5 cron — polls approved leads when booking_handoff_enabled=true (OFF by default)."
+  }
+}

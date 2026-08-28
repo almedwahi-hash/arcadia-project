@@ -1,0 +1,84 @@
+{
+  "name": "Arcadia - Booking Supplier Draft",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-supplier-draft",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "bsd-webhook",
+      "name": "Webhook booking-supplier-draft",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "booking-supplier-draft-phase26"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase 2.6 — Supplier draft generation (deterministic, NO AI, NO auto-send)\n// Webhook: { task_id, requested_by?, regenerate?: bool }\n// Or test: { simulate, task_id, ... }\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\n\nconst HDR = {\n  apikey: KEY,\n  Authorization: `Bearer ${KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nasync function sb(method, path, body, extra = {}) {\n  const opts = { method, url: `${SB}/rest/v1/${path}`, headers: { ...HDR, ...extra }, json: true };\n  if (body !== undefined) opts.body = body;\n  return await this.helpers.httpRequest(opts);\n}\n\nasync function loadConfig(key) {\n  const rows = await sb.call(this, 'GET', `arcadia_system_config?config_key=eq.${encodeURIComponent(key)}&select=config_value`);\n  return rows[0]?.config_value || {};\n}\n\nfunction parseJson(v, fb) {\n  if (v == null) return fb;\n  if (typeof v === 'object') return v;\n  try { return JSON.parse(v); } catch { return fb; }\n}\n\nfunction normCity(c) {\n  return String(c || '').trim();\n}\n\nfunction factsHash(obj) {\n  return JSON.stringify(obj);\n}\n\nfunction simpleHash(str) {\n  let h = 0;\n  for (let i = 0; i < str.length; i++) {\n    h = ((h << 5) - h + str.charCodeAt(i)) | 0;\n  }\n  return Math.abs(h).toString(36);\n}\n\nasync function lookupHotelContact(hotelName, city) {\n  if (!hotelName) return null;\n  const name = String(hotelName).trim();\n  const c = normCity(city);\n  let rows = await sb.call(this, 'GET', `hotels?Hotel_Name=ilike.${encodeURIComponent(name)}&City=ilike.${encodeURIComponent(c)}&select=Hotel_Name,City,Phone,Email,Supplier,Website&limit=1`);\n  if (rows.length) return rows[0];\n  rows = await sb.call(this, 'GET', `hotels?Hotel_Name=ilike.${encodeURIComponent(`%${name.split(' ')[0]}%`)}&City=ilike.${encodeURIComponent(c)}&select=Hotel_Name,City,Phone,Email,Supplier,Website&limit=1`);\n  return rows[0] || null;\n}\n\nfunction segmentDates(booking, task, cities) {\n  const seg = Number(task.segment_index) || 1;\n  const idx = Math.max(0, seg - 1);\n  const meta = task.metadata || {};\n  if (meta.check_in && meta.check_out) {\n    return { check_in: meta.check_in, check_out: meta.check_out, source: 'task.metadata' };\n  }\n  if (cities.length <= 1) {\n    return { check_in: booking.arrival_date, check_out: booking.departure_date, source: 'booking.trip' };\n  }\n  return {\n    check_in: booking.arrival_date,\n    check_out: booking.departure_date,\n    source: 'booking.trip_whole',\n    note: `Multi-city trip — verify dates for ${task.city} segment ${seg}`,\n  };\n}\n\nfunction buildHotelDraft({ booking, task, opsCfg, contact, dates, missing }) {\n  const company = booking.company_name || opsCfg.company_name || 'Arcadia Tourism';\n  const lines = [\n    `${company} — Hotel Reservation Request`,\n    '(DRAFT — staff review; NOT sent automatically)',\n    '',\n    `Booking reference: ${booking.booking_id}`,\n    `Hotel: ${task.supplier_name || '—'}`,\n    `City: ${task.city || '—'}`,\n    `Check-in: ${dates.check_in || '—'}`,\n    `Check-out: ${dates.check_out || '—'}`,\n    `Guests: ${booking.guest_count || '—'} pax`,\n    `Lead guest: ${booking.client_name || '—'}`,\n    `Room: ${task.metadata?.room_type || 'standard (confirm with hotel)'}`,\n    '',\n    'Please confirm availability and provide confirmation reference.',\n    '',\n    company,\n    opsCfg.booking_email ? `Email: ${opsCfg.booking_email}` : null,\n    opsCfg.booking_phone ? `Phone: ${opsCfg.booking_phone}` : null,\n  ].filter(Boolean);\n\n  if (dates.note) lines.splice(8, 0, `Note: ${dates.note}`);\n  if (contact) {\n    lines.push('', '--- Known hotel contact (from directory) ---');\n    if (contact.Phone) lines.push(`Tel: ${contact.Phone}`);\n    if (contact.Email) lines.push(`Email: ${contact.Email}`);\n    if (contact.Supplier) lines.push(`Supplier channel: ${contact.Supplier}`);\n  }\n  if (missing.length) {\n    lines.push('', '⚠ Missing required information:');\n    missing.forEach(m => lines.push(`- ${m}`));\n  }\n\n  return lines.join('\\n');\n}\n\nfunction buildAirportDraft({ booking, task, opsCfg, missing }) {\n  const company = booking.company_name || opsCfg.company_name || 'Arcadia Tourism';\n  const dir = (task.metadata && task.metadata.direction) || 'transfer';\n  const lines = [\n    `${company} — Airport Transfer Request`,\n    '(DRAFT — staff review; NOT sent automatically)',\n    '',\n    `Booking reference: ${booking.booking_id}`,\n    `City: ${task.city || '—'}`,\n    `Direction: ${dir}`,\n    `Date: ${dir === 'arrival' ? booking.arrival_date : booking.departure_date}`,\n    `Guests: ${booking.guest_count || '—'} pax`,\n    `Lead guest: ${booking.client_name || '—'}`,\n    '',\n    'Please confirm driver/vehicle availability.',\n    '',\n    company,\n    opsCfg.booking_phone ? `Phone: ${opsCfg.booking_phone}` : null,\n  ].filter(Boolean);\n  if (missing.length) {\n    lines.push('', '⚠ Missing:', ...missing.map(m => `- ${m}`));\n  }\n  return lines.join('\\n');\n}\n\nfunction buildIntercityDraft({ booking, task, opsCfg, missing }) {\n  const company = booking.company_name || opsCfg.company_name || 'Arcadia Tourism';\n  const meta = task.metadata || {};\n  const lines = [\n    `${company} — Intercity Transfer Request`,\n    '(DRAFT — staff review; NOT sent automatically)',\n    '',\n    `Booking reference: ${booking.booking_id}`,\n    `Route: ${meta.from || '—'} → ${meta.to || '—'}`,\n    `Guests: ${booking.guest_count || '—'} pax`,\n    `Lead guest: ${booking.client_name || '—'}`,\n    '',\n    'Please confirm availability and rate.',\n    '',\n    company,\n  ];\n  if (missing.length) lines.push('', '⚠ Missing:', ...missing.map(m => `- ${m}`));\n  return lines.join('\\n');\n}\n\nfunction buildTourDraft({ booking, task, opsCfg, missing }) {\n  const company = booking.company_name || opsCfg.company_name || 'Arcadia Tourism';\n  const lines = [\n    `${company} — Tour Booking Request`,\n    '(DRAFT — staff review; NOT sent automatically)',\n    '',\n    `Booking reference: ${booking.booking_id}`,\n    `City: ${task.city || '—'}`,\n    `Tour #: ${(task.metadata && task.metadata.tour_number) || task.segment_index || 1}`,\n    `Guests: ${booking.guest_count || '—'} pax`,\n    '',\n    'Please confirm guide/tour availability.',\n    '',\n    company,\n  ];\n  if (missing.length) lines.push('', '⚠ Missing:', ...missing.map(m => `- ${m}`));\n  return lines.join('\\n');\n}\n\nasync function buildDraftForTask(taskId, requestedBy, regenerate = false) {\n  const tasks = await sb.call(this, 'GET', `booking_tasks?task_id=eq.${encodeURIComponent(taskId)}&select=*`);\n  if (!tasks.length) return { ok: false, error: 'task_not_found', task_id: taskId };\n  const task = tasks[0];\n\n  const bookings = await sb.call(this, 'GET', `bookings?booking_id=eq.${encodeURIComponent(task.booking_id)}&select=booking_id,client_name,guest_count,arrival_date,departure_date,city_hotels,company_name,destination,quote_ref,lifecycle_status`);\n  if (!bookings.length) return { ok: false, error: 'booking_not_found', booking_id: task.booking_id };\n  const booking = bookings[0];\n  const cities = parseJson(booking.city_hotels, {});\n  const cityList = Object.keys(cities).length ? Object.keys(cities) : [task.city].filter(Boolean);\n\n  const opsCfg = await loadConfig.call(this, 'booking_supplier_ops');\n  const missing = [];\n\n  if (!task.supplier_name && task.task_type === 'hotel') missing.push('hotel_name');\n  if (!booking.guest_count) missing.push('guest_count');\n  if (!booking.arrival_date || !booking.departure_date) missing.push('trip_dates');\n  if (!booking.client_name) missing.push('lead_guest_name');\n\n  let contact = null;\n  let supplierChannel = task.supplier_channel || null;\n  if (task.task_type === 'hotel' && task.supplier_name) {\n    contact = await lookupHotelContact.call(this, task.supplier_name, task.city);\n    if (contact) {\n      if (contact.Email) supplierChannel = supplierChannel || 'email';\n      else if (contact.Phone) supplierChannel = supplierChannel || 'phone';\n      if (contact.Supplier) supplierChannel = supplierChannel || String(contact.Supplier).toLowerCase();\n    }\n  }\n\n  const dates = segmentDates(booking, task, cityList);\n  let draftText = '';\n  if (task.task_type === 'hotel') {\n    draftText = buildHotelDraft({ booking, task, opsCfg, contact, dates, missing });\n  } else if (task.task_type === 'airport_transfer') {\n    draftText = buildAirportDraft({ booking, task, opsCfg, missing });\n  } else if (task.task_type === 'intercity_transfer') {\n    draftText = buildIntercityDraft({ booking, task, opsCfg, missing });\n  } else if (task.task_type === 'tour') {\n    draftText = buildTourDraft({ booking, task, opsCfg, missing });\n  } else {\n    draftText = [`${opsCfg.company_name || 'Arcadia Tourism'} — Supplier Request`, `(DRAFT) Booking: ${booking.booking_id}`, `Task: ${task.task_key}`, `Type: ${task.task_type}`].join('\\n');\n  }\n\n  const facts = {\n    booking_id: booking.booking_id,\n    task_id: task.task_id,\n    task_key: task.task_key,\n    task_type: task.task_type,\n    city: task.city,\n    supplier_name: task.supplier_name,\n    guest_count: booking.guest_count,\n    client_name: booking.client_name,\n    arrival_date: booking.arrival_date,\n    departure_date: booking.departure_date,\n    check_in: dates.check_in,\n    check_out: dates.check_out,\n    quote_ref: booking.quote_ref,\n  };\n\n  const status = missing.length ? 'needs_information' : 'draft';\n  const idempotencyKey = `draft:${taskId}:${simpleHash(factsHash(facts))}`;\n\n  if (!regenerate) {\n    const existing = await sb.call(this, 'GET', `booking_supplier_drafts?idempotency_key=eq.${encodeURIComponent(idempotencyKey)}&select=*`);\n    if (existing.length) {\n      return {\n        ok: true,\n        idempotent: true,\n        draft_id: existing[0].draft_id,\n        status: existing[0].status,\n        draft_text: existing[0].draft_text,\n        missing_fields: existing[0].missing_fields,\n        facts: existing[0].facts,\n        task_id: taskId,\n        booking_id: task.booking_id,\n        auto_send: false,\n        phase: '2.6',\n      };\n    }\n  } else {\n    await sb.call(this, 'DELETE', `booking_supplier_drafts?task_id=eq.${encodeURIComponent(taskId)}&status=neq.sent_manually`);\n  }\n\n  const inserted = await sb.call(this, 'POST', 'booking_supplier_drafts', {\n    task_id: taskId,\n    booking_id: task.booking_id,\n    draft_type: task.task_type,\n    status,\n    draft_text: draftText,\n    facts,\n    missing_fields: missing,\n    supplier_name: task.supplier_name,\n    supplier_channel: supplierChannel,\n    contact_snapshot: contact || {},\n    idempotency_key: idempotencyKey,\n    created_by: requestedBy,\n  });\n\n  const draft = inserted[0];\n\n  await sb.call(this, 'POST', 'agent_actions', {\n    agent_name: 'booking',\n    action_type: 'supplier_draft_generated',\n    booking_id: task.booking_id,\n    source_channel: 'booking:supplier_ops',\n    input_summary: `${task.task_key} missing=${missing.length}`.slice(0, 500),\n    output_summary: `draft ${draft.draft_id} status=${status}`,\n    status: 'success',\n    metadata: { phase: '2.6', task_id: taskId, draft_id: draft.draft_id, missing_fields: missing, auto_send: false },\n  });\n\n  return {\n    ok: true,\n    idempotent: false,\n    draft_id: draft.draft_id,\n    status,\n    draft_text: draftText,\n    missing_fields: missing,\n    facts,\n    contact_snapshot: contact,\n    supplier_channel: supplierChannel,\n    task_id: taskId,\n    booking_id: task.booking_id,\n    auto_send: false,\n    phase: '2.6',\n  };\n}\n\n// --- Webhook main ---\nconst raw = $input.first().json;\nconst body = raw.body ?? raw;\nconst taskId = String(body.task_id || '').trim();\nconst requestedBy = String(body.requested_by || 'supplier_draft_webhook').trim();\nconst regenerate = body.regenerate === true || body.regenerate === 'true';\n\nif (!taskId) {\n  return [{ json: { ok: false, error: 'missing_task_id', phase: '2.6' } }];\n}\n\ntry {\n  const result = await buildDraftForTask.call(this, taskId, requestedBy, regenerate);\n  return [{ json: result }];\n} catch (err) {\n  return [{ json: { ok: false, error: 'draft_generation_failed', message: String(err.message || err), phase: '2.6' } }];\n}\n"
+      },
+      "id": "bsd-logic",
+      "name": "Supplier Draft Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.ok ? 200 : 400 }}"
+        }
+      },
+      "id": "bsd-respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook booking-supplier-draft": {
+      "main": [
+        [
+          {
+            "node": "Supplier Draft Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supplier Draft Logic": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 2.6 — deterministic supplier draft generation. NO auto-send."
+  }
+}

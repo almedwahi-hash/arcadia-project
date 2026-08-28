@@ -1,0 +1,62 @@
+{
+  "phase": "2.0 + 2.1",
+  "completed_at": "2026-08-28T20:31:00Z",
+  "phase_2_0": {
+    "fix": "Phase1 Prepare Outbound + Outbound Log subflow — extract Evolution response text (no [object Object])",
+    "files": [
+      "scripts/patch_laila_phase1.py",
+      "n8n Workflows/Arcadia - Phase1 Outbound Log.json",
+      "n8n Workflows/Laila V4 - Final Phase1 Final Candidate.json"
+    ],
+    "n8n_deployed": {
+      "final_candidate_id": "RSVg9pYlWWa5yege",
+      "outbound_log_id": "QbQ3kJtWOnnq3b2A"
+    },
+    "live_verification": "pending next outbound WhatsApp message on production"
+  },
+  "phase_2_1": {
+    "migrations": [
+      "booking_agent_phase2_1",
+      "booking_agent_phase2_1b_sync_backfill"
+    ],
+    "sql_files": [
+      "Database/supabase_schema_booking_agent_phase2.sql",
+      "Database/rollback_booking_agent_phase2.sql"
+    ],
+    "backfill": {
+      "bookings_total": 150,
+      "lifecycle_status_filled": 150,
+      "payment_status_filled": 150,
+      "lifecycle_null": 0,
+      "status_log_lifecycle_rows": 150,
+      "status_log_payment_rows": 150,
+      "backfill_actor": "phase2_backfill"
+    },
+    "lifecycle_distribution": {
+      "CONFIRMED": 136,
+      "PENDING_SUPPLIER": 10,
+      "IN_PROGRESS": 2,
+      "CANCELLED": 2
+    },
+    "payment_distribution": {
+      "unpaid": 115,
+      "partial": 33,
+      "paid": 2
+    },
+    "booking_id_counters": {
+      "KA-2026": 117,
+      "RU-2026": 29,
+      "PO-2026": 6
+    },
+    "generate_booking_id_test": "KA-2026-117 (counter incremented once during verification)",
+    "next_booking_id_kazakhstan": "KA-2026-118"
+  },
+  "verification_tests": {
+    "payment_guard_blocks_untrusted": true,
+    "ops_status_sync_logs_and_maps_lifecycle": true,
+    "rls_enabled_new_tables": true,
+    "approved_lead_stage_added": true,
+    "human_approval_idempotency_index": true
+  },
+  "stopped_before": "Phase 2.2 n8n Booking Agent workflows"
+}

@@ -1,0 +1,42 @@
+{
+  "phase": "2.3",
+  "tested_at": "2026-08-28T20:49:42Z",
+  "booking_id": "RU-2026-030",
+  "booking_source": "phase2_test",
+  "workflows": {
+    "Arcadia - Booking Staff Notify": "xHcju7YOoiUdLH0c",
+    "Arcadia - Booking Task Update": "PCNLpZ6CE5wBEIup",
+    "Arcadia - Booking Agent Test": "srMKgn7dtqLLAWcJ"
+  },
+  "security": {
+    "booking_agent_test_active": false,
+    "booking_agent_test_auth": "X-Booking-Agent-Secret (n8n env BOOKING_AGENT_TEST_SECRET)",
+    "staff_allowlist_user_ids": [493831958]
+  },
+  "telegram_ops": {
+    "chat_id": 493831958,
+    "test_message_id": 38,
+    "booking_notification_message_id": 38
+  },
+  "test_results": {
+    "telegram_notification": "pass",
+    "hotel_to_requested": "pass",
+    "duplicate_callback_idempotent": "pass",
+    "partial_lifecycle": "PARTIALLY_CONFIRMED",
+    "final_lifecycle": "PENDING_PAYMENT",
+    "unauthorized_blocked": "pass",
+    "optional_tours_still_pending": 6,
+    "required_tasks_all_confirmed": 7
+  },
+  "final_db_state": {
+    "lifecycle_status": "PENDING_PAYMENT",
+    "payment_status": "unpaid",
+    "task_status_log_rows": 21,
+    "task_update_denied_logged": true
+  },
+  "phase2_0_outbound": {
+    "status": "pending",
+    "note": "No production outbound since deploy; no test traffic generated"
+  },
+  "stopped_before": "Phase 2.4"
+}

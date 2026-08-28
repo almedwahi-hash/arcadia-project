@@ -1,0 +1,102 @@
+{
+  "phase": "2.1c",
+  "applied_at": "2026-08-28T20:36:00Z",
+  "migration": "booking_agent_phase2_1c",
+  "changes": {
+    "booking_request_key": {
+      "column": "bookings.booking_request_key text NULL",
+      "index": "bookings_booking_request_key_uidx UNIQUE WHERE NOT NULL"
+    },
+    "insert_audit_trigger": "bookings_after_insert_audit_trg",
+    "task_key_patterns_updated": true,
+    "config_flags": [
+      "payment_backfill_needs_review",
+      "booking_id_sequence_gaps"
+    ]
+  },
+  "payment_backfill_anomaly": {
+    "is_paid_true_count": 8,
+    "payment_status_paid": 2,
+    "payment_status_partial": 2,
+    "payment_status_unpaid_despite_is_paid": 4,
+    "rows": [
+      {
+        "booking_id": "PO-2026-003",
+        "total_amount": 5250,
+        "paid_amount": 5250,
+        "derived": "paid",
+        "payment_status": "paid",
+        "note": "consistent"
+      },
+      {
+        "booking_id": "RU-2026-025",
+        "total_amount": 6300,
+        "paid_amount": 6300,
+        "derived": "paid",
+        "payment_status": "paid",
+        "note": "consistent"
+      },
+      {
+        "booking_id": "KA-2026-056",
+        "total_amount": 4050,
+        "paid_amount": 4000,
+        "derived": "partial",
+        "payment_status": "partial",
+        "note": "is_paid=true but paid_amount < total"
+      },
+      {
+        "booking_id": "KA-2026-079",
+        "total_amount": 3850,
+        "paid_amount": 300,
+        "derived": "partial",
+        "payment_status": "partial",
+        "note": "is_paid=true but paid_amount < total"
+      },
+      {
+        "booking_id": "KA-2026-116",
+        "total_amount": 3560,
+        "paid_amount": 0,
+        "derived": "unpaid",
+        "payment_status": "unpaid",
+        "note": "legacy inconsistency — is_paid=true but paid_amount=0"
+      },
+      {
+        "booking_id": "PO-2026-001",
+        "total_amount": 2540,
+        "paid_amount": 0,
+        "derived": "unpaid",
+        "payment_status": "unpaid",
+        "note": "legacy inconsistency — is_paid=true but paid_amount=0"
+      },
+      {
+        "booking_id": "RU-2026-002",
+        "total_amount": 5050,
+        "paid_amount": 0,
+        "derived": "unpaid",
+        "payment_status": "unpaid",
+        "note": "legacy inconsistency — is_paid=true but paid_amount=0"
+      },
+      {
+        "booking_id": "RU-2026-006",
+        "total_amount": 5250,
+        "paid_amount": 0,
+        "derived": "unpaid",
+        "payment_status": "unpaid",
+        "note": "legacy inconsistency — is_paid=true but paid_amount=0"
+      }
+    ],
+    "why_6_not_paid": "compute_payment_status() prioritizes paid_amount over is_paid flag. Only rows where paid_amount >= total_amount become paid. Four rows have is_paid=true with paid_amount=0 → unpaid. Two rows have partial paid_amount → partial. No payment values were changed.",
+    "flag": "payment_backfill_needs_review in arcadia_system_config"
+  },
+  "booking_id_117": {
+    "consumed_by": "phase2_1_migration_verification",
+    "next_real_id_kazakhstan": "KA-2026-118",
+    "action": "documented only — counter not rewound"
+  },
+  "phase2_0_outbound_verification": {
+    "status": "pending",
+    "reason": "No production outbound messages since deploy (~20:30 UTC Aug 28). Latest outbound still [object Object] at 20:15 UTC.",
+    "action": "Did not generate test traffic"
+  },
+  "stopped_before": "Phase 2.2"
+}
