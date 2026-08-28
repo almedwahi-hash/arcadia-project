@@ -1,0 +1,4 @@
+{
+  "name": "Arcadia Tour B2B Outreach",
+  "install": "python3 -m pip install --user -r requirements.txt && python3 -m playwright install chromium"
+}

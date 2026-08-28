@@ -1,0 +1,8 @@
+# Third-party dependencies for the Arcadia Tour B2B outreach scripts.
+# Everything else used by scripts/ is in the Python 3 standard library.
+
+# PDF rate-sheet generation (scripts/generate_rate_sheet_pdf.py)
+reportlab==5.0.1
+
+# Optional browser-based Zoho send fallback (scripts/send_batch5_zoho_browser.py)
+playwright==1.62.0
