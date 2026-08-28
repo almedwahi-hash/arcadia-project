@@ -19,6 +19,7 @@ WHATSAPP_MAP = {
 AI_AGENT_MAP = {
     "Arcadia - Laila AI Agent.json": [
         ("Normalize", "scripts/laila_normalize_logic.js"),
+        ("format_reply", "scripts/laila_format_reply_logic.js"),
     ],
 }
 
