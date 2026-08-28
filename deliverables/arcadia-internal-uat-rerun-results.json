@@ -1,0 +1,244 @@
+{
+  "uat_tag": "internal_uat_kz_almaty_20260828_rerun",
+  "tested_at": "2026-08-28T22:28:11.847646+00:00",
+  "patch": "uat-def-fix-001-002",
+  "booking_id": "KA-2026-118",
+  "acceptance": [
+    {
+      "name": "1_tasks_callback_structured",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "action": "tasks",
+        "booking_id": "KA-2026-118",
+        "listed": 7,
+        "phase": "2.4A",
+        "simulated": true
+      }
+    },
+    {
+      "name": "1b_view_callback_structured",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "action": "view",
+        "booking_id": "KA-2026-118",
+        "phase": "2.4A",
+        "simulated": true
+      }
+    },
+    {
+      "name": "1c_open_callback_structured",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "action": "open",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "task_key": "hotel:almaty:1",
+        "status": "confirmed",
+        "confirmation_ref": "UAT-RERUN-HTL-FINAL",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "2_malformed_callback_error",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "error": "invalid_callback",
+        "callback_data": "bk:invalid",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "3_first_or_replay_confirm",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "action": "supplier_response",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "response_type": "confirmed",
+        "status": "confirmed",
+        "confirmation_ref": "UAT-RERUN-HTL-FINAL",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "4_same_ref_replay_idempotent",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "action": "supplier_response",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "response_type": "confirmed",
+        "status": "confirmed",
+        "confirmation_ref": "UAT-RERUN-HTL-FINAL",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "3b_different_ref_rejected",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "error": "confirmation_ref_conflict",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "existing_confirmation_ref": "UAT-RERUN-HTL-FINAL",
+        "attempted_confirmation_ref": "UAT-RERUN-HTL-WRONG",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "6_unauthorized_correction_blocked",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "error": "unauthorized",
+        "phase": "2.4A",
+        "denied": true,
+        "simulated": true
+      }
+    },
+    {
+      "name": "6b_override_without_reason_blocked",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "error": "confirmation_ref_conflict",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "existing_confirmation_ref": "UAT-RERUN-HTL-FINAL",
+        "attempted_confirmation_ref": "UAT-RERUN-HTL-NOREASON-ATTEMPT",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "5_authorized_override_audited",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "action": "supplier_response",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "response_type": "confirmed",
+        "status": "confirmed",
+        "confirmation_ref": "UAT-RERUN-HTL-FINAL",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "7_booking_idempotent",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "phase": "2.5",
+        "simulated": true,
+        "staff_override": true,
+        "lead_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "quote_ref": "ARC-459161",
+        "idempotent": true,
+        "notify_staff": false,
+        "booking_id": "KA-2026-118",
+        "lifecycle_status": "PARTIALLY_CONFIRMED",
+        "payment_status": "unpaid",
+        "task_count": 8,
+        "task_keys": [
+          "hotel:almaty:1",
+          "airport:almaty:departure",
+          "tour:almaty:1",
+          "tour:almaty:2",
+          "tour:almaty:3",
+          "tour:almaty:4",
+          "tour:almaty:5",
+          "airport:almaty:arrival"
+        ]
+      }
+    },
+    {
+      "name": "8_draft_consistency",
+      "passed": true,
+      "http_status": 200,
+      "draft_id": "f306841c-3ace-4f53-923b-df6170fc4bec",
+      "facts": {
+        "city": "Almaty",
+        "task_id": "c621cf83-845a-4b54-bd8c-cfda6a679f0a",
+        "check_in": "2026-06-05",
+        "task_key": "hotel:almaty:1",
+        "check_out": "2026-06-12",
+        "quote_ref": "ARC-459161",
+        "task_type": "hotel",
+        "booking_id": "KA-2026-118",
+        "client_name": "UAT KZ Almaty Guest",
+        "guest_count": 2,
+        "arrival_date": "2026-06-05",
+        "supplier_name": "Mildom Residence Hotel",
+        "departure_date": "2026-06-12"
+      }
+    }
+  ],
+  "steps": [],
+  "negatives": [
+    {
+      "name": "wrong_quote",
+      "passed": true,
+      "response": {
+        "ok": false,
+        "error": "start_request_failed",
+        "message": "Request failed with status code 400",
+        "phase": "2.5",
+        "simulated": true
+      }
+    },
+    {
+      "name": "quote_other_lead",
+      "passed": true,
+      "response": {
+        "ok": false,
+        "error": "start_request_failed",
+        "message": "Request failed with status code 403",
+        "phase": "2.5",
+        "simulated": true
+      }
+    }
+  ],
+  "laila_audit": {
+    "phase1_laila_scenario_test": {
+      "webhook": "phase1-laila-scenario-test",
+      "http_status": 404,
+      "body_preview": "{\"code\":404,\"message\":\"The requested webhook \\\"POST phase1-laila-scenario-test\\\" is not registered.\",\"hint\":\"The workflow must be active for a production URL to run successfully. You can activate the workflow using the toggle in the top-right of the editor. Note that unlike test URL calls, productio"
+    },
+    "workflow_file_in_repo": false,
+    "referenced_in": "scripts/n8n_phase1_operational.py",
+    "production_laila_workflow_in_repo": "Arcadia - Laila Telegram V5 Phase1 Working.json (Telegram, not WhatsApp harness)",
+    "steps_1_4_conclusion": "require_manual_whatsapp_uat",
+    "note": "No permanent unauthenticated test webhook deployed; lead pre-seeding used for booking UAT"
+  },
+  "safety": {
+    "auto_send_on_draft": true,
+    "note": "Verify booking_handoff_enabled, auto_send_enabled, reminder policy via Supabase separately"
+  },
+  "summary": {
+    "acceptance_passed": 12,
+    "acceptance_total": 12,
+    "overall": "PASS"
+  }
+}
