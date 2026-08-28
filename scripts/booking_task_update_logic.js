@@ -95,6 +95,67 @@ async function logDenied(userId, action, reason) {
   });
 }
 
+function respondJson(payload, simulated) {
+  return [{ json: { ...payload, simulated: !!simulated } }];
+}
+
+function normalizeRef(ref) {
+  return ref != null ? String(ref).trim() : '';
+}
+
+function evaluateConfirmationRefConflict(task, confirmationRef, confirmData) {
+  const existing = normalizeRef(task.confirmation_ref);
+  const incoming = normalizeRef(confirmationRef);
+  if (!existing || task.status !== 'confirmed') return { action: 'proceed' };
+  if (incoming && incoming === existing) {
+    return { action: 'idempotent_replay', confirmation_ref: existing };
+  }
+  if (incoming && incoming !== existing) {
+    const reason = normalizeRef(confirmData.override_reason);
+    if (confirmData.override_confirmation_ref === true) {
+      if (!reason) {
+        return {
+          action: 'reject',
+          existing_confirmation_ref: existing,
+          attempted_confirmation_ref: incoming,
+          override_missing_reason: true,
+        };
+      }
+      return {
+        action: 'override',
+        old_confirmation_ref: existing,
+        new_confirmation_ref: incoming,
+        override_reason: reason,
+      };
+    }
+    return {
+      action: 'reject',
+      existing_confirmation_ref: existing,
+      attempted_confirmation_ref: incoming,
+    };
+  }
+  return { action: 'proceed' };
+}
+
+async function logConfirmationRefConflict(task, userId, conflict, metadata) {
+  await sb.call(this, 'POST', 'agent_actions', {
+    agent_name: 'booking',
+    action_type: 'confirmation_ref_conflict',
+    booking_id: task.booking_id,
+    source_channel: 'telegram:staff',
+    input_summary: `${task.task_key} ref conflict`.slice(0, 500),
+    output_summary: `${conflict.existing_confirmation_ref} vs ${conflict.attempted_confirmation_ref}`.slice(0, 500),
+    status: 'failed',
+    metadata: {
+      phase: '2.6',
+      task_id: task.task_id,
+      telegram_user_id: userId,
+      ...(metadata || {}),
+      ...conflict,
+    },
+  });
+}
+
 async function tgAnswer(callbackId, text, showAlert = false, simulated = false) {
   if (simulated) return;
   const token = $env.TELEGRAM_BOT_TOKEN || $env.LAILA_TELEGRAM_BOT_TOKEN;
@@ -111,15 +172,30 @@ async function tgAnswer(callbackId, text, showAlert = false, simulated = false) 
   }
 }
 
-async function tgSend(chatId, text, replyMarkup) {
+async function tgSend(chatId, text, replyMarkup, simulated = false) {
+  if (simulated) return { ok: true, delivery: 'skipped_simulated' };
   const token = $env.TELEGRAM_BOT_TOKEN || $env.LAILA_TELEGRAM_BOT_TOKEN;
   if (!token) throw new Error('TELEGRAM_BOT_TOKEN required');
-  return await this.helpers.httpRequest({
-    method: 'POST',
-    url: `https://api.telegram.org/bot${token}/sendMessage`,
-    body: { chat_id: chatId, text, parse_mode: 'Markdown', reply_markup: replyMarkup },
-    json: true,
-  });
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  try {
+    return await this.helpers.httpRequest({
+      method: 'POST',
+      url,
+      body: { chat_id: chatId, text, parse_mode: 'Markdown', reply_markup: replyMarkup },
+      json: true,
+    });
+  } catch (e) {
+    const msg = String(e.message || e);
+    if (msg.includes('400') || msg.toLowerCase().includes('parse')) {
+      return await this.helpers.httpRequest({
+        method: 'POST',
+        url,
+        body: { chat_id: chatId, text: String(text || '').replace(/[*_`[\]]/g, ''), reply_markup: replyMarkup },
+        json: true,
+      });
+    }
+    throw e;
+  }
 }
 
 function parseInput(raw) {
@@ -154,7 +230,7 @@ async function handleView(bookingId, chatId) {
   const b = rows[0];
   return [
     `*Booking ${b.booking_id}*`,
-    `Status: ${b.lifecycle_status} / ${b.payment_status}`,
+    `Status: \`${b.lifecycle_status}\` / \`${b.payment_status}\``,
     `Guest: ${b.client_name || 'Guest'}`,
     `Destination: ${b.destination}`,
     `Dates: ${b.arrival_date} → ${b.departure_date}`,
@@ -233,7 +309,7 @@ async function evaluateSupplierCostVariance(task, newCost, staffTag) {
   };
 }
 
-async function handleTasksList(bookingId, chatId) {
+async function handleTasksList(bookingId, chatId, simulated = false) {
   const tasks = await sb.call(this, 'GET', `booking_tasks?booking_id=eq.${encodeURIComponent(bookingId)}&select=task_id,task_key,task_type,status,city,is_required&order=task_key`);
   const open = tasks.filter(t => ['pending', 'requested', 'awaiting_confirmation'].includes(t.status));
   const lines = open.slice(0, 8).map(t => `• \`${t.task_key}\` [${t.status}]${t.is_required === false ? ' (opt)' : ''}`);
@@ -244,7 +320,7 @@ async function handleTasksList(bookingId, chatId) {
     ],
   ]));
   if (open.length > 5) keyboard.push([{ text: `+${open.length - 5} more tasks`, callback_data: `bk:tasks:${bookingId}` }]);
-  await tgSend.call(this, chatId, [`*Pending tasks* (${open.length})`, ...lines].join('\n'), { inline_keyboard: keyboard });
+  await tgSend.call(this, chatId, [`*Pending tasks* (${open.length})`, ...lines].join('\n'), { inline_keyboard: keyboard }, simulated);
   return { listed: open.length };
 }
 
@@ -259,7 +335,7 @@ async function callDraftWebhook(taskId, requestedBy) {
   });
 }
 
-async function handleTaskOpen(taskId, chatId) {
+async function handleTaskOpen(taskId, chatId, simulated = false) {
   const tasks = await sb.call(this, 'GET', `booking_tasks?task_id=eq.${encodeURIComponent(taskId)}&select=*`);
   if (!tasks.length) return { ok: false, error: 'task_not_found' };
   const t = tasks[0];
@@ -270,7 +346,7 @@ async function handleTaskOpen(taskId, chatId) {
     `Type: ${t.task_type} · City: ${t.city || '—'}`,
     `Status: ${t.status}`,
     `Supplier: ${t.supplier_name || '—'}`,
-    `Confirmation: ${t.confirmation_ref || '—'}`,
+    `Confirmation: \`${t.confirmation_ref || '—'}\``,
     d ? `Latest draft: ${d.status}${d.sent_manually_at ? ' (sent)' : ''}` : 'No draft yet',
   ].join('\n');
   const keyboard = [
@@ -294,8 +370,15 @@ async function handleTaskOpen(taskId, chatId) {
     { text: '❓ Needs info', callback_data: `bk:task:${taskId}:resp:needs_information` },
     { text: '🔄 Alternative', callback_data: `bk:task:${taskId}:resp:alternative_offered` },
   ]);
-  await tgSend.call(this, chatId, text, { inline_keyboard: keyboard });
-  return { ok: true, action: 'open', task_id: taskId, task_key: t.task_key };
+  await tgSend.call(this, chatId, text, { inline_keyboard: keyboard }, simulated);
+  return {
+    ok: true,
+    action: 'open',
+    task_id: taskId,
+    task_key: t.task_key,
+    status: t.status,
+    confirmation_ref: t.confirmation_ref || null,
+  };
 }
 
 async function handleGenerateDraft({ taskId, userId, callbackId, chatId, simulated }) {
@@ -327,7 +410,7 @@ async function handleGenerateDraft({ taskId, userId, callbackId, chatId, simulat
     inline_keyboard: [[
       { text: '✅ Mark sent (manual)', callback_data: `bk:draft:${result.draft_id}:mark_sent` },
     ]],
-  });
+  }, simulated);
   await tgAnswer.call(this, callbackId, result.idempotent ? 'Draft exists' : 'Draft generated', false, simulated);
   return { ok: true, action: 'draft', ...result, phase: '2.6', auto_send: false };
 }
@@ -338,7 +421,7 @@ async function handleDraftPreview(draftId, chatId, callbackId, simulated) {
   const d = rows[0];
   await tgSend.call(this, chatId, [`*Draft* ${d.status}`, '```', (d.draft_text || '').slice(0, 3500), '```'].join('\n'), {
     inline_keyboard: d.status !== 'sent_manually' ? [[{ text: '✅ Mark sent (manual)', callback_data: `bk:draft:${draftId}:mark_sent` }]] : undefined,
-  });
+  }, simulated);
   await sb.call(this, 'PATCH', `booking_supplier_drafts?draft_id=eq.${encodeURIComponent(draftId)}`, { status: d.status === 'needs_information' ? 'needs_information' : 'previewed' });
   await tgAnswer.call(this, callbackId, 'Draft preview');
   return { ok: true, action: 'preview', draft_id: draftId, phase: '2.6' };
@@ -411,14 +494,79 @@ async function handleSupplierResponse({ taskId, responseType, userId, confirmDat
   const notes = confirmData.notes || null;
   const idemKey = confirmData.idempotency_key || `supplier_resp:${taskId}:${responseType}:${confirmationRef || 'noref'}`;
 
+  const tasks = await sb.call(this, 'GET', `booking_tasks?task_id=eq.${encodeURIComponent(taskId)}&select=*`);
+  if (!tasks.length) return { ok: false, error: 'task_not_found' };
+  const task = tasks[0];
+
+  if (responseType === 'confirmed' && confirmationRef) {
+    const conflict = evaluateConfirmationRefConflict(task, confirmationRef, confirmData);
+    if (conflict.action === 'idempotent_replay') {
+      await tgAnswer.call(this, callbackId, 'Already confirmed.', false, simulated);
+      return {
+        ok: true,
+        idempotent: true,
+        action: 'supplier_response',
+        task_id: taskId,
+        response_type: responseType,
+        status: 'confirmed',
+        confirmation_ref: conflict.confirmation_ref,
+        phase: '2.6',
+      };
+    }
+    if (conflict.action === 'reject') {
+      await logConfirmationRefConflict.call(this, task, userId, conflict, { source: 'supplier_response' });
+      await tgAnswer.call(this, callbackId, 'Confirmation ref conflict.', true, simulated);
+      return {
+        ok: false,
+        error: 'confirmation_ref_conflict',
+        task_id: taskId,
+        existing_confirmation_ref: conflict.existing_confirmation_ref,
+        attempted_confirmation_ref: conflict.attempted_confirmation_ref,
+        phase: '2.6',
+      };
+    }
+    if (conflict.action === 'override') {
+      const overrideResult = await sbRpc.call(this, 'override_task_confirmation_ref', {
+        p_task_id: taskId,
+        p_new_ref: conflict.new_confirmation_ref,
+        p_reason: conflict.override_reason,
+        p_recorded_by: staffTag,
+      });
+      await sb.call(this, 'POST', 'agent_actions', {
+        agent_name: 'booking',
+        action_type: 'confirmation_ref_override',
+        booking_id: task.booking_id,
+        source_channel: 'telegram:staff',
+        input_summary: `${task.task_key} override`.slice(0, 500),
+        output_summary: `${conflict.old_confirmation_ref} -> ${conflict.new_confirmation_ref}`.slice(0, 500),
+        status: 'success',
+        metadata: {
+          phase: '2.6',
+          task_id: taskId,
+          telegram_user_id: userId,
+          reason: conflict.override_reason,
+          override_result: overrideResult,
+        },
+      });
+      await tgAnswer.call(this, callbackId, 'Confirmation ref corrected.', false, simulated);
+      return {
+        ok: true,
+        action: 'confirmation_ref_override',
+        task_id: taskId,
+        response_type: responseType,
+        status: 'confirmed',
+        confirmation_ref: conflict.new_confirmation_ref,
+        old_confirmation_ref: conflict.old_confirmation_ref,
+        override: true,
+        phase: '2.6',
+      };
+    }
+  }
+
   const existing = await sb.call(this, 'GET', `booking_supplier_responses?idempotency_key=eq.${encodeURIComponent(idemKey)}&select=response_id`);
   if (existing.length) {
     return { ok: true, idempotent: true, response_id: existing[0].response_id, phase: '2.6' };
   }
-
-  const tasks = await sb.call(this, 'GET', `booking_tasks?task_id=eq.${encodeURIComponent(taskId)}&select=*`);
-  if (!tasks.length) return { ok: false, error: 'task_not_found' };
-  const task = tasks[0];
 
   await sb.call(this, 'POST', 'booking_supplier_responses', {
     task_id: taskId,
@@ -449,13 +597,14 @@ async function handleSupplierResponse({ taskId, responseType, userId, confirmDat
       confirmData: { confirmation_ref: confirmationRef, supplier_cost_usd: supplierCost, notes },
       simulated: true,
     });
-    if (transResult.ok && !transResult.blocked) {
+    if (transResult.ok && !transResult.blocked && !transResult.error) {
+      newStatus = 'confirmed';
+    } else if (transResult.error === 'confirmation_ref_conflict') {
+      return transResult;
+    } else if (transResult.idempotent) {
       newStatus = 'confirmed';
     } else {
-      await sb.call(this, 'PATCH', `booking_tasks?task_id=eq.${encodeURIComponent(taskId)}`, {
-        confirmation_ref: confirmationRef,
-        metadata: metaPatch,
-      });
+      await sb.call(this, 'PATCH', `booking_tasks?task_id=eq.${encodeURIComponent(taskId)}`, { metadata: metaPatch });
       newStatus = task.status;
     }
   } else if (responseType === 'unavailable') {
@@ -547,8 +696,54 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
   const patch = { status: toStatus, updated_at: new Date().toISOString() };
   if (toStatus === 'requested') patch.requested_at = new Date().toISOString();
   if (toStatus === 'confirmed') {
+    const incomingRef = normalizeRef(confirmData.confirmation_ref);
+    const existingRef = normalizeRef(task.confirmation_ref);
+    if (fromStatus === 'confirmed' && existingRef) {
+      if (incomingRef && incomingRef === existingRef) {
+        return {
+          ok: true,
+          idempotent: true,
+          task_id: taskId,
+          task_key: task.task_key,
+          status: 'confirmed',
+          confirmation_ref: existingRef,
+          booking_id: task.booking_id,
+        };
+      }
+      if (incomingRef && incomingRef !== existingRef) {
+        const reason = normalizeRef(confirmData.override_reason);
+        if (!(confirmData.override_confirmation_ref === true && reason)) {
+          return {
+            ok: false,
+            error: 'confirmation_ref_conflict',
+            task_id: taskId,
+            booking_id: task.booking_id,
+            existing_confirmation_ref: existingRef,
+            attempted_confirmation_ref: incomingRef,
+          };
+        }
+        const overrideResult = await sbRpc.call(this, 'override_task_confirmation_ref', {
+          p_task_id: taskId,
+          p_new_ref: incomingRef,
+          p_reason: reason,
+          p_recorded_by: staffTag,
+        });
+        return {
+          ok: true,
+          action: 'confirmation_ref_override',
+          task_id: taskId,
+          task_key: task.task_key,
+          status: 'confirmed',
+          confirmation_ref: incomingRef,
+          old_confirmation_ref: existingRef,
+          booking_id: task.booking_id,
+          override: true,
+          override_result: overrideResult,
+        };
+      }
+    }
     patch.confirmed_at = new Date().toISOString();
-    patch.confirmation_ref = confirmData.confirmation_ref || task.confirmation_ref || `REF-${Date.now()}`;
+    patch.confirmation_ref = incomingRef || existingRef || `REF-${Date.now()}`;
     if (confirmData.supplier_name || task.supplier_name) patch.supplier_name = confirmData.supplier_name || task.supplier_name;
     if (confirmData.notes) patch.notes = confirmData.notes;
     if (confirmData.supplier_cost_usd != null) {
@@ -627,7 +822,7 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
 const raw = $input.first().json;
 const parsed = parseInput(raw);
 if (parsed.error) {
-  return [{ json: { ok: false, error: parsed.error, phase: '2.4A', simulated: true } }];
+  return respondJson({ ok: false, error: parsed.error, phase: '2.4A' }, true);
 }
 
 const { userId, callbackData, callbackId, chatId, confirmData, simulated } = parsed;
@@ -640,45 +835,75 @@ const parts = (callbackData || '').split(':');
 if (!authorized) {
   await logDenied.call(this, userId, callbackData, 'unauthorized_telegram_user');
   if (callbackId) await tgAnswer.call(this, callbackId, 'Access denied.', true);
-  return [{ json: { ok: false, error: 'unauthorized', phase: '2.4A', denied: true, simulated } }];
+  return respondJson({ ok: false, error: 'unauthorized', phase: '2.4A', denied: true }, simulated);
 }
 
 if (parts[0] !== 'bk') {
-  return [{ json: { ok: false, error: 'unknown_callback', phase: '2.4A' } }];
+  return respondJson({ ok: false, error: 'unknown_callback', callback_data: callbackData, phase: '2.4A' }, simulated);
 }
 
 const viewIdem = `cb:${callbackId}:view`;
 if (parts[1] === 'view' && parts[2]) {
   if (await idempotent.call(this, viewIdem, { action_type: 'view_booking', booking_id: parts[2] })) {
     await tgAnswer.call(this, callbackId, 'Already viewed.');
-    return [{ json: { ok: true, idempotent: true, action: 'view', booking_id: parts[2], phase: '2.4A' } }];
+    return respondJson({ ok: true, idempotent: true, action: 'view', booking_id: parts[2], phase: '2.4A' }, simulated);
   }
-  const text = await handleView.call(this, parts[2], chatId);
-  await tgSend.call(this, chatId, text);
-  await tgAnswer.call(this, callbackId, 'Booking loaded');
-  return [{ json: { ok: true, action: 'view', booking_id: parts[2], phase: '2.4A' } }];
+  try {
+    const text = await handleView.call(this, parts[2], chatId);
+    await tgSend.call(this, chatId, text, undefined, simulated);
+    await tgAnswer.call(this, callbackId, 'Booking loaded');
+    return respondJson({ ok: true, action: 'view', booking_id: parts[2], phase: '2.4A' }, simulated);
+  } catch (err) {
+    return respondJson({
+      ok: false,
+      error: 'view_booking_failed',
+      booking_id: parts[2],
+      message: String(err.message || err),
+      phase: '2.4A',
+    }, simulated);
+  }
 }
 
 if (parts[1] === 'tasks' && parts[2]) {
   const listIdem = `cb:${callbackId}:tasks`;
   if (await idempotent.call(this, listIdem, { action_type: 'list_tasks', booking_id: parts[2] })) {
     await tgAnswer.call(this, callbackId, 'Already listed.');
-    return [{ json: { ok: true, idempotent: true, action: 'tasks', booking_id: parts[2], phase: '2.4A' } }];
+    return respondJson({ ok: true, idempotent: true, action: 'tasks', booking_id: parts[2], phase: '2.4A' }, simulated);
   }
-  const result = await handleTasksList.call(this, parts[2], chatId);
-  await tgAnswer.call(this, callbackId, `Tasks: ${result.listed}`);
-  return [{ json: { ok: true, action: 'tasks', booking_id: parts[2], ...result, phase: '2.4A' } }];
+  try {
+    const result = await handleTasksList.call(this, parts[2], chatId, simulated);
+    await tgAnswer.call(this, callbackId, `Tasks: ${result.listed}`);
+    return respondJson({ ok: true, action: 'tasks', booking_id: parts[2], ...result, phase: '2.4A' }, simulated);
+  } catch (err) {
+    return respondJson({
+      ok: false,
+      error: 'tasks_list_failed',
+      booking_id: parts[2],
+      message: String(err.message || err),
+      phase: '2.4A',
+    }, simulated);
+  }
 }
 
 if (parts[1] === 'task' && parts[2] && parts[3] === 'open') {
   const openIdem = `cb:${callbackId}:open`;
   if (await idempotent.call(this, openIdem, { action_type: 'open_task', task_id: parts[2] })) {
     await tgAnswer.call(this, callbackId, 'Already opened.');
-    return [{ json: { ok: true, idempotent: true, action: 'open', task_id: parts[2], phase: '2.6' } }];
+    return respondJson({ ok: true, idempotent: true, action: 'open', task_id: parts[2], phase: '2.6' }, simulated);
   }
-  const result = await handleTaskOpen.call(this, parts[2], chatId);
-  await tgAnswer.call(this, callbackId, 'Task opened');
-  return [{ json: { ...result, phase: '2.6', simulated } }];
+  try {
+    const result = await handleTaskOpen.call(this, parts[2], chatId, simulated);
+    await tgAnswer.call(this, callbackId, 'Task opened');
+    return respondJson({ ...result, phase: '2.6' }, simulated);
+  } catch (err) {
+    return respondJson({
+      ok: false,
+      error: 'open_task_failed',
+      task_id: parts[2],
+      message: String(err.message || err),
+      phase: '2.6',
+    }, simulated);
+  }
 }
 
 if (parts[1] === 'task' && parts[2] && parts[3] === 'draft') {
@@ -686,9 +911,9 @@ if (parts[1] === 'task' && parts[2] && parts[3] === 'draft') {
     const result = await handleGenerateDraft.call(this, {
       taskId: parts[2], userId, callbackId, chatId, simulated,
     });
-    return [{ json: { ...result, simulated } }];
+    return respondJson(result, simulated);
   } catch (err) {
-    return [{ json: { ok: false, error: 'draft_exception', message: String(err.message || err), phase: '2.6', simulated } }];
+    return respondJson({ ok: false, error: 'draft_exception', message: String(err.message || err), phase: '2.6' }, simulated);
   }
 }
 
@@ -702,15 +927,15 @@ if (parts[1] === 'task' && parts[2] && parts[3] === 'resp' && parts[4]) {
       callbackId,
       simulated,
     });
-    return [{ json: { ...result, simulated } }];
+    return respondJson(result, simulated);
   } catch (err) {
-    return [{ json: { ok: false, error: 'supplier_response_exception', message: String(err.message || err), phase: '2.6', simulated } }];
+    return respondJson({ ok: false, error: 'supplier_response_exception', message: String(err.message || err), phase: '2.6' }, simulated);
   }
 }
 
 if (parts[1] === 'draft' && parts[2] && parts[3] === 'preview') {
   const result = await handleDraftPreview.call(this, parts[2], chatId, callbackId, simulated);
-  return [{ json: { ...result, simulated } }];
+  return respondJson(result, simulated);
 }
 
 if (parts[1] === 'draft' && parts[2] && parts[3] === 'mark_sent') {
@@ -718,9 +943,9 @@ if (parts[1] === 'draft' && parts[2] && parts[3] === 'mark_sent') {
     const result = await handleDraftMarkSent.call(this, {
       draftId: parts[2], userId, callbackId, chatId, simulated,
     });
-    return [{ json: { ...result, simulated } }];
+    return respondJson(result, simulated);
   } catch (err) {
-    return [{ json: { ok: false, error: 'mark_sent_exception', message: String(err.message || err), phase: '2.6', simulated } }];
+    return respondJson({ ok: false, error: 'mark_sent_exception', message: String(err.message || err), phase: '2.6' }, simulated);
   }
 }
 
@@ -735,7 +960,7 @@ if (parts[1] === 'task' && parts[2] && parts[3] === 'to' && parts[4]) {
       confirmData,
       simulated,
     });
-    return [{ json: { ...result, phase: '2.6', simulated } }];
+    return respondJson({ ...result, phase: '2.6' }, simulated);
   } catch (err) {
     const msg = String(err.message || err);
     await sb.call(this, 'POST', 'agent_actions', {
@@ -747,8 +972,8 @@ if (parts[1] === 'task' && parts[2] && parts[3] === 'to' && parts[4]) {
       status: 'failed',
       metadata: { phase: '2.6', telegram_user_id: userId },
     }).catch(() => {});
-    return [{ json: { ok: false, error: 'task_update_exception', message: msg, phase: '2.6', simulated } }];
+    return respondJson({ ok: false, error: 'task_update_exception', message: msg, phase: '2.6' }, simulated);
   }
 }
 
-return [{ json: { ok: false, error: 'invalid_callback', callback_data: callbackData, phase: '2.6' } }];
+return respondJson({ ok: false, error: 'invalid_callback', callback_data: callbackData, phase: '2.6' }, simulated);
