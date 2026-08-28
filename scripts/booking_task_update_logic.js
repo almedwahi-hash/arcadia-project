@@ -1,4 +1,4 @@
-// Phase 2.3 — Booking Task Update (Telegram callback + test webhook)
+// Phase 2.4A — Booking Task Update (Telegram callback + test webhook)
 // Deterministic — NO AI. Staff allowlist required for writes.
 
 const SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\/$/, '');
@@ -35,6 +35,17 @@ async function sbRpc(fn, args) {
 async function loadAllowlist() {
   const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_staff_telegram_allowlist&select=config_value');
   return (rows[0]?.config_value?.user_ids || []).map(String);
+}
+
+async function loadSkipPolicy() {
+  const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_task_skip_policy&select=config_value');
+  return rows[0]?.config_value || {};
+}
+
+function isSensitiveRequiredTask(task, policy) {
+  if (task.is_required === false) return false;
+  const sensitive = policy.sensitive_required_types || ['hotel', 'airport_transfer', 'intercity_transfer', 'train', 'guide'];
+  return sensitive.includes(task.task_type);
 }
 
 async function idempotent(key, meta) {
@@ -76,7 +87,7 @@ async function logDenied(userId, action, reason) {
     input_summary: `user=${userId} action=${action}`.slice(0, 500),
     output_summary: reason,
     status: 'failed',
-    metadata: { phase: '2.3', telegram_user_id: userId, denied: true },
+    metadata: { phase: '2.4A', telegram_user_id: userId, denied: true },
   });
 }
 
@@ -178,6 +189,37 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
     return { ok: false, error: 'transition_not_allowed', from: fromStatus, to: toStatus };
   }
 
+  const skipPolicy = await loadSkipPolicy.call(this);
+
+  if (toStatus === 'skipped' && isSensitiveRequiredTask(task, skipPolicy)) {
+    const skipReason = confirmData.reason || confirmData.notes || 'unspecified';
+    const skipResult = await sbRpc.call(this, 'request_required_task_skip', {
+      p_task_id: taskId,
+      p_requested_by: staffTag,
+      p_skip_reason: skipReason,
+      p_idempotency_key: `manual_override:skip:${taskId}:${skipReason}`,
+    });
+    await sb.call(this, 'POST', 'agent_actions', {
+      agent_name: 'booking',
+      action_type: 'task_skip_approval_requested',
+      booking_id: task.booking_id,
+      source_channel: 'telegram:staff',
+      input_summary: `${task.task_key} skip:${skipReason}`.slice(0, 500),
+      output_summary: JSON.stringify(skipResult).slice(0, 500),
+      status: 'success',
+      metadata: { phase: '2.4A', task_id: taskId, telegram_user_id: userId },
+    });
+    await tgAnswer.call(this, callbackId, 'Skip requires approval', true, simulated);
+    return {
+      ok: true,
+      skip_blocked: true,
+      approval_required: true,
+      task_id: taskId,
+      booking_id: task.booking_id,
+      ...skipResult,
+    };
+  }
+
   const patch = { status: toStatus, updated_at: new Date().toISOString() };
   if (toStatus === 'requested') patch.requested_at = new Date().toISOString();
   if (toStatus === 'confirmed') {
@@ -186,13 +228,42 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
     if (confirmData.supplier_name || task.supplier_name) patch.supplier_name = confirmData.supplier_name || task.supplier_name;
     if (confirmData.notes) patch.notes = confirmData.notes;
     if (confirmData.supplier_cost_usd != null) {
-      const thresholdRows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.supplier_price_change_threshold_pct&select=config_value');
-      const thresholdPct = Number(thresholdRows[0]?.config_value || 5);
-      const quoted = Number(task.quoted_cost_usd || task.metadata?.quoted_cost || 0);
       const newCost = Number(confirmData.supplier_cost_usd);
-      if (quoted > 0 && newCost > quoted * (1 + thresholdPct / 100)) {
-        patch.metadata = { ...(task.metadata || {}), cost_over_threshold: true, pending_approval_phase24: true, proposed_supplier_cost_usd: newCost };
-      } else if (newCost > 0) {
+      const variance = await sbRpc.call(this, 'maybe_create_supplier_price_change_approval', {
+        p_task_id: taskId,
+        p_proposed_cost: newCost,
+        p_requested_by: staffTag,
+        p_reason: confirmData.variance_reason || null,
+      });
+      if (variance.action === 'approval_created' || variance.action === 'approval_exists') {
+        await sb.call(this, 'POST', 'agent_actions', {
+          agent_name: 'booking',
+          action_type: 'supplier_price_change_pending',
+          booking_id: task.booking_id,
+          source_channel: 'telegram:staff',
+          input_summary: `${task.task_key} cost=${newCost}`.slice(0, 500),
+          output_summary: JSON.stringify(variance).slice(0, 500),
+          status: 'success',
+          metadata: { phase: '2.4A', task_id: taskId, telegram_user_id: userId },
+        });
+        await tgAnswer.call(this, callbackId, 'Supplier cost approval required', true, simulated);
+        const lifecycle = await sbRpc.call(this, 'recompute_booking_lifecycle', { p_booking_id: task.booking_id });
+        return {
+          ok: false,
+          error: 'supplier_price_change_approval_required',
+          task_id: taskId,
+          booking_id: task.booking_id,
+          lifecycle_status: lifecycle,
+          variance,
+        };
+      }
+      if (variance.action === 'cost_review_required') {
+        await tgAnswer.call(this, callbackId, 'Cost review required — no baseline', true, simulated);
+        return { ok: false, error: 'cost_review_required', task_id: taskId, booking_id: task.booking_id, variance };
+      }
+      if (variance.action === 'within_threshold' && newCost > 0) {
+        patch.supplier_cost_usd = newCost;
+      } else if (newCost > 0 && task.quoted_cost_usd == null && !task.metadata?.quoted_cost) {
         patch.supplier_cost_usd = newCost;
       }
     }
@@ -216,7 +287,7 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
     input_summary: `${task.task_key} ${fromStatus}->${toStatus}`.slice(0, 500),
     output_summary: `lifecycle=${newLifecycle}`,
     status: 'success',
-    metadata: { phase: '2.3', task_id: taskId, telegram_user_id: userId, idempotent: false },
+    metadata: { phase: '2.4A', task_id: taskId, telegram_user_id: userId, idempotent: false },
   });
 
   await tgAnswer.call(this, callbackId, `${task.task_key}: ${fromStatus} → ${toStatus}`, false, simulated);
@@ -238,7 +309,7 @@ async function handleTaskTransition({ taskId, toStatus, userId, callbackId, chat
 const raw = $input.first().json;
 const parsed = parseInput(raw);
 if (parsed.error) {
-  return [{ json: { ok: false, error: parsed.error, phase: '2.3', simulated: true } }];
+  return [{ json: { ok: false, error: parsed.error, phase: '2.4A', simulated: true } }];
 }
 
 const { userId, callbackData, callbackId, chatId, confirmData, simulated } = parsed;
@@ -251,34 +322,34 @@ const parts = (callbackData || '').split(':');
 if (!authorized) {
   await logDenied.call(this, userId, callbackData, 'unauthorized_telegram_user');
   if (callbackId) await tgAnswer.call(this, callbackId, 'Access denied.', true);
-  return [{ json: { ok: false, error: 'unauthorized', phase: '2.3', denied: true, simulated } }];
+  return [{ json: { ok: false, error: 'unauthorized', phase: '2.4A', denied: true, simulated } }];
 }
 
 if (parts[0] !== 'bk') {
-  return [{ json: { ok: false, error: 'unknown_callback', phase: '2.3' } }];
+  return [{ json: { ok: false, error: 'unknown_callback', phase: '2.4A' } }];
 }
 
 const viewIdem = `cb:${callbackId}:view`;
 if (parts[1] === 'view' && parts[2]) {
   if (await idempotent.call(this, viewIdem, { action_type: 'view_booking', booking_id: parts[2] })) {
     await tgAnswer.call(this, callbackId, 'Already viewed.');
-    return [{ json: { ok: true, idempotent: true, action: 'view', booking_id: parts[2], phase: '2.3' } }];
+    return [{ json: { ok: true, idempotent: true, action: 'view', booking_id: parts[2], phase: '2.4A' } }];
   }
   const text = await handleView.call(this, parts[2], chatId);
   await tgSend.call(this, chatId, text);
   await tgAnswer.call(this, callbackId, 'Booking loaded');
-  return [{ json: { ok: true, action: 'view', booking_id: parts[2], phase: '2.3' } }];
+  return [{ json: { ok: true, action: 'view', booking_id: parts[2], phase: '2.4A' } }];
 }
 
 if (parts[1] === 'tasks' && parts[2]) {
   const listIdem = `cb:${callbackId}:tasks`;
   if (await idempotent.call(this, listIdem, { action_type: 'list_tasks', booking_id: parts[2] })) {
     await tgAnswer.call(this, callbackId, 'Already listed.');
-    return [{ json: { ok: true, idempotent: true, action: 'tasks', booking_id: parts[2], phase: '2.3' } }];
+    return [{ json: { ok: true, idempotent: true, action: 'tasks', booking_id: parts[2], phase: '2.4A' } }];
   }
   const result = await handleTasksList.call(this, parts[2], chatId);
   await tgAnswer.call(this, callbackId, `Tasks: ${result.listed}`);
-  return [{ json: { ok: true, action: 'tasks', booking_id: parts[2], ...result, phase: '2.3' } }];
+  return [{ json: { ok: true, action: 'tasks', booking_id: parts[2], ...result, phase: '2.4A' } }];
 }
 
 if (parts[1] === 'task' && parts[2] && parts[3] === 'to' && parts[4]) {
@@ -291,7 +362,7 @@ if (parts[1] === 'task' && parts[2] && parts[3] === 'to' && parts[4]) {
     confirmData,
     simulated,
   });
-  return [{ json: { ...result, phase: '2.3', simulated } }];
+  return [{ json: { ...result, phase: '2.4A', simulated } }];
 }
 
-return [{ json: { ok: false, error: 'invalid_callback', callback_data: callbackData, phase: '2.3' } }];
+return [{ json: { ok: false, error: 'invalid_callback', callback_data: callbackData, phase: '2.4A' } }];
