@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-08-28T20:10:28.370Z",
+  "updatedAt": "2026-08-28T20:16:03.515Z",
   "createdAt": "2026-04-19T14:53:57.771Z",
   "id": "XZKft5t8qjygv6Kb",
-  "name": "Laila V4 - Final Phase1 Final Candidate",
+  "name": "Laila V4 - Final",
   "active": true,
   "isArchived": false,
   "nodes": [
@@ -63,7 +63,7 @@
         200
       ],
       "parameters": {
-        "jsCode": "const de = $('Decision Engine').first()?.json || {};\nconst prev = { ...de, ...($input.first().json || {}) };\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmaWJjamhzaHBtcWtyaGxwc29hIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjA1MjA5NywiZXhwIjoyMDg3NjI4MDk3fQ.hbXY8jhHu1EzFrGofgoL_sPlym7x9ycM7eDX4Q8Fuzw';\nconst h = { 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' };\nif (!prev.isManager) {\n  try { await this.helpers.httpRequest({ method:'POST', url:`${SB}/conversations`, headers:h, body:{ phone:prev.phone, role:'assistant', message:prev.response } }); } catch(e) {}\n}\nreturn [{ json: prev }];"
+        "jsCode": "const prev = $input.first().json;\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhmaWJjamhzaHBtcWtyaGxwc29hIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjA1MjA5NywiZXhwIjoyMDg3NjI4MDk3fQ.hbXY8jhHu1EzFrGofgoL_sPlym7x9ycM7eDX4Q8Fuzw';\nconst h = { 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' };\nif (!prev.isManager) {\n  try { await this.helpers.httpRequest({ method:'POST', url:`${SB}/conversations`, headers:h, body:{ phone:prev.phone, role:'assistant', message:prev.response } }); } catch(e) {}\n}\nreturn [{ json: prev }];"
       }
     },
     {
@@ -132,144 +132,6 @@
       "parameters": {
         "jsCode": "// Laila WhatsApp brain → calls the updated AI agent (Supabase pricing) and returns its reply\nconst phone = $json.phone;\nconst remoteJid = $json.remoteJid;\nconst text = $json.textContent || $json.text || '';\nconst isManager = $json.isManager || false;\nlet response = '';\ntry {\n  const res = await this.helpers.httpRequest({\n    method: 'POST',\n    url: 'https://n8n.arcadia-tour.cloud/webhook/cc004272-5e46-4e5c-be6d-ba84fdf35258/chat',\n    body: { action: 'sendMessage', sessionId: String(phone||'wa'), chatInput: text },\n    json: true,\n    timeout: 90000\n  });\n  if (typeof res === 'string') { try { response = JSON.parse(res).output; } catch(e){ response = res; } }\n  else { response = (res && (res.output || res.text || res.response)) || ''; }\n} catch (e) { response = ''; }\nif (!response) { response = 'أهلاً 👋 صار خطأ تقني بسيط، جرّب ترسل طلبك مرة ثانية أو تواصل معنا واتساب: https://wa.me/380936582617'; }\nconst followup = /دولار|\\$|💵/.test(response);\nreturn [{ json: { phone, remoteJid, response, isManager, followup } }];"
       }
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "jsCode": "// Phase1 observability — parse Decision Engine response (no pricing logic change)\nconst de = $input.first().json;\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json || {};\nconst response = String(de.response || '');\nconst priceUsd = response.match(/\\$[\\d,]+/)?.[0] || response.match(/([\\d,]{3,})\\s*USD/i)?.[0] || null;\nconst manualPath = /no_hotel|يدوي|human|موظف|فريق/i.test(response);\nconst hasPrice = !!priceUsd || /\\$[\\d,]{2,}|USD\\s*[\\d,]+|دولار/.test(response);\nreturn [{ json: {\n  phone: de.phone,\n  remoteJid: de.remoteJid,\n  response: de.response,\n  isManager: de.isManager,\n  followup: de.followup,\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  channel: ctx.phase1?.channel || 'whatsapp',\n  action_type: 'get_price',\n  status: manualPath && !hasPrice ? 'failed' : (hasPrice ? 'success' : 'failed'),\n  output_summary: (priceUsd || response).slice(0, 500),\n  input_summary: String(ctx.phase1?.message_text || '').slice(0, 500),\n  metadata: { phase1: 'pricing_observability', source: 'decision_engine_response' }\n}}];"
-      },
-      "id": "c222d1c5-bdb3-40c1-8d90-1921eb88b0c1",
-      "name": "Phase1 Prepare Pricing Action",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        980,
-        320
-      ]
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "mode": "list",
-          "value": "",
-          "cachedResultName": "Arcadia - Phase1 Pricing Action Log"
-        },
-        "mode": "once",
-        "options": {}
-      },
-      "id": "63c4e13d-2ac5-450b-ad0f-4be924265bbd",
-      "name": "Arcadia - Phase1 Pricing Action Log",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        1100,
-        320
-      ],
-      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Pricing Action Log' after import",
-      "continueOnFail": true,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "jsCode": "// Phase1 — normalize inbound (no prompt / stage changes)\nconst j = $input.first().json;\nconst raw = $('WhatsApp Webhook').first()?.json || $('Telegram Trigger').first()?.json || {};\nconst body = raw.body || raw;\nconst data = body.data || body;\nconst key = data.key || {};\nconst waMsg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\nconst tgMsg = raw.message || body.message;\nconst msg = waMsg || tgMsg || body.messages?.[0] || {};\nconst phone = String(\n  j.phone\n  || key.remoteJid?.replace('@s.whatsapp.net', '').replace('@g.us', '')\n  || msg.from\n  || tgMsg?.chat?.id\n  || body.from?.id\n  || j.chat_id\n  || ''\n).trim();\nconst providerMessageId = key.id ? String(key.id)\n  : (waMsg?.id ? String(waMsg.id)\n  : (tgMsg?.message_id != null ? String(tgMsg.message_id) : (j.provider_message_id || null)));\nconst channel = key.remoteJid || waMsg?.id ? 'whatsapp' : (tgMsg ? 'telegram' : (j.channel || 'whatsapp'));\nconst text = j.textContent || j.text || msg.text?.body || msg.body || tgMsg?.text || '';\nconst ALLOWED = new Set(['text','image','audio','document','location','video','sticker','unknown']);\nconst TYPE_MAP = { conversation: 'text', extendedTextMessage: 'text', audioMessage: 'audio', imageMessage: 'image', documentMessage: 'document', videoMessage: 'video', stickerMessage: 'sticker' };\nconst rawType = data.messageType || msg.type || (tgMsg?.photo ? 'image' : 'text');\nconst messageType = TYPE_MAP[rawType] || (ALLOWED.has(rawType) ? rawType : 'unknown');\nreturn [{ json: {\n  ...j,\n  phase1: {\n    phone,\n    provider_message_id: providerMessageId,\n    channel,\n    message_text: text,\n    message_type: messageType,\n    metadata: { raw_channel: channel, normalized_at: new Date().toISOString(), source: 'phase1_normalize' }\n  }\n}}];"
-      },
-      "id": "5469d439-d508-4478-ad92-ddd5ba540509",
-      "name": "Phase1 Normalize Inbound",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        840,
-        200
-      ]
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "mode": "list",
-          "value": "",
-          "cachedResultName": "Arcadia - Phase1 Inbound Pipeline"
-        },
-        "mode": "once",
-        "options": {}
-      },
-      "id": "379bad0a-adea-4c08-9f52-75e7760bba1c",
-      "name": "Arcadia - Phase1 Inbound Pipeline",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        1060,
-        200
-      ],
-      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Inbound Pipeline' after import"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "proceed-check",
-              "leftValue": "={{ $json.proceed }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "f5b4674a-c2f7-449d-9d24-a30bb0f1e388",
-      "name": "Phase1 IF Proceed (not duplicate)",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        1280,
-        200
-      ]
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForAllItems",
-        "jsCode": "// Phase1 — prepare outbound log AFTER successful send only\nconst send = $input.first().json;\nconst de = $('Decision Engine').first()?.json || {};\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json\n  || $('Phase1 IF Proceed (not duplicate)').first()?.json\n  || {};\nconst messageText = send.text || send.message || send.output || send.reply || send.body?.text\n  || send.json?.text || de.response || null;\nreturn [{ json: {\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  conversation_id: ctx.conversation_id,\n  channel: ctx.phase1?.channel || ctx.channel,\n  message_text: messageText,\n  provider_message_id: send.message_id || send.messages?.[0]?.id || send.key?.id || null,\n  metadata: { phase1: 'outbound_after_send_success' }\n}}];"
-      },
-      "id": "a9ea2dea-16eb-4b7c-b651-24d2cf4846a4",
-      "name": "Phase1 Prepare Outbound",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1720,
-        200
-      ]
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "mode": "list",
-          "value": "",
-          "cachedResultName": "Arcadia - Phase1 Outbound Log"
-        },
-        "mode": "once",
-        "options": {}
-      },
-      "id": "b4e440b7-f193-48dc-bbed-fb1053f316b0",
-      "name": "Arcadia - Phase1 Outbound Log",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        1940,
-        200
-      ],
-      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Outbound Log' after import"
     }
   ],
   "connections": {
@@ -304,7 +166,7 @@
       "main": [
         [
           {
-            "node": "Phase1 Normalize Inbound",
+            "node": "Decision Engine",
             "type": "main",
             "index": 0
           }
@@ -315,7 +177,7 @@
       "main": [
         [
           {
-            "node": "Phase1 Prepare Pricing Action",
+            "node": "Save Response",
             "type": "main",
             "index": 0
           }
@@ -337,74 +199,7 @@
       "main": [
         [
           {
-            "node": "Phase1 Prepare Outbound",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Phase1 Prepare Pricing Action": {
-      "main": [
-        [
-          {
-            "node": "Arcadia - Phase1 Pricing Action Log",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Arcadia - Phase1 Pricing Action Log": {
-      "main": [
-        [
-          {
-            "node": "Save Response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Phase1 Normalize Inbound": {
-      "main": [
-        [
-          {
-            "node": "Arcadia - Phase1 Inbound Pipeline",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Arcadia - Phase1 Inbound Pipeline": {
-      "main": [
-        [
-          {
-            "node": "Phase1 IF Proceed (not duplicate)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Phase1 IF Proceed (not duplicate)": {
-      "main": [
-        [
-          {
-            "node": "Decision Engine",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Phase1 Prepare Outbound": {
-      "main": [
-        [
-          {
-            "node": "Arcadia - Phase1 Outbound Log",
+            "node": "Set FU on Quote",
             "type": "main",
             "index": 0
           }
@@ -419,13 +214,13 @@
     "saveDataSuccessExecution": "all",
     "saveDataErrorExecution": "all",
     "saveManualExecutions": true,
-    "errorWorkflow": "Arcadia - Central Error Handler"
+    "errorWorkflow": "59ul6YkPVThk7e4U"
   },
   "staticData": null,
   "meta": null,
   "pinData": null,
   "versionId": "ed771ca5-3583-4012-9f2c-ba8331f9db5b",
-  "versionCounter": 838,
+  "versionCounter": 841,
   "triggerCount": 1,
   "shared": [
     {

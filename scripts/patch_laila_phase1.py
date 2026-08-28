@@ -169,6 +169,18 @@ return [{ json: {
 }}];"""
 
 
+def patch_save_response_after_pricing_log(save_node: dict) -> None:
+    """Pricing Action Log returns {logged:true}; restore Decision Engine fields for Send WhatsApp."""
+    js = save_node.get("parameters", {}).get("jsCode", "")
+    if "Decision Engine" in js:
+        return
+    save_node.setdefault("parameters", {})["jsCode"] = js.replace(
+        "const prev = $input.first().json;",
+        "const de = $('Decision Engine').first()?.json || {};\nconst prev = { ...de, ...($input.first().json || {}) };",
+        1,
+    )
+
+
 def wire_decision_engine_pricing_observability(
     out: dict, conns: dict, ai_node: dict, meta: dict
 ) -> bool:
@@ -178,6 +190,7 @@ def wire_decision_engine_pricing_observability(
     save_node = find_node_by_names(out, {"Save Response"})
     if not save_node:
         return False
+    patch_save_response_after_pricing_log(save_node)
     de = ai_node
     prep = {
         "parameters": {"mode": "runOnceForAllItems", "jsCode": PREPARE_PRICING_OBSERVABILITY_JS},

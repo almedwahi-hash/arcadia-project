@@ -1,0 +1,22 @@
+{
+  "cutover_at": "2026-08-28T20:16:03+00:00",
+  "status": "success",
+  "production_workflow_id": "XZKft5t8qjygv6Kb",
+  "production_active": false,
+  "final_candidate_id": "RSVg9pYlWWa5yege",
+  "final_candidate_active": true,
+  "webhook": "laila-v4",
+  "canary_execution_id": "59816",
+  "canary_execution_status": "success",
+  "manager_phone": "380936582617",
+  "inbound_provider_message_id": "wa_canary_20260828201553",
+  "outbound_evolution_message_id": "3EB080A5CDC68DFCD20B0E",
+  "inbound_at": "2026-08-28T20:15:54.630092+00:00",
+  "outbound_at": "2026-08-28T20:15:57.563096+00:00",
+  "workflow_failures": 0,
+  "duplicate_executions": false,
+  "lead_stage": "new",
+  "fix_applied": "Save Response merges Decision Engine context after Pricing Action Log",
+  "export_date": "2026-08-28",
+  "export_count": 57
+}
