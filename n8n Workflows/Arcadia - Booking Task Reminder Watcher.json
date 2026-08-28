@@ -1,0 +1,59 @@
+{
+  "name": "Arcadia - Booking Task Reminder Watcher",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "btrw-cron",
+      "name": "Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase 2.6 — Overdue task reminder watcher (design — OFF by default)\n// Cron: scans booking_tasks for overdue supplier ops; dedupes via booking_task_reminder_log.\n// Does NOT auto-send supplier messages — staff Telegram notify only when enabled.\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\n\nconst HDR = {\n  apikey: KEY,\n  Authorization: `Bearer ${KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nasync function sb(method, path, body, extra = {}) {\n  const opts = { method, url: `${SB}/rest/v1/${path}`, headers: { ...HDR, ...extra }, json: true };\n  if (body !== undefined) opts.body = body;\n  return await this.helpers.httpRequest(opts);\n}\n\nasync function loadPolicy() {\n  const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_task_reminder_policy&select=config_value');\n  return rows[0]?.config_value || {};\n}\n\nasync function loadStaffChatIds() {\n  const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_staff_telegram_allowlist&select=config_value');\n  return (rows[0]?.config_value?.user_ids || []).map(String);\n}\n\nfunction hoursAgo(h) {\n  return new Date(Date.now() - h * 3600 * 1000).toISOString();\n}\n\nfunction daysFromNow(d) {\n  return new Date(Date.now() + d * 86400 * 1000).toISOString().slice(0, 10);\n}\n\nasync function reminderAlreadySent(idempotencyKey) {\n  const rows = await sb.call(this, 'GET', `booking_task_reminder_log?idempotency_key=eq.${encodeURIComponent(idempotencyKey)}&select=reminder_id`);\n  return rows.length > 0;\n}\n\nasync function recordReminder({ taskId, bookingId, reminderType, idempotencyKey, chatId, metadata }) {\n  try {\n    await sb.call(this, 'POST', 'booking_task_reminder_log', {\n      task_id: taskId,\n      booking_id: bookingId,\n      reminder_type: reminderType,\n      idempotency_key: idempotencyKey,\n      chat_id: chatId || null,\n      metadata: metadata || {},\n    });\n    return true;\n  } catch (e) {\n    if (String(e.message || e).includes('23505')) return false;\n    throw e;\n  }\n}\n\nasync function tgSend(chatId, text) {\n  const token = $env.TELEGRAM_BOT_TOKEN || $env.LAILA_TELEGRAM_BOT_TOKEN;\n  if (!token) return { sent: false, reason: 'no_token' };\n  const resp = await this.helpers.httpRequest({\n    method: 'POST',\n    url: `https://api.telegram.org/bot${token}/sendMessage`,\n    body: { chat_id: chatId, text, parse_mode: 'Markdown' },\n    json: true,\n  });\n  return { sent: true, message_id: resp.result?.message_id };\n}\n\nconst policy = await loadPolicy.call(this);\nif (policy.enabled !== true) {\n  return [{\n    json: {\n      ok: true,\n      skipped: true,\n      reason: 'reminder_policy_disabled',\n      phase: '2.6',\n    },\n  }];\n}\n\nconst cooldownHours = Number(policy.cooldown_hours || 24);\nconst requestNotSentAfter = Number(policy.request_not_sent_after_hours || 48);\nconst awaitingResponseAfter = Number(policy.awaiting_response_after_hours || 72);\nconst approachingArrivalDays = Number(policy.approaching_arrival_days || 7);\nconst cooldownSince = hoursAgo(cooldownHours);\nconst arrivalCutoff = daysFromNow(approachingArrivalDays);\n\nconst staffChats = await loadStaffChatIds.call(this);\nconst reminders = [];\n\n// 1) Supplier request not sent — pending required task past threshold, no sent_manually draft\nconst pendingTasks = await sb.call(\n  this,\n  'GET',\n  `booking_tasks?status=eq.pending&is_required=eq.true&created_at=lt.${encodeURIComponent(hoursAgo(requestNotSentAfter))}&select=task_id,booking_id,task_key,task_type,city,created_at,due_at`,\n);\n\nfor (const task of pendingTasks) {\n  const drafts = await sb.call(\n    this,\n    'GET',\n    `booking_supplier_drafts?task_id=eq.${encodeURIComponent(task.task_id)}&status=eq.sent_manually&select=draft_id&limit=1`,\n  );\n  if (drafts.length) continue;\n\n  const idemKey = `reminder:request_not_sent:${task.task_id}:${Math.floor(Date.now() / (cooldownHours * 3600 * 1000))}`;\n  if (await reminderAlreadySent.call(this, idemKey)) continue;\n\n  const text = `⏰ *Supplier request not sent*\\nBooking \\`${task.booking_id}\\`\\nTask \\`${task.task_key}\\` (${task.task_type})`;\n  for (const chatId of staffChats) {\n    const sendResult = await tgSend.call(this, chatId, text);\n    await recordReminder.call(this, {\n      taskId: task.task_id,\n      bookingId: task.booking_id,\n      reminderType: 'request_not_sent',\n      idempotencyKey: idemKey,\n      chatId,\n      metadata: { task_key: task.task_key, send: sendResult },\n    });\n  }\n  reminders.push({ type: 'request_not_sent', task_id: task.task_id, booking_id: task.booking_id });\n}\n\n// 2) Awaiting supplier response — requested/awaiting_confirmation past threshold\nconst awaitingTasks = await sb.call(\n  this,\n  'GET',\n  `booking_tasks?status=in.(requested,awaiting_confirmation)&is_required=eq.true&updated_at=lt.${encodeURIComponent(hoursAgo(awaitingResponseAfter))}&select=task_id,booking_id,task_key,status,updated_at`,\n);\n\nfor (const task of awaitingTasks) {\n  const idemKey = `reminder:awaiting_response:${task.task_id}:${Math.floor(Date.now() / (cooldownHours * 3600 * 1000))}`;\n  if (await reminderAlreadySent.call(this, idemKey)) continue;\n\n  const text = `⏰ *Awaiting supplier response*\\nBooking \\`${task.booking_id}\\`\\nTask \\`${task.task_key}\\` [${task.status}]`;\n  for (const chatId of staffChats) {\n    await tgSend.call(this, chatId, text);\n    await recordReminder.call(this, {\n      taskId: task.task_id,\n      bookingId: task.booking_id,\n      reminderType: 'awaiting_supplier_response',\n      idempotencyKey: idemKey,\n      chatId,\n      metadata: { task_key: task.task_key, status: task.status },\n    });\n  }\n  reminders.push({ type: 'awaiting_supplier_response', task_id: task.task_id, booking_id: task.booking_id });\n}\n\n// 3) Approaching arrival with unconfirmed required tasks\nconst bookings = await sb.call(\n  this,\n  'GET',\n  `bookings?arrival_date=lte.${encodeURIComponent(arrivalCutoff)}&arrival_date=gte.${encodeURIComponent(new Date().toISOString().slice(0, 10))}&lifecycle_status=not.in.(COMPLETED,CANCELLED)&select=booking_id,arrival_date,client_name`,\n);\n\nfor (const booking of bookings) {\n  const unconfirmed = await sb.call(\n    this,\n    'GET',\n    `booking_tasks?booking_id=eq.${encodeURIComponent(booking.booking_id)}&is_required=eq.true&status=not.in.(confirmed,skipped)&select=task_id,task_key,status&limit=5`,\n  );\n  if (!unconfirmed.length) continue;\n\n  for (const task of unconfirmed) {\n    const idemKey = `reminder:arrival_unconfirmed:${task.task_id}:${booking.arrival_date}`;\n    if (await reminderAlreadySent.call(this, idemKey)) continue;\n\n    const text = `⚠️ *Arrival ${booking.arrival_date} — unconfirmed task*\\nBooking \\`${booking.booking_id}\\`\\nTask \\`${task.task_key}\\` [${task.status}]`;\n    for (const chatId of staffChats) {\n      await tgSend.call(this, chatId, text);\n      await recordReminder.call(this, {\n        taskId: task.task_id,\n        bookingId: booking.booking_id,\n        reminderType: 'approaching_arrival_unconfirmed',\n        idempotencyKey: idemKey,\n        chatId,\n        metadata: { arrival_date: booking.arrival_date, task_key: task.task_key },\n      });\n    }\n    reminders.push({ type: 'approaching_arrival_unconfirmed', task_id: task.task_id, booking_id: booking.booking_id });\n  }\n}\n\nreturn [{\n  json: {\n    ok: true,\n    phase: '2.6',\n    enabled: true,\n    reminders_sent: reminders.length,\n    reminders,\n    policy: {\n      cooldown_hours: cooldownHours,\n      request_not_sent_after_hours: requestNotSentAfter,\n      awaiting_response_after_hours: awaitingResponseAfter,\n      approaching_arrival_days: approachingArrivalDays,\n    },\n  },\n}];\n"
+      },
+      "id": "btrw-logic",
+      "name": "Reminder Watcher Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Reminder Watcher Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 2.6 — overdue task reminders (OFF by default via booking_task_reminder_policy)."
+  }
+}

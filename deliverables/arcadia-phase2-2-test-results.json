@@ -1,0 +1,73 @@
+{
+  "phase": "2.2",
+  "tested_at": "2026-08-28T20:37:59Z",
+  "workflow": {
+    "name": "Arcadia - Booking Agent Test",
+    "n8n_id": "srMKgn7dtqLLAWcJ",
+    "webhook": "POST /webhook/booking-agent-test",
+    "ai_used": false,
+    "deterministic": true
+  },
+  "test_input": {
+    "lead_id": "b6fada92-a0c4-45a9-a5f7-2e60897af3c8",
+    "quote_ref": "ARC-367344",
+    "requested_by": "phase2_2_test"
+  },
+  "create_call": {
+    "execution_id": "59829",
+    "status": "success",
+    "booking_id": "RU-2026-030",
+    "lifecycle_status": "DRAFT",
+    "payment_status": "unpaid",
+    "booking_request_key": "b6fada92-a0c4-45a9-a5f7-2e60897af3c8:ARC-367344",
+    "task_count": 13,
+    "idempotent": false
+  },
+  "duplicate_call": {
+    "execution_id": "59830",
+    "status": "success",
+    "booking_id": "RU-2026-030",
+    "task_count": 13,
+    "idempotent": true,
+    "new_booking_created": false,
+    "new_tasks_created": false
+  },
+  "task_keys": [
+    "hotel:moscow:1",
+    "hotel:saint_petersburg:2",
+    "hotel:moscow:3",
+    "airport:moscow:arrival",
+    "airport:moscow:departure",
+    "intercity_transfer:moscow-saint_petersburg:1",
+    "intercity_transfer:saint_petersburg-moscow:1",
+    "tour:moscow:1",
+    "tour:moscow:2",
+    "tour:moscow:3",
+    "tour:moscow:4",
+    "tour:saint_petersburg:1",
+    "tour:saint_petersburg:2"
+  ],
+  "db_verification": {
+    "bookings_with_request_key": 1,
+    "booking_tasks_count": 13,
+    "booking_status_log_rows": 2,
+    "agent_actions_rows": 2,
+    "insert_audit_trigger": "verified"
+  },
+  "telegram": {
+    "sent": false,
+    "reason": "chat_id_not_configured in arcadia_system_config.telegram_booking_ops"
+  },
+  "scope_compliance": {
+    "isolated_webhook_only": true,
+    "no_stage_watcher": true,
+    "no_admin_book": true,
+    "no_laila_wiring": true,
+    "no_supplier_messages": true,
+    "no_approvals": true,
+    "no_payments": true,
+    "no_confirmed": true,
+    "no_ai_llm": true
+  },
+  "stopped_before": "Phase 2.3"
+}

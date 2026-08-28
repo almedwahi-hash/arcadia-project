@@ -1,0 +1,145 @@
+{
+  "name": "Arcadia - Central Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const err = $input.first().json;\nconst wfName = (err.workflow?.name || '').trim();\n// Anti-recursion: only skip errors originating from this handler workflow itself\nif (/^Arcadia - Central Error Handler$/i.test(wfName)) {\n  return [];\n}\nreturn [{ json: err }];"
+      },
+      "id": "anti-recursion-guard",
+      "name": "Anti-Recursion Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const err = $input.first().json;\nconst execution = err.execution || {};\nconst workflow = err.workflow || {};\nconst node = err.trigger?.error?.node || {};\nconst message = err.trigger?.error?.message || 'unknown error';\nconst severity = message.match(/critical|payment|refund/i) ? 'critical' : 'error';\n\nreturn [{\n  json: {\n    workflow_name: workflow.name || 'unknown',\n    workflow_id: String(workflow.id || ''),\n    execution_id: String(execution.id || ''),\n    node_name: node.name || err.trigger?.error?.node?.name || null,\n    agent_name: workflow.name?.includes('Laila') ? 'sales' : (workflow.name?.includes('Follow') ? 'cs' : 'system'),\n    source_channel: $json.source_channel || null,\n    lead_id: $json.lead_id || null,\n    booking_id: $json.booking_id || null,\n    severity,\n    error_message: message.slice(0, 2000),\n    payload: {\n      execution_url: execution.url,\n      last_node: execution.lastNodeExecuted,\n      mode: execution.mode\n    },\n    retry_count: 0,\n    status: 'open'\n  }\n}];"
+      },
+      "id": "normalize-error",
+      "name": "Normalize Error Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/workflow_failures",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}"
+      },
+      "id": "insert-failure",
+      "name": "Insert workflow_failures",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "continueOnFail": true,
+      "notes": "Configure Supabase credential (service_role). Set SUPABASE_URL env. continueOnFail avoids recursive error loop if INSERT fails.",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ADMIN_CHAT_ID }}",
+        "text": "=⚠️ Arcadia Workflow Error\n\nWorkflow: {{ $('Normalize Error Payload').item.json.workflow_name }}\nNode: {{ $('Normalize Error Payload').item.json.node_name }}\nSeverity: {{ $('Normalize Error Payload').item.json.severity }}\nExecution: {{ $('Normalize Error Payload').item.json.execution_id }}\n\n{{ $('Normalize Error Payload').item.json.error_message }}\n\nURL: {{ $('Normalize Error Payload').item.json.payload.execution_url || 'n/a' }}"
+      },
+      "id": "telegram-alert",
+      "name": "Telegram Admin Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        0
+      ],
+      "continueOnFail": true,
+      "notes": "Set TELEGRAM_ADMIN_CHAT_ID + Telegram credential. Alerts on ALL errors (not critical-only)."
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Anti-Recursion Guard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anti-Recursion Guard": {
+      "main": [
+        [
+          {
+            "node": "Normalize Error Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Error Payload": {
+      "main": [
+        [
+          {
+            "node": "Insert workflow_failures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert workflow_failures": {
+      "main": [
+        [
+          {
+            "node": "Telegram Admin Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "description": "Central error workflow. Logs workflow_failures + Telegram alert. NO errorWorkflow on this workflow itself. Anti-recursion guard stops loops. Assign as Error Workflow in Laila V5, Follow-up Cron, Admin Commands, Pricing."
+  },
+  "tags": []
+}

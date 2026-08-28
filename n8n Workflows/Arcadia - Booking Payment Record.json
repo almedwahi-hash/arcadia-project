@@ -1,0 +1,84 @@
+{
+  "name": "Arcadia - Booking Payment Record",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-payment-record",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "booking-payment-record"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase 2.4A — Record booking payment (Telegram staff action + test webhook)\n// Deterministic — NO AI. Staff allowlist required. Append-only ledger via RPC.\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\n\nconst HDR = {\n  apikey: KEY,\n  Authorization: `Bearer ${KEY}`,\n  'Content-Type': 'application/json',\n  Prefer: 'return=representation',\n};\n\nasync function sb(method, path, body, extra = {}) {\n  const opts = { method, url: `${SB}/rest/v1/${path}`, headers: { ...HDR, ...extra }, json: true };\n  if (body !== undefined) opts.body = body;\n  return await this.helpers.httpRequest(opts);\n}\n\nasync function sbRpc(fn, args) {\n  const rows = await sb.call(this, 'POST', `rpc/${fn}`, args);\n  return Array.isArray(rows) ? rows[0] : rows;\n}\n\nasync function loadAllowlist() {\n  const rows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.booking_staff_telegram_allowlist&select=config_value');\n  return (rows[0]?.config_value?.user_ids || []).map(String);\n}\n\nasync function idempotent(key, meta) {\n  const hit = await sb.call(this, 'GET', `booking_telegram_idempotency?idempotency_key=eq.${encodeURIComponent(key)}&select=idempotency_key`);\n  if (hit.length) return true;\n  try {\n    await sb.call(this, 'POST', 'booking_telegram_idempotency', {\n      idempotency_key: key,\n      action_type: meta.action_type || 'payment_record',\n      booking_id: meta.booking_id || null,\n      metadata: meta,\n    });\n  } catch (e) {\n    if (String(e.message || e).includes('23505')) return true;\n    throw e;\n  }\n  return false;\n}\n\nfunction parseInput(raw) {\n  const payload = raw.body ?? raw;\n  return {\n    userId: String(payload.telegram_user_id || payload.user_id || ''),\n    bookingId: String(payload.booking_id || '').trim(),\n    amount: Number(payload.amount),\n    currency: String(payload.currency || 'USD').toUpperCase(),\n    paymentMethod: String(payload.payment_method || '').trim(),\n    reference: payload.reference || null,\n    notes: payload.notes || null,\n    amountUsd: payload.amount_usd != null ? Number(payload.amount_usd) : null,\n    fxRate: payload.fx_rate != null ? Number(payload.fx_rate) : null,\n    fxSource: payload.fx_source || null,\n    idempotencyKey: String(payload.idempotency_key || payload.action_key || '').trim(),\n    simulated: !!(payload.simulate || payload.test_mode),\n  };\n}\n\n// --- Main ---\nconst raw = $input.first().json;\nconst input = parseInput(raw);\n\nif (!input.bookingId || !input.paymentMethod) {\n  return [{ json: { ok: false, error: 'missing_booking_or_method', phase: '2.4A' } }];\n}\nif (!input.amount || input.amount <= 0) {\n  return [{ json: { ok: false, error: 'invalid_amount', phase: '2.4A' } }];\n}\n\nconst allowlist = await loadAllowlist.call(this);\nif (!allowlist.includes(input.userId)) {\n  await sb.call(this, 'POST', 'agent_actions', {\n    agent_name: 'booking',\n    action_type: 'payment_record_denied',\n    booking_id: input.bookingId,\n    source_channel: 'telegram:staff',\n    input_summary: `user=${input.userId} booking=${input.bookingId}`.slice(0, 500),\n    output_summary: 'unauthorized_telegram_user',\n    status: 'failed',\n    metadata: { phase: '2.4A', denied: true },\n  });\n  return [{ json: { ok: false, error: 'unauthorized', phase: '2.4A', denied: true } }];\n}\n\nconst idemKey = input.idempotencyKey || `pay:${input.bookingId}:${input.amount}:${input.currency}:${input.reference || 'noref'}`;\nconst actionIdem = `payment_action:${idemKey}`;\nif (await idempotent.call(this, actionIdem, { action_type: 'payment_record', booking_id: input.bookingId, idempotency_key: idemKey })) {\n  const existing = await sbRpc.call(this, 'record_booking_payment', {\n    p_booking_id: input.bookingId,\n    p_idempotency_key: idemKey,\n    p_amount_original: input.amount,\n    p_currency_original: input.currency,\n    p_payment_method: input.paymentMethod,\n    p_recorded_by: `staff:${input.userId}`,\n    p_amount_usd: input.amountUsd,\n    p_reference: input.reference,\n    p_notes: input.notes,\n    p_fx_rate: input.fxRate,\n    p_fx_source: input.fxSource,\n  });\n  return [{ json: { ok: true, idempotent: true, phase: '2.4A', simulated: input.simulated, ...existing } }];\n}\n\nlet result;\ntry {\n  result = await sbRpc.call(this, 'record_booking_payment', {\n    p_booking_id: input.bookingId,\n    p_idempotency_key: idemKey,\n    p_amount_original: input.amount,\n    p_currency_original: input.currency,\n    p_payment_method: input.paymentMethod,\n    p_recorded_by: `staff:${input.userId}`,\n    p_amount_usd: input.amountUsd,\n    p_reference: input.reference,\n    p_notes: input.notes,\n    p_fx_rate: input.fxRate,\n    p_fx_source: input.fxSource,\n  });\n} catch (e) {\n  const msg = String(e.message || e);\n  await sb.call(this, 'POST', 'agent_actions', {\n    agent_name: 'booking',\n    action_type: 'payment_record_failed',\n    booking_id: input.bookingId,\n    source_channel: 'telegram:staff',\n    input_summary: `${input.amount} ${input.currency} ${input.paymentMethod}`.slice(0, 500),\n    output_summary: msg.slice(0, 500),\n    status: 'failed',\n    metadata: { phase: '2.4A', idempotency_key: idemKey },\n  });\n  return [{ json: { ok: false, error: 'payment_record_failed', message: msg, phase: '2.4A' } }];\n}\n\nawait sb.call(this, 'POST', 'agent_actions', {\n  agent_name: 'booking',\n  action_type: 'payment_record',\n  booking_id: input.bookingId,\n  source_channel: 'telegram:staff',\n  input_summary: `${input.amount} ${input.currency} via ${input.paymentMethod}`.slice(0, 500),\n  output_summary: `paid=${result.paid_amount} lifecycle=${result.lifecycle_status}`.slice(0, 500),\n  status: 'success',\n  metadata: {\n    phase: '2.4A',\n    payment_id: result.payment_id,\n    idempotency_key: idemKey,\n    idempotent: !!result.idempotent,\n    telegram_user_id: input.userId,\n  },\n});\n\nreturn [{\n  json: {\n    ok: true,\n    phase: '2.4A',\n    simulated: input.simulated,\n    booking_id: input.bookingId,\n    ...result,\n  },\n}];\n"
+      },
+      "id": "logic",
+      "name": "Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.ok ? 200 : 403 }}"
+        }
+      },
+      "id": "resp",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logic": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "Arcadia - Central Error Handler"
+  },
+  "meta": {
+    "description": "Phase 2.4A — Arcadia - Booking Payment Record"
+  }
+}

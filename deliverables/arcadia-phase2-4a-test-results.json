@@ -1,0 +1,116 @@
+{
+  "steps": {
+    "1_partial": {
+      "http_status": 200,
+      "execution_status": "success",
+      "json": {
+        "ok": true,
+        "phase": "2.4A",
+        "simulated": true,
+        "booking_id": "RU-2026-030",
+        "idempotent": false,
+        "payment_id": "15eb9575-6ba1-47ad-b5a9-30500884781d",
+        "paid_amount": 200,
+        "lifecycle_status": "PENDING_PAYMENT",
+        "payment_policy_satisfied": false
+      }
+    },
+    "2_partial_dup": {
+      "http_status": 200,
+      "execution_status": "success",
+      "json": {
+        "ok": true,
+        "idempotent": true,
+        "phase": "2.4A",
+        "simulated": true,
+        "payment_id": "15eb9575-6ba1-47ad-b5a9-30500884781d",
+        "paid_amount": 200,
+        "lifecycle_status": "PENDING_PAYMENT"
+      }
+    },
+    "3_remain": {
+      "http_status": 200,
+      "execution_status": "success",
+      "json": {
+        "ok": true,
+        "phase": "2.4A",
+        "simulated": true,
+        "booking_id": "RU-2026-030",
+        "idempotent": false,
+        "payment_id": "3ca66e11-2ec1-457b-9cfc-01b10c7432eb",
+        "paid_amount": 500,
+        "lifecycle_status": "CONFIRMED",
+        "payment_policy_satisfied": true
+      }
+    },
+    "4_variance": {
+      "http_status": 200,
+      "execution_status": "success",
+      "json": {
+        "ok": true,
+        "blocked": true,
+        "reason": "supplier_price_change_approval_required",
+        "task_id": "73a7d126-9e0b-4cf6-855b-081f53ca366f",
+        "booking_id": "RU-2026-030",
+        "variance": {
+          "action": "approval_created",
+          "idempotent": false,
+          "approval_id": "d6c1d71f-9673-4404-a0dc-9a5b16534e00",
+          "pct_change": 20,
+          "threshold_pct": 5
+        },
+        "phase": "2.4A",
+        "simulated": true
+      }
+    },
+    "5_variance_dup": {
+      "http_status": 200,
+      "execution_status": "success",
+      "json": {
+        "ok": true,
+        "blocked": true,
+        "reason": "supplier_price_change_approval_required",
+        "task_id": "73a7d126-9e0b-4cf6-855b-081f53ca366f",
+        "booking_id": "RU-2026-030",
+        "variance": {
+          "action": "approval_exists",
+          "idempotent": true,
+          "approval_id": "d6c1d71f-9673-4404-a0dc-9a5b16534e00",
+          "status": "pending"
+        },
+        "phase": "2.4A",
+        "simulated": true
+      }
+    },
+    "6_unauth": {
+      "http_status": 403,
+      "execution_status": "success",
+      "json": {
+        "ok": false,
+        "error": "unauthorized",
+        "phase": "2.4A",
+        "denied": true,
+        "simulated": true
+      }
+    },
+    "7_deny": {
+      "http_status": 200,
+      "execution_status": "success",
+      "json": {
+        "ok": true,
+        "idempotent": false,
+        "approval_id": "d6c1d71f-9673-4404-a0dc-9a5b16534e00",
+        "action_type": "supplier_price_change",
+        "decision": "rejected",
+        "booking_id": "RU-2026-030",
+        "lifecycle_status": "PARTIALLY_CONFIRMED",
+        "phase": "2.4A",
+        "simulated": true
+      }
+    }
+  },
+  "pass": true,
+  "tested_at": "2026-08-28T21:14:34.939267+00:00",
+  "booking_id": "RU-2026-030",
+  "approval_id": "d6c1d71f-9673-4404-a0dc-9a5b16534e00"
+}

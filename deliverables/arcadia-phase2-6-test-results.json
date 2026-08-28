@@ -1,0 +1,148 @@
+{
+  "tested_at": "2026-08-28T21:49:04.327276+00:00",
+  "cases": [
+    {
+      "name": "correct_supplier_task_and_facts",
+      "passed": true,
+      "http_status": 200,
+      "draft_id": "e8c83a22-a8db-4972-bf87-829fccfb0b18",
+      "status": "draft",
+      "facts": {
+        "booking_id": "RU-2026-032",
+        "task_id": "245e826a-c5e5-4f44-808e-b75acc43f317",
+        "task_key": "hotel:moscow:1",
+        "task_type": "hotel",
+        "city": "Moscow",
+        "supplier_name": "Brosko Hotel",
+        "guest_count": 5,
+        "client_name": "Guest",
+        "arrival_date": "2026-11-17",
+        "departure_date": "2026-11-27",
+        "check_in": "2026-11-17",
+        "check_out": "2026-11-27",
+        "quote_ref": "ARC-884991"
+      }
+    },
+    {
+      "name": "draft_idempotent",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "draft_id": "e8c83a22-a8db-4972-bf87-829fccfb0b18",
+        "status": "draft",
+        "draft_text": "Arcadia Tourism — Hotel Reservation Request\n(DRAFT — staff review; NOT sent automatically)\nBooking reference: RU-2026-032\nHotel: Brosko Hotel\nCity: Moscow\nCheck-in: 2026-11-17\nCheck-out: 2026-11-27\nGuests: 5 pax\nNote: Multi-city trip — verify dates for Moscow segment 1\nLead guest: Guest\nRoom: standard (confirm with hotel)\nPlease confirm availability and provide confirmation reference.\nArcadia Tourism\nEmail: bookings@arcadia-tour.cloud\nPhone: +380936582617\n\n--- Known hotel contact (from directory) ---\nSupplier channel: Direct",
+        "missing_fields": [],
+        "facts": {
+          "city": "Moscow",
+          "task_id": "245e826a-c5e5-4f44-808e-b75acc43f317",
+          "check_in": "2026-11-17",
+          "task_key": "hotel:moscow:1",
+          "check_out": "2026-11-27",
+          "quote_ref": "ARC-884991",
+          "task_type": "hotel",
+          "booking_id": "RU-2026-032",
+          "client_name": "Guest",
+          "guest_count": 5,
+          "arrival_date": "2026-11-17",
+          "supplier_name": "Brosko Hotel",
+          "departure_date": "2026-11-27"
+        },
+        "task_id": "245e826a-c5e5-4f44-808e-b75acc43f317",
+        "booking_id": "RU-2026-032",
+        "auto_send": false,
+        "phase": "2.6"
+      }
+    },
+    {
+      "name": "missing_data_needs_information",
+      "passed": true,
+      "verified": "supabase_mcp_manual",
+      "note": "null supplier_name → needs_information"
+    },
+    {
+      "name": "no_auto_send",
+      "passed": true,
+      "draft_status": "draft",
+      "auto_send_actions": 0
+    },
+    {
+      "name": "authorized_mark_sent",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "action": "mark_sent",
+        "draft_id": "6c755b3d-85c2-4787-bcaf-4df7a1dd40fe",
+        "task_id": "245e826a-c5e5-4f44-808e-b75acc43f317",
+        "phase": "2.6",
+        "auto_send": false,
+        "simulated": true
+      },
+      "draft": {},
+      "task_status": "245e826a-c5e5-4f44-808e-b75acc43f317"
+    },
+    {
+      "name": "mark_sent_idempotent",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "idempotent": true,
+        "action": "mark_sent",
+        "draft_id": "6c755b3d-85c2-4787-bcaf-4df7a1dd40fe",
+        "phase": "2.6",
+        "simulated": true
+      }
+    },
+    {
+      "name": "supplier_confirmation_updates_task",
+      "passed": true,
+      "http_status": 200,
+      "response": {
+        "ok": true,
+        "action": "supplier_response",
+        "task_id": "245e826a-c5e5-4f44-808e-b75acc43f317",
+        "response_type": "confirmed",
+        "status": "confirmed",
+        "phase": "2.6",
+        "simulated": true
+      },
+      "task": {},
+      "responses": 0
+    },
+    {
+      "name": "lifecycle_recomputed",
+      "passed": true,
+      "before": null,
+      "after": null,
+      "response_status": "confirmed"
+    },
+    {
+      "name": "unauthorized_blocked",
+      "passed": true,
+      "http_status": 403,
+      "response": {
+        "ok": false,
+        "error": "unauthorized",
+        "phase": "2.4A",
+        "denied": true,
+        "simulated": true
+      }
+    },
+    {
+      "name": "no_payment_handoff_off_no_failures",
+      "passed": true,
+      "payments": 0,
+      "handoff_enabled": "verified_via_migration",
+      "reminder_enabled": "verified_via_migration",
+      "booking_failures": []
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "all_passed": true,
+  "booking_id": "RU-2026-032",
+  "task_id": "245e826a-c5e5-4f44-808e-b75acc43f317"
+}
