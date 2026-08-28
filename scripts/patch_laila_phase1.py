@@ -145,6 +145,37 @@ def pricing_path_report(wf: dict) -> dict:
     return report
 
 
+PREPARE_OUTBOUND_JS = """// Phase1 — prepare outbound log AFTER successful send only
+function extractOutboundText(val) {
+  if (val == null) return null;
+  if (typeof val === 'string') { const s = val.trim(); return s || null; }
+  if (typeof val === 'object') {
+    return val.conversation || val.extendedTextMessage?.text || val.text || null;
+  }
+  return null;
+}
+const send = $input.first().json;
+const de = $('Decision Engine').first()?.json || {};
+const ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json
+  || $('Phase1 IF Proceed (not duplicate)').first()?.json
+  || {};
+const messageText = extractOutboundText(send.text)
+  || extractOutboundText(send.message)
+  || extractOutboundText(send.body?.text)
+  || extractOutboundText(send.body)
+  || (typeof send.output === 'string' ? send.output.trim() : null)
+  || (typeof send.reply === 'string' ? send.reply.trim() : null)
+  || (typeof de.response === 'string' ? de.response.trim() : null);
+return [{ json: {
+  lead_id: ctx.lead_id,
+  customer_id: ctx.customer_id,
+  conversation_id: ctx.conversation_id,
+  channel: ctx.phase1?.channel || ctx.channel,
+  message_text: messageText,
+  provider_message_id: send.message_id || send.messages?.[0]?.id || send.key?.id || null,
+  metadata: { phase1: 'outbound_after_send_success' }
+}}];"""
+
 PREPARE_PRICING_OBSERVABILITY_JS = """// Phase1 observability — parse Decision Engine response (no pricing logic change)
 const de = $input.first().json;
 const ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json || {};
@@ -407,23 +438,7 @@ return [{ json: {
         prepare_outbound = {
             "parameters": {
                 "mode": "runOnceForAllItems",
-                "jsCode": """// Phase1 — prepare outbound log AFTER successful send only
-const send = $input.first().json;
-const de = $('Decision Engine').first()?.json || {};
-const ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json
-  || $('Phase1 IF Proceed (not duplicate)').first()?.json
-  || {};
-const messageText = send.text || send.message || send.output || send.reply || send.body?.text
-  || send.json?.text || de.response || null;
-return [{ json: {
-  lead_id: ctx.lead_id,
-  customer_id: ctx.customer_id,
-  conversation_id: ctx.conversation_id,
-  channel: ctx.phase1?.channel || ctx.channel,
-  message_text: messageText,
-  provider_message_id: send.message_id || send.messages?.[0]?.id || send.key?.id || null,
-  metadata: { phase1: 'outbound_after_send_success' }
-}}];""",
+                "jsCode": PREPARE_OUTBOUND_JS,
             },
             "id": nid(),
             "name": "Phase1 Prepare Outbound",
