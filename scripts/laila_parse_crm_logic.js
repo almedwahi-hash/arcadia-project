@@ -119,6 +119,8 @@ const goodbyeRx = /(لا\s*خلاص|خلاص\s*شكر|شكر\s*بس|ما\s*بغ�
 const aiQuestionRx = /(موظف|موظفه|موظفة|إنسان|بشر|human|robot|روبوت|bot\b|ai\b|ذكاء\s*اصطناع|انت\s*ذكاء|أنت\s*ذكاء|انتي\s*موظف|أنتي\s*موظف)/i;
 const driverLangRx = /(السواق|السائق|سائق|driver).*(عربي|arabic|يتكلم|يتحدث|speak)/i;
 const opsFactRx = /(الغاء|إلغاء|cancellation|طريق[ةه]\s*الدفع|payment\s*method|مرافق|facility|policy)/i;
+const packageCompositionRx =
+  /(ايش|كم|ويش|كيف|المفترض|يعني|ليش|why).*(جول|جولات|tour|بكج|باقة|عرض|ليالي|ليال|ايام|أيام)|(?:البكج|الباقة|العرض)\s*(كيف|وش|ايش)|(?:\d+\s*جول)|(?:عندي|عندنا)\s*\d+\s*(ليالي|ليال|ايام|أيام)|(?:this|the)\s*package/i;
 
 const isReturningCustomer = returningRx.test(trimmed);
 const isExplicitNewTrip = newTripRx.test(trimmed);
@@ -243,6 +245,7 @@ else if (driverLangRx.test(trimmed) || (opsFactRx.test(trimmed) && !/طريق[ة
 else if (hotelOnlyRx.test(trimmed)) conversationIntent = 'hotel_only';
 else if (priceObjectionRx.test(trimmed)) conversationIntent = 'price_objection';
 else if (isReturningCustomer) conversationIntent = 'returning_customer';
+else if (packageCompositionRx.test(trimmed) && (tripFromHistory || hasTripContext)) conversationIntent = 'package_composition';
 
 const conversationHints = [];
 if (conversationIntent === 'returning_customer' && hasTripContext) {

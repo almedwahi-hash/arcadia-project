@@ -11,7 +11,6 @@ const SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co
 const KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;
 const HDR = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };
 
-// Trusted Arcadia sales policy (matches AI Agent golden rule #2 — not LLM-invented)
 const HOTEL_ONLY_POLICY =
   'أيوه فهمتك، فندق فقط 👍 حاليًا حجوزاتنا تكون ضمن باقة مع التوصيل، ما نوفر الفندق منفرد.';
 const OPS_UNKNOWN = 'أتأكد لك من الفريق وأرجع لك 👍';
@@ -39,6 +38,8 @@ function sanitizeReply(s) {
   if (wa.length > 1) {
     t = t.replace(/https:\/\/wa\.me\/\d+/g, '').trim() + '\n\n' + wa[0];
   }
+  t = t.replace(/\n*‏?إذا تحتاج لأي مساعدة إضافية[^\n]*/gi, '');
+  t = t.replace(/\n*‏?(?:هل )?تر(?:غب|يد).*?(?:عرض رسمي|تجهيز العرض)[^\n]*/gi, '');
   return t.trim();
 }
 
@@ -68,11 +69,23 @@ function resolveDates(tripCtx, history) {
   return { checkin, checkout: addDays(checkin, nights) };
 }
 
-async function rpcQuote(tripCtx, mode) {
+// Mirrors public.quote_package() — authoritative tour-day allocation
+function freeDaysFromEngine(nights) {
+  const totalDays = nights + 1;
+  if (totalDays >= 14) return 2;
+  if (totalDays >= 8) return 1;
+  return 0;
+}
+
+function tourDaysFromEngine(nights) {
+  return Math.max(nights - 1 - freeDaysFromEngine(nights), 0);
+}
+
+async function fetchQuoteOptions(tripCtx, mode) {
   if (!KEY || !tripCtx?.city) return null;
   const dates = resolveDates(tripCtx, chatHistory);
   try {
-    const rows = await this.helpers.httpRequest({
+    let data = await this.helpers.httpRequest({
       method: 'POST',
       url: SB + '/rest/v1/rpc/quote_options',
       headers: HDR,
@@ -82,26 +95,55 @@ async function rpcQuote(tripCtx, mode) {
         p_checkout: dates.checkout,
         p_adults: tripCtx.adults || 2,
         p_rooms: 0,
-        p_mode: mode || 'no_tours',
+        p_mode: mode || 'full',
       },
       json: true,
     });
-    return Array.isArray(rows) && rows.length ? rows : null;
+    if (data && data.quote_options) data = data.quote_options;
+    if (data && Array.isArray(data.options)) return data;
+    return null;
   } catch (e) {
     return null;
   }
 }
 
-function formatQuoteReply(tripCtx, rows, intro) {
-  const basic = rows.find((r) => /eco|basic|أساس|اقتصاد/i.test(String(r.tier || r.label || ''))) || rows[0];
-  const rec = rows.find((r) => /standard|recommend|موص|mid/i.test(String(r.tier || r.label || ''))) || rows[1] || rows[0];
+function pickQuoteOption(quoteData, lastPrice) {
+  const opts = quoteData.options || [];
+  if (lastPrice) {
+    const hit = opts.find((o) => String(o.price_usd) === String(lastPrice));
+    if (hit) return hit;
+  }
+  return opts.find((o) => /basic|أساس/i.test(String(o.tier || ''))) || opts[0];
+}
+
+function formatPackageComposition(quoteData, option) {
+  const nights = quoteData.nights;
+  const totalDays = nights + 1;
+  const tourDays = option.tour_days;
+  const freeDays = freeDaysFromEngine(nights);
+  const engineTourDays = tourDaysFromEngine(nights);
+  const tier = option.tier || 'Basic';
+
+  let msg = `الرحلة ${totalDays} أيام / ${nights} ليالي 👍`;
+  msg += `\nالعرض (${tier}) محسوب على ${tourDays} أيام جولات`;
+  if (freeDays > 0) msg += ` — التسعير يخصّص ${freeDays} ${freeDays === 1 ? 'يوم راحة' : 'أيام راحة'}`;
+  msg += '.';
+
+  if (engineTourDays === tourDays) {
+    msg += `\nحسب محرك التسعير: ${nights} ليالي − يوم الوصول`;
+    if (freeDays > 0) msg += ` − ${freeDays} راحة`;
+    msg += ` = ${tourDays} جولات (مو ${tourDays + 1}).`;
+  }
+  return msg;
+}
+
+function formatQuoteReply(tripCtx, quoteData, intro) {
+  const opts = quoteData.options || [];
+  const basic = opts.find((r) => /basic|أساس|eco/i.test(String(r.tier || ''))) || opts[0];
+  const rec = opts.find((r) => /recommend|موص/i.test(String(r.tier || ''))) || opts[1] || opts[0];
   const lines = [intro || 'تمام، خليني أشوف لك خيارات أوفر 👍', ''];
-  if (basic) {
-    lines.push(`1️⃣ أساسية — ${basic.hotel_name || basic.hotel || 'فندق'} — ${basic.package_usd || basic.total_usd || basic.price_usd} دولار`);
-  }
-  if (rec && rec !== basic) {
-    lines.push(`2️⃣ موصى بها — ${rec.hotel_name || rec.hotel || 'فندق'} — ${rec.package_usd || rec.total_usd || rec.price_usd} دولار`);
-  }
+  if (basic) lines.push(`1️⃣ أساسية — ${basic.hotel || 'فندق'} — ${basic.price_usd} دولار`);
+  if (rec && rec !== basic) lines.push(`2️⃣ موصى بها — ${rec.hotel || 'فندق'} — ${rec.price_usd} دولار`);
   lines.push('', 'إذا يناسبك خبرني 👍');
   return lines.join('\n');
 }
@@ -139,19 +181,25 @@ if (intent === 'goodbye') {
   if (trip.destination) bits.push(trip.destination);
   if (trip.nights) bits.push(trip.nights + ' ليالي');
   if (trip.adults) bits.push(trip.adults + ' أشخاص');
-  const summary = bits.join('، ') || 'طلبك السابق';
-  response = `تمام، عندي طلبك: ${summary} 👍`;
+  response = `تمام، عندي طلبك: ${bits.join('، ') || 'طلبك السابق'} 👍`;
   if (trip.last_price) response += `\nآخر عرض كان ${trip.last_price} دولار — تبي أرسله لك مرة ثانية؟`;
   else response += '\nتبي أرسل لك آخر عرض؟';
   routedBy = 'deterministic:returning_customer';
+} else if (intent === 'package_composition' && trip?.city) {
+  routedBy = 'deterministic:package_composition';
+  const quoteData = await fetchQuoteOptions.call(this, trip, 'full');
+  if (quoteData) {
+    const option = pickQuoteOption(quoteData, trip.last_price);
+    if (option) response = formatPackageComposition(quoteData, option);
+  }
+  if (!response) response = OPS_UNKNOWN;
 } else if (intent === 'price_objection') {
   routedBy = 'deterministic:pricing_engine';
-  const rows = await rpcQuote.call(this, trip, 'no_tours');
-  if (rows) {
-    response = formatQuoteReply(trip, rows, 'تمام، خليني أشوف لك خيارات أوفر 👍');
-  } else {
-    const rowsFull = await rpcQuote.call(this, trip, 'full');
-    if (rowsFull) response = formatQuoteReply(trip, rowsFull, 'تمام، خليني أشوف لك خيارات أوفر 👍');
+  const quoteData = await fetchQuoteOptions.call(this, trip, 'no_tours');
+  if (quoteData) response = formatQuoteReply(trip, quoteData, 'تمام، خليني أشوف لك خيارات أوفر 👍');
+  if (!response) {
+    const quoteFull = await fetchQuoteOptions.call(this, trip, 'full');
+    if (quoteFull) response = formatQuoteReply(trip, quoteFull, 'تمام، خليني أشوف لك خيارات أوفر 👍');
   }
 }
 
@@ -188,11 +236,10 @@ if (!response) {
 
 response = sanitizeReply(response);
 
-// Block erroneous handoff on price objection when pricing params exist
 if (intent === 'price_objection' && /ما قدرت أكمل طلبك|تواصل مباشرة/.test(response) && trip?.city) {
-  const rows = await rpcQuote.call(this, trip, 'no_tours');
-  if (rows) {
-    response = formatQuoteReply(trip, rows, 'تمام، خليني أشوف لك خيارات أوفر 👍');
+  const quoteData = await fetchQuoteOptions.call(this, trip, 'no_tours');
+  if (quoteData) {
+    response = formatQuoteReply(trip, quoteData, 'تمام، خليني أشوف لك خيارات أوفر 👍');
     routedBy = 'deterministic:pricing_engine_retry';
   }
 }
