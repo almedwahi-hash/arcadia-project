@@ -1,6 +1,10 @@
 -- Rollback Booking Agent Phase 2.1 (reverse order)
 -- Does NOT drop Phase 1 columns lead_id/customer_id/quote_ref on bookings.
 
+drop trigger if exists bookings_after_insert_audit_trg on public.bookings;
+drop function if exists public.bookings_after_insert_audit();
+drop index if exists public.bookings_booking_request_key_uidx;
+
 drop trigger if exists bookings_before_update_sync_trg on public.bookings;
 drop function if exists public.bookings_before_update_sync();
 drop function if exists public.generate_booking_id(text);
@@ -30,7 +34,8 @@ alter table public.bookings
   drop column if exists approved_by,
   drop column if exists cancelled_at,
   drop column if exists cancellation_reason,
-  drop column if exists booking_source;
+  drop column if exists booking_source,
+  drop column if exists booking_request_key;
 
 -- Restore leads stage constraint without approved
 alter table public.leads drop constraint if exists leads_stage_check;

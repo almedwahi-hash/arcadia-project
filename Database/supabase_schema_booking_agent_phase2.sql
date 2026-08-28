@@ -172,12 +172,13 @@ create index if not exists booking_status_log_booking_created_idx
 -- ============================================================
 -- Deterministic task_key rules (Phase 2.2 generator must follow):
 --   hotel:{city_slug}:{segment_index}
---   airport:{city_slug|arrival}:transfer
+--   airport:{city_slug}:arrival
+--   airport:{city_slug}:departure
 --   tour:{city_slug}:{tour_index}
---   train:{segment_from}-{segment_to}
---   intercity_transfer:{from_slug}-{to_slug}
---   guide:{city_slug}:guide
---   other:{slug}:misc
+--   train:{from_slug}-{to_slug}:{segment_index}
+--   intercity_transfer:{from_slug}-{to_slug}:{segment_index}
+--   guide:{city_slug}:{segment_index}
+--   other:{slug}:{index}
 create table if not exists public.booking_tasks (
   task_id uuid primary key default gen_random_uuid(),
   booking_id text not null references public.bookings(booking_id) on delete cascade,
