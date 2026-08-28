@@ -79,6 +79,7 @@ function buildTasks(quote) {
       city,
       segment_index: seg,
       supplier_name: hotels[idx] || null,
+      is_required: true,
       metadata: { tier: 'eco', segment: seg },
     });
   });
@@ -92,6 +93,7 @@ function buildTasks(quote) {
       task_type: 'airport_transfer',
       city: first,
       segment_index: 1,
+      is_required: true,
       metadata: { direction: 'arrival' },
     });
     tasks.push({
@@ -99,6 +101,7 @@ function buildTasks(quote) {
       task_type: 'airport_transfer',
       city: last,
       segment_index: cities.length,
+      is_required: true,
       metadata: { direction: 'departure' },
     });
   }
@@ -114,6 +117,7 @@ function buildTasks(quote) {
       task_type: 'intercity_transfer',
       city: from,
       segment_index: segIdx,
+      is_required: true,
       metadata: { from, to, leg: i + 1 },
     });
   }
@@ -133,6 +137,7 @@ function buildTasks(quote) {
         task_type: 'tour',
         city,
         segment_index: tourIdx,
+        is_required: false,
         metadata: { tour_number: tourIdx, source: 'tours_by_city' },
       });
     }
@@ -163,6 +168,13 @@ function buildCityHotels(cities, hotels) {
 
 // --- Main ---
 const raw = $input.first().json;
+const headers = raw.headers || {};
+const secret = headers['x-booking-agent-secret'] || headers['X-Booking-Agent-Secret'] || raw.auth_secret;
+const expected = $env.BOOKING_AGENT_TEST_SECRET;
+if (!expected || secret !== expected) {
+  return [{ json: { ok: false, error: 'unauthorized', phase: '2.2', hint: 'X-Booking-Agent-Secret required' } }];
+}
+
 const body = raw.body ?? raw;
 const leadId = String(body.lead_id || '').trim();
 const quoteRef = String(body.quote_ref || '').trim();
@@ -311,6 +323,7 @@ const taskPayload = tasks.map(t => ({
   city: t.city,
   segment_index: t.segment_index,
   supplier_name: t.supplier_name || null,
+  is_required: t.is_required !== false,
   status: 'pending',
   metadata: t.metadata || {},
 }));
@@ -345,30 +358,8 @@ await sb.call(this, 'POST', 'agent_actions', {
   },
 });
 
-// 8) Telegram test notification (skip if chat_id not configured)
-let telegram = { sent: false, reason: 'chat_id_not_configured' };
-try {
-  const cfgRows = await sb.call(this, 'GET', 'arcadia_system_config?config_key=eq.telegram_booking_ops&select=config_value');
-  const chatId = cfgRows[0]?.config_value?.chat_id;
-  if (chatId) {
-    const token = $env.TELEGRAM_BOT_TOKEN || $env.LAILA_TELEGRAM_BOT_TOKEN;
-    if (!token) {
-      telegram = { sent: false, reason: 'telegram_bot_token_not_configured' };
-    } else {
-    const text = `[Phase 2.2 TEST] DRAFT booking ${bookingId}\nLead: ${leadId.slice(0, 8)}…\nQuote: ${quoteRef}\nTasks: ${taskPayload.length}\nKey: ${bookingRequestKey}`;
-    await this.helpers.httpRequest({
-      method: 'POST',
-      url: `https://api.telegram.org/bot${token}/sendMessage`,
-      headers: { 'Content-Type': 'application/json' },
-      body: { chat_id: chatId, text },
-      json: true,
-    });
-    telegram = { sent: true, chat_id: chatId };
-    }
-  }
-} catch (tgErr) {
-  telegram = { sent: false, reason: String(tgErr.message || tgErr).slice(0, 200) };
-}
+// 8) Telegram — delegated to Arcadia - Booking Staff Notify (Phase 2.3)
+let telegram = { sent: false, reason: 'delegated_to_staff_notify_workflow' };
 
 return [{
   json: {
