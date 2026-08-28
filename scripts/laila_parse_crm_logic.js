@@ -8,7 +8,7 @@ function arToEnDigits(s) {
 function parseTripContext(history) {
   if (!history) return null;
   const h = arToEnDigits(history);
-  const out = { destination: null, city: null, nights: null, adults: null, travel_dates: null, last_price: null };
+  const out = { destination: null, city: null, nights: null, adults: null, travel_dates: null, last_price: null, hotel: null, tour_days: null };
 
   if (/ألماتي|Almaty/i.test(h)) {
     out.destination = 'كازاخستان';
@@ -36,11 +36,52 @@ function parseTripContext(history) {
   const dateM = h.match(/(\d{1,2})\s*(يناير|فبراير|مارس|أبril|ابril|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر)\s*[–-]\s*(\d{1,2})\s*(يناير|فبراير|مارس|أبril|ابril|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر)/i);
   if (dateM) out.travel_dates = `${dateM[1]} ${dateM[2]} – ${dateM[3]} ${dateM[4]}`;
 
+  const hotelM =
+    history.match(/أساسية\s*[—–-]\s*([^\n⭐💵]+?)(?:\s*⭐|$)/i) ||
+    history.match(/1️⃣\s*[^\n—–-]+[—–-]\s*([^\n⭐💵]+?)(?:\s*⭐|$)/i);
+  if (hotelM) out.hotel = hotelM[1].trim();
+
+  const tourM = h.match(/(\d+)\s*أيام?\s*جولات/) || h.match(/(\d+)\s*جولات/);
+  if (tourM) out.tour_days = parseInt(tourM[1], 10);
+
   const prices = [...h.matchAll(/(\d{3,4})\s*دولار/g)].map((m) => m[1]);
-  if (prices.length) out.last_price = prices[0];
+  if (prices.length) out.last_price = prices[prices.length - 1];
 
   if (!out.city && !out.nights && !out.adults) return null;
   return out;
+}
+
+function parseLeadNotes(notes) {
+  const out = {};
+  if (!notes) return out;
+  for (const seg of String(notes).split(';')) {
+    const i = seg.indexOf('=');
+    if (i > 0) out[seg.slice(0, i).trim()] = seg.slice(i + 1).trim();
+  }
+  return out;
+}
+
+function mergeTripContext(fromHistory, fromNotes) {
+  const trip = { ...(fromHistory || {}) };
+  if (!fromNotes) return trip;
+  if (fromNotes.city) trip.city = fromNotes.city;
+  if (fromNotes.nights) trip.nights = parseInt(fromNotes.nights, 10);
+  if (fromNotes.tour_days) trip.tour_days = parseInt(fromNotes.tour_days, 10);
+  if (fromNotes.hotel) trip.hotel = fromNotes.hotel;
+  if (fromNotes.last_price) trip.last_price = fromNotes.last_price;
+  return trip;
+}
+
+function parseRequestedTourDays(text) {
+  const t = arToEnDigits(text);
+  let m = t.match(/(\d+)\s*(?:أيام?\s*جولات|جولات|جول)/);
+  if (m) return parseInt(m[1], 10);
+  if (/جولتين|جولين/.test(text)) return 2;
+  if (/ثلاث(?:ة)?\s*جول/.test(text)) return 3;
+  if (/أ?ربع\s*جول/.test(text)) return 4;
+  if (/خمس\s*جول/.test(text)) return 5;
+  if (/ست(?:ة)?\s*جول/.test(text)) return 6;
+  return null;
 }
 
 function tripContextSummary(trip) {
@@ -101,6 +142,8 @@ function buildLeadStateSummary(lead, tripCtx) {
   else if (tripCtx?.adults != null) parts.push('الكبار: ' + tripCtx.adults);
   if (lead?.pax_children != null) parts.push('الأطفال: ' + lead.pax_children);
   if (tripCtx?.nights != null) parts.push('الليالي: ' + tripCtx.nights);
+  if (tripCtx?.tour_days != null) parts.push('أيام الجولات: ' + tripCtx.tour_days);
+  if (tripCtx?.hotel) parts.push('الفندق: ' + tripCtx.hotel);
   if (tripCtx?.city) parts.push('المدينة: ' + tripCtx.city);
   if (tripCtx?.last_price) parts.push('آخر سعر: ' + tripCtx.last_price + ' دولار');
   if (lead?.stage) parts.push('المرحلة: ' + lead.stage);
@@ -119,8 +162,12 @@ const goodbyeRx = /(لا\s*خلاص|خلاص\s*شكر|شكر\s*بس|ما\s*بغ�
 const aiQuestionRx = /(موظف|موظفه|موظفة|إنسان|بشر|human|robot|روبوت|bot\b|ai\b|ذكاء\s*اصطناع|انت\s*ذكاء|أنت\s*ذكاء|انتي\s*موظف|أنتي\s*موظف)/i;
 const driverLangRx = /(السواق|السائق|سائق|driver).*(عربي|arabic|يتكلم|يتحدث|speak)/i;
 const opsFactRx = /(الغاء|إلغاء|cancellation|طريق[ةه]\s*الدفع|payment\s*method|مرافق|facility|policy)/i;
+const tourModifyRx =
+  /(?:خليها|خلها|خلي|ابي|أبي|اريد|أريد|ابغى|بغى|حط|خل)\s*(?:لي|ل)?\s*(?:\d+|جولتين|جولين|ثلاث|ثلاثة|أ?ربع|خمس|ست|ستة)(?:\s*(?:جول|جولات|أيام))?/i;
+const tourFlexRx =
+  /(?:المفترض|مفروض|يعني|6\s*جولات?\s*او|جولات?\s*او\s*كم|ينفع\s*ن|نقدر\s*ن(?:زيد|قلل|عدل)|ممكن\s*ن(?:زيد|قلل|عدل))/i;
 const packageCompositionRx =
-  /(ايش|كم|ويش|كيف|المفترض|يعني|ليش|why).*(جول|جولات|tour|بكج|باقة|عرض|ليالي|ليال|ايام|أيام)|(?:البكج|الباقة|العرض)\s*(كيف|وش|ايش)|(?:\d+\s*جول)|(?:عندي|عندنا)\s*\d+\s*(ليالي|ليال|ايام|أيام)|(?:this|the)\s*package/i;
+  /(ايش|كم|ويش|كيف|why).*(جول|جولات|tour|بكج|باقة|عرض|ليالي|ليال|ايام|أيام)|(?:البكج|الباقة|العرض)\s*(كيف|وش|ايش)|(?:عندي|عندنا)\s*\d+\s*(ليالي|ليال|ايام|أيام)|(?:this|the)\s*package/i;
 
 const isReturningCustomer = returningRx.test(trimmed);
 const isExplicitNewTrip = newTripRx.test(trimmed);
@@ -206,6 +253,9 @@ try {
 } catch (e) {}
 
 const tripFromHistory = parseTripContext(chatHistory);
+const tripCtx = mergeTripContext(tripFromHistory, parseLeadNotes(lead?.notes));
+const requestedTourDays = parseRequestedTourDays(trimmed);
+const hasModifyVerb = tourModifyRx.test(trimmed);
 
 // Backfill lead CRM from chat when empty (root cause: quotes never persisted)
 if (tripFromHistory && lead && !leadHasStoredTrip(lead) && phone && !isManager) {
@@ -235,7 +285,7 @@ try {
   if (inst.length > 0) managerInstructions = inst.map((i) => '- ' + i.instruction).join('\n');
 } catch (e) {}
 
-const leadStateSummary = buildLeadStateSummary(lead, tripFromHistory);
+const leadStateSummary = buildLeadStateSummary(lead, tripCtx);
 const hasTripContext = !!(leadStateSummary && !/^المرحلة:\s*new\s*$/.test(leadStateSummary));
 
 let conversationIntent = 'general';
@@ -245,7 +295,9 @@ else if (driverLangRx.test(trimmed) || (opsFactRx.test(trimmed) && !/طريق[ة
 else if (hotelOnlyRx.test(trimmed)) conversationIntent = 'hotel_only';
 else if (priceObjectionRx.test(trimmed)) conversationIntent = 'price_objection';
 else if (isReturningCustomer) conversationIntent = 'returning_customer';
-else if (packageCompositionRx.test(trimmed) && (tripFromHistory || hasTripContext)) conversationIntent = 'package_composition';
+else if (hasModifyVerb && requestedTourDays != null && tripCtx?.city) conversationIntent = 'package_tour_modify';
+else if (tourFlexRx.test(trimmed) && /جول/.test(trimmed) && tripCtx?.city) conversationIntent = 'package_tour_flexibility';
+else if (packageCompositionRx.test(trimmed) && tripCtx?.city) conversationIntent = 'package_composition';
 
 const conversationHints = [];
 if (conversationIntent === 'returning_customer' && hasTripContext) {
@@ -277,7 +329,8 @@ return [{
     isNew,
     lead,
     leadStateSummary,
-    tripFromHistory,
+    tripFromHistory: tripCtx,
+    requestedTourDays,
     chatHistory,
     managerInstructions,
     context,

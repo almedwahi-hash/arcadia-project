@@ -5,6 +5,7 @@ const text = $json.textContent || $json.text || '';
 const isManager = $json.isManager || false;
 const intent = $json.conversationIntent || 'general';
 const trip = $json.tripFromHistory || null;
+const requestedTourDays = $json.requestedTourDays ?? null;
 const chatHistory = $json.chatHistory || '';
 
 const SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\/$/, '');
@@ -69,18 +70,6 @@ function resolveDates(tripCtx, history) {
   return { checkin, checkout: addDays(checkin, nights) };
 }
 
-// Mirrors public.quote_package() — authoritative tour-day allocation
-function freeDaysFromEngine(nights) {
-  const totalDays = nights + 1;
-  if (totalDays >= 14) return 2;
-  if (totalDays >= 8) return 1;
-  return 0;
-}
-
-function tourDaysFromEngine(nights) {
-  return Math.max(nights - 1 - freeDaysFromEngine(nights), 0);
-}
-
 async function fetchQuoteOptions(tripCtx, mode) {
   if (!KEY || !tripCtx?.city) return null;
   const dates = resolveDates(tripCtx, chatHistory);
@@ -107,34 +96,95 @@ async function fetchQuoteOptions(tripCtx, mode) {
   }
 }
 
-function pickQuoteOption(quoteData, lastPrice) {
+async function fetchQuotePackage(tripCtx, forceTourDays) {
+  if (!KEY || !tripCtx?.city || forceTourDays == null) return null;
+  const dates = resolveDates(tripCtx, chatHistory);
+  try {
+    const data = await this.helpers.httpRequest({
+      method: 'POST',
+      url: SB + '/rest/v1/rpc/quote_package',
+      headers: HDR,
+      body: {
+        p_city: tripCtx.city,
+        p_checkin: dates.checkin,
+        p_checkout: dates.checkout,
+        p_adults: tripCtx.adults || 2,
+        p_rooms: 0,
+        p_star: null,
+        p_mode: 'recommended',
+        p_markup: 0.2,
+        p_include_transfer: true,
+        p_force_tour_days: forceTourDays,
+        p_hotel_tier: 'cheapest',
+        p_hotel_name: tripCtx.hotel || null,
+      },
+      json: true,
+    });
+    if (data && data.error) return null;
+    if (data && data.final_price_usd != null) return data;
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function persistPackagePrefs(tripCtx, tourDays, price, hotelName) {
+  if (!KEY || !phone) return;
+  const notes = [
+    tripCtx.city ? `city=${tripCtx.city}` : '',
+    tripCtx.nights != null ? `nights=${tripCtx.nights}` : '',
+    `tour_days=${tourDays}`,
+    hotelName ? `hotel=${hotelName}` : tripCtx.hotel ? `hotel=${tripCtx.hotel}` : '',
+    `last_price=${price}`,
+  ]
+    .filter(Boolean)
+    .join(';');
+  try {
+    await this.helpers.httpRequest({
+      method: 'PATCH',
+      url: SB + '/rest/v1/leads?phone=eq.' + phone,
+      headers: { ...HDR, Prefer: 'return=minimal' },
+      body: { notes, updated_at: new Date().toISOString() },
+    });
+  } catch (e) {}
+}
+
+function pickQuoteOption(quoteData, tripCtx) {
   const opts = quoteData.options || [];
-  if (lastPrice) {
-    const hit = opts.find((o) => String(o.price_usd) === String(lastPrice));
+  if (tripCtx?.last_price) {
+    const hit = opts.find((o) => String(o.price_usd) === String(tripCtx.last_price));
     if (hit) return hit;
+  }
+  if (tripCtx?.tour_days != null) {
+    const byTour = opts.find((o) => o.tour_days === tripCtx.tour_days);
+    if (byTour) return byTour;
   }
   return opts.find((o) => /basic|أساس/i.test(String(o.tier || ''))) || opts[0];
 }
 
-function formatPackageComposition(quoteData, option) {
+function currentTourDays(quoteData, option, tripCtx) {
+  if (tripCtx?.tour_days != null) return tripCtx.tour_days;
+  return option?.tour_days ?? quoteData?.nights;
+}
+
+function formatPackageExplain(quoteData, option, tripCtx) {
   const nights = quoteData.nights;
   const totalDays = nights + 1;
-  const tourDays = option.tour_days;
-  const freeDays = freeDaysFromEngine(nights);
-  const engineTourDays = tourDaysFromEngine(nights);
-  const tier = option.tier || 'Basic';
+  const tourDays = currentTourDays(quoteData, option, tripCtx);
+  return `الرحلة ${totalDays} أيام / ${nights} ليالي 👍 العرض الحالي فيه ${tourDays} أيام جولات — ونقدر نزيدها أو نقللها على راحتك.`;
+}
 
-  let msg = `الرحلة ${totalDays} أيام / ${nights} ليالي 👍`;
-  msg += `\nالعرض (${tier}) محسوب على ${tourDays} أيام جولات`;
-  if (freeDays > 0) msg += ` — التسعير يخصّص ${freeDays} ${freeDays === 1 ? 'يوم راحة' : 'أيام راحة'}`;
-  msg += '.';
+function formatTourFlexibility(quoteData, option, tripCtx) {
+  const tourDays = currentTourDays(quoteData, option, tripCtx);
+  const next = tourDays + 1;
+  return `العرض الحالي فيه ${tourDays} أيام جولات، بس عادي نقدر نعدله على راحتك 👍 إذا تحب ${next} جولات أضيف لك يوم جولة وأحسب لك السعر الجديد، وإذا تحب أقل نقدر نقللها برضه.`;
+}
 
-  if (engineTourDays === tourDays) {
-    msg += `\nحسب محرك التسعير: ${nights} ليالي − يوم الوصول`;
-    if (freeDays > 0) msg += ` − ${freeDays} راحة`;
-    msg += ` = ${tourDays} جولات (مو ${tourDays + 1}).`;
-  }
-  return msg;
+function formatTourModify(pkg, tourDays, adults) {
+  const pax = adults || 2;
+  const paxLabel = pax === 2 ? 'شخصين' : `${pax} أشخاص`;
+  const tourLabel = tourDays === 2 ? 'جولتين' : `${tourDays} أيام جولات`;
+  return `تمام 👍 خليتها ${tourLabel}. السعر بعد التعديل صار ${pkg.final_price_usd} دولار لـ${paxLabel}.`;
 }
 
 function formatQuoteReply(tripCtx, quoteData, intro) {
@@ -185,12 +235,27 @@ if (intent === 'goodbye') {
   if (trip.last_price) response += `\nآخر عرض كان ${trip.last_price} دولار — تبي أرسله لك مرة ثانية؟`;
   else response += '\nتبي أرسل لك آخر عرض؟';
   routedBy = 'deterministic:returning_customer';
-} else if (intent === 'package_composition' && trip?.city) {
-  routedBy = 'deterministic:package_composition';
+} else if (intent === 'package_tour_modify' && trip?.city && requestedTourDays != null) {
+  routedBy = 'deterministic:package_tour_modify';
+  const pkg = await fetchQuotePackage.call(this, trip, requestedTourDays);
+  if (pkg) {
+    const hotelName = pkg.hotel?.name || trip.hotel || null;
+    response = formatTourModify(pkg, requestedTourDays, trip.adults);
+    await persistPackagePrefs.call(this, trip, requestedTourDays, pkg.final_price_usd, hotelName);
+  } else {
+    response = OPS_UNKNOWN;
+  }
+} else if ((intent === 'package_tour_flexibility' || intent === 'package_composition') && trip?.city) {
+  routedBy = 'deterministic:' + intent;
   const quoteData = await fetchQuoteOptions.call(this, trip, 'full');
   if (quoteData) {
-    const option = pickQuoteOption(quoteData, trip.last_price);
-    if (option) response = formatPackageComposition(quoteData, option);
+    const option = pickQuoteOption(quoteData, trip);
+    if (option) {
+      response =
+        intent === 'package_tour_flexibility'
+          ? formatTourFlexibility(quoteData, option, trip)
+          : formatPackageExplain(quoteData, option, trip);
+    }
   }
   if (!response) response = OPS_UNKNOWN;
 } else if (intent === 'price_objection') {
