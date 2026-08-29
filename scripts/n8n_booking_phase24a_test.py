@@ -207,6 +207,9 @@ def upsert_workflows(client: N8nClient) -> dict[str, str]:
 
 def post_webhook(path: str, payload: dict) -> tuple[int, str]:
     api_base = os.environ.get("N8N_API_URL", "").strip()
+    secret = os.environ.get("BOOKING_AGENT_START_SECRET") or os.environ.get("BOOKING_AGENT_TEST_SECRET")
+    if secret:
+        payload = {**payload, "auth_secret": secret}
     return trigger_webhook(api_base, path, payload, test_mode=False)
 
 

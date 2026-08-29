@@ -1,5 +1,6 @@
 // Phase 2.4A — Booking Approval Handler (Telegram callback + test webhook)
-// Supports: supplier_price_change, booking_financial_commit, manual_override
+// MANUAL-ONLY POLICY: approves cost/variance/skip metadata — never executes payments.
+// Supports: supplier_price_change, booking_financial_commit (gate only), manual_override
 
 const SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\/$/, '');
 const KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;
@@ -102,6 +103,21 @@ function parseInput(raw) {
   return { error: 'invalid_input' };
 }
 
+function verifyFinancialWebhookAuth(raw, body) {
+  const headers = raw.headers || {};
+  const secret =
+    headers['x-booking-agent-secret']
+    || headers['X-Booking-Agent-Secret']
+    || body?.auth_secret
+    || raw.auth_secret;
+  const expected = $env.BOOKING_AGENT_START_SECRET || $env.BOOKING_AGENT_TEST_SECRET;
+  if (expected) {
+    if (secret === expected) return { ok: true, method: 'webhook_secret' };
+    return { ok: false, error: 'webhook_secret_required' };
+  }
+  return { ok: true, method: 'allowlist_only' };
+}
+
 async function handleApprovalDecision({ approvalId, decision, userId, callbackId, reason, simulated }) {
   const staffTag = `staff:${userId}`;
   const idemKey = `cb:${callbackId}:appr:${approvalId}:${decision}`;
@@ -163,6 +179,13 @@ const raw = $input.first().json;
 const parsed = parseInput(raw);
 if (parsed.error) {
   return [{ json: { ok: false, error: parsed.error, phase: '2.4A' } }];
+}
+
+const authBody = raw.body ?? raw;
+const auth = verifyFinancialWebhookAuth(raw, authBody);
+if (!auth.ok && (parsed.simulated || authBody.approval_id || authBody.simulate)) {
+  await logDenied.call(this, parsed.userId || 'unknown', 'approval_webhook', auth.error);
+  return [{ json: { ok: false, error: auth.error, phase: '2.4A', denied: true, policy: 'manual_only' } }];
 }
 
 const { userId, callbackData, callbackId, simulated } = parsed;

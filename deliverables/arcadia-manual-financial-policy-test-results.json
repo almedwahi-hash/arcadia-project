@@ -1,0 +1,15 @@
+{
+  "tested_at": "2026-08-29T12:05:32.862198+00:00",
+  "policy": "manual_only",
+  "booking_id": "RU-2026-030",
+  "tests": {
+    "F_static_scan": {
+      "test": "F_no_payment_api_in_booking_workflows",
+      "pass": true,
+      "workflows_scanned": 10,
+      "forbidden_hits": [],
+      "laila_unmodified": false
+    }
+  },
+  "pass": true
+}
