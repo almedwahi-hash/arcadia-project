@@ -1,5 +1,6 @@
 // Phase 2.4A — Record booking payment (Telegram staff action + test webhook)
-// Deterministic — NO AI. Staff allowlist required. Append-only ledger via RPC.
+// MANUAL-ONLY POLICY: staff records payment AFTER it happened outside automation.
+// Deterministic — NO AI. NO payment gateway. NO auto-charge/refund. Append-only ledger via RPC.
 
 const SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\/$/, '');
 const KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;
@@ -60,12 +61,42 @@ function parseInput(raw) {
     fxSource: payload.fx_source || null,
     idempotencyKey: String(payload.idempotency_key || payload.action_key || '').trim(),
     simulated: !!(payload.simulate || payload.test_mode),
+    body: payload,
   };
+}
+
+function verifyFinancialWebhookAuth(raw, body) {
+  const headers = raw.headers || {};
+  const secret =
+    headers['x-booking-agent-secret']
+    || headers['X-Booking-Agent-Secret']
+    || body?.auth_secret
+    || raw.auth_secret;
+  const expected = $env.BOOKING_AGENT_START_SECRET || $env.BOOKING_AGENT_TEST_SECRET;
+  if (expected) {
+    if (secret === expected) return { ok: true, method: 'webhook_secret' };
+    return { ok: false, error: 'webhook_secret_required' };
+  }
+  return { ok: true, method: 'allowlist_only' };
 }
 
 // --- Main ---
 const raw = $input.first().json;
 const input = parseInput(raw);
+const auth = verifyFinancialWebhookAuth(raw, input.body);
+if (!auth.ok) {
+  await sb.call(this, 'POST', 'agent_actions', {
+    agent_name: 'booking',
+    action_type: 'payment_record_denied',
+    booking_id: input.bookingId || null,
+    source_channel: 'webhook:booking-payment-record',
+    input_summary: 'missing_or_invalid_webhook_secret',
+    output_summary: auth.error,
+    status: 'failed',
+    metadata: { phase: '2.4A', denied: true, policy: 'manual_only' },
+  });
+  return [{ json: { ok: false, error: auth.error, phase: '2.4A', denied: true, policy: 'manual_only' } }];
+}
 
 if (!input.bookingId || !input.paymentMethod) {
   return [{ json: { ok: false, error: 'missing_booking_or_method', phase: '2.4A' } }];
