@@ -10,106 +10,78 @@
 
 | Declaration | Status |
 |-------------|--------|
-| MANUAL FINANCIAL OPERATIONS POLICY | **CONDITIONAL** — logic deployed; webhook secret gate not active in n8n |
+| MANUAL FINANCIAL OPERATIONS POLICY | **CONDITIONAL** — static scan PASS; live webhook secret gate inactive |
 | FINANCIAL WEBHOOK SECURITY | **FAIL** — `BOOKING_AGENT_START_SECRET` not configured in n8n production |
 | AUTOMATED MONEY MOVEMENT | **DISABLED / ABSENT** |
 | BOOKING AGENT REGRESSION | **PASS 12/12** |
 
-**STOP** — owner must configure n8n production secret before security closure can pass.
+**STOP** — owner must configure n8n production secret via Easypanel before security closure can pass.
 
 ---
 
-## 1. Production deployment verification
+## 1. Secret configuration attempt
 
-| Workflow | n8n ID | Active | `verifyFinancialWebhookAuth` | `manual_only` policy |
-|----------|--------|--------|-------------------------------|----------------------|
-| Arcadia - Booking Payment Record | `ij0ifJadW0wkJp3m` | yes | yes | yes |
-| Arcadia - Booking Approval Handler | `3sb3wXkJsnDGMrbm` | yes | yes | yes |
+| Step | Result |
+|------|--------|
+| n8n env probe workflow (exec `60990`) | `BOOKING_AGENT_START_SECRET_configured: false` |
+| n8n Variables API | 403 — license does not support variables |
+| SSH `187.77.64.14` | Permission denied (no keys) |
+| Easypanel UI `http://f2rger.easypanel.host:3000` | Login required — no credentials available to agent |
+| Easypanel tRPC `auth.login` | Endpoint reachable; credentials not available |
+| Secret printed/logged/committed | **No** — secret value was not generated or exposed |
 
-Deployed during this closure run (2026-08-29). Prior production copies lacked auth logic.
-
----
-
-## 2. Webhook secret configuration
-
-| Location | `BOOKING_AGENT_START_SECRET` | `BOOKING_AGENT_TEST_SECRET` |
-|----------|-------------------------------|----------------------------|
-| Cloud Agent VM env | NOT configured | NOT configured |
-| n8n production env (inferred from live tests) | **NOT configured** | unknown |
-
-**Inference method:** Live tests A (missing secret) and B (wrong secret) against Payment Record **accepted requests** and wrote ledger rows — impossible if n8n env secret were set.
-
-**Required owner action:** Set `BOOKING_AGENT_START_SECRET` in n8n production environment variables (same value used by Booking Agent Start). Do not share value in chat/logs.
+**Required owner action:** In Easypanel → n8n service → Environment, set `BOOKING_AGENT_START_SECRET` to a strong random value. Ensure Code nodes can read it (`N8N_BLOCK_ENV_ACCESS_IN_NODE=false` or allowlist includes the var). Restart **only** the n8n service/container.
 
 ---
 
-## 3. Live authorization tests — Payment Record (`/webhook/booking-payment-record`)
+## 2. Live authorization tests — Payment Record (`/webhook/booking-payment-record`)
 
-| Test | Expected | Result | Execution ID | Response |
-|------|----------|--------|--------------|----------|
-| A. Missing secret | Rejected | **FAIL** | `60960` | `ok: true` — payment recorded |
-| B. Wrong secret | Rejected | **FAIL** | `60961` | `ok: true` — payment recorded |
-| C. Correct secret + unauthorized user | Rejected | **PASS** | `60962` | `ok: false, denied: true, error: unauthorized` |
-| D. Authorized staff (allowlist) | Reaches logic | **PASS** | `60963` | `ok: true` — manual ledger entry |
+| Test | Expected | Result | Execution ID |
+|------|----------|--------|--------------|
+| A. Missing secret | REJECT | **FAIL** | `61000` — payment recorded (`ok: true`) |
+| B. Wrong secret | REJECT | **FAIL** | `61001` — payment recorded (`ok: true`) |
+| C. Unauthorized user | REJECT | **PASS** | `61002` — `denied: true, error: unauthorized` |
+| D. Authorized staff | Reach logic | **PASS** | `61003` — manual ledger entry |
 
 ---
 
-## 4. Live authorization tests — Approval Handler (`/webhook/booking-approval-callback-test`)
+## 3. Live authorization tests — Approval Handler (`/webhook/booking-approval-callback-test`)
 
 Fake approval ID used (no real approval mutated).
 
-| Test | Expected | Result | Execution ID | Response |
-|------|----------|--------|--------------|----------|
-| A. Missing secret + staff | Rejected at auth | **FAIL** (auth bypass) | `60964` | `approval_not_found` (passed auth) |
-| B. Wrong secret + staff | Rejected at auth | **FAIL** (auth bypass) | `60965` | `approval_not_found` (passed auth) |
-| C. Unauthorized user | Rejected | **PASS** | `60966` | `ok: false, denied: true` |
+| Test | Expected | Result | Execution ID |
+|------|----------|--------|--------------|
+| A. Missing secret | REJECT at auth | **FAIL** | `61004` — `missing_approval_or_decision` (auth bypass) |
+| B. Wrong secret | REJECT at auth | **FAIL** | `61005` — auth bypass |
+| C. Unauthorized user | REJECT | **FAIL** | `61006` — auth bypass (allowlist-only mode) |
 
 ---
 
-## 5. Rejection side-effects (after cleanup)
+## 4. Rejection side-effects and cleanup
 
-Closure test rows (`payment_method=closure_test`) **deleted**. Booking restored:
+Tests A/B/D incorrectly created `closure_test` ledger rows (confirms secret gate inactive). All test rows deleted; booking restored:
 
-| Field | After cleanup |
-|-------|---------------|
+| Field | Final state |
+|-------|-------------|
 | `paid_amount` | 0 |
 | `payment_status` | unpaid |
-| `closure_test ledger rows` | 0 |
-
-**Note:** Tests A/B incorrectly created 3× $1 ledger rows before cleanup — confirms secret gate was not active.
+| `lifecycle_status` | CONFIRMED |
 
 ---
 
-## 6. Legitimate manual recording properties
+## 5. Regression and monitoring
 
-When authorized (test D, exec `60963`):
-
-- Manual bookkeeping only (RPC `record_booking_payment`, no gateway)
-- Append-only `booking_payments`
-- Idempotency supported via `idempotency_key`
-- No automated money movement
-
----
-
-## 7. Booking Agent UAT
-
-```
-PASS 12/12 (run_internal_uat_rerun.py)
-ACC:1 through ACC:8 — all PASS
-```
-
----
-
-## 8. workflow_failures
-
-**0 failures** since `2026-08-29T12:00:00Z`.
+- **Booking Agent UAT:** PASS 12/12 (`run_internal_uat_rerun.py`)
+- **workflow_failures** since `2026-08-29T12:00:00Z`: **0**
+- **Static scan:** no payment gateway / auto-charge patterns in 10 booking workflows
 
 ---
 
 ## Owner next step (required for PASS)
 
-1. Configure `BOOKING_AGENT_START_SECRET` in **n8n production** environment settings.
-2. Re-run closure tests A/B — must return `ok: false, error: webhook_secret_required, denied: true`.
-3. Then declare FINANCIAL WEBHOOK SECURITY = PASS.
+1. Add `BOOKING_AGENT_START_SECRET` in **Easypanel n8n service environment** (`http://f2rger.easypanel.host:3000`).
+2. Restart **only** n8n (not Evolution API / Traefik).
+3. Re-run closure tests — A/B must return `webhook_secret_required` with zero ledger side effects.
+4. Add `BOOKING_AGENT_START_SECRET` to Cloud Agent secrets (for test scripts only; value must not appear in reports).
 
 Do NOT implement supplier payment ledger, payment gateways, refunds, or Phase 3 without separate approval.

@@ -1,0 +1,85 @@
+{
+  "tested_at": "2026-08-29T13:06:00+00:00",
+  "booking_id": "RU-2026-030",
+  "secret_status_vm": {
+    "BOOKING_AGENT_START_SECRET": "NOT configured (agent VM)",
+    "BOOKING_AGENT_TEST_SECRET": "NOT configured (agent VM)",
+    "note": "n8n production probe (exec 60990, now deactivated) confirmed BOOKING_AGENT_START_SECRET_configured=false"
+  },
+  "n8n_production_secret": {
+    "configured": false,
+    "verification_method": "Arcadia - Env Secret Probe webhook + live auth tests A/B",
+    "easypanel_management_url": "http://f2rger.easypanel.host:3000",
+    "secret_value_exposed": false
+  },
+  "snap_before": {
+    "paid_amount": "2",
+    "payment_status": "partial"
+  },
+  "tests": {
+    "payment_record_A_missing_secret": {
+      "pass": false,
+      "execution_id": "61000",
+      "expected": "REJECT webhook_secret_required",
+      "actual": "ok:true payment recorded"
+    },
+    "payment_record_B_wrong_secret": {
+      "pass": false,
+      "execution_id": "61001",
+      "expected": "REJECT webhook_secret_required",
+      "actual": "ok:true payment recorded"
+    },
+    "payment_record_C_unauth_user": {
+      "pass": true,
+      "execution_id": "61002",
+      "expected": "REJECT unauthorized",
+      "actual": "ok:false denied:true error:unauthorized"
+    },
+    "payment_record_D_auth_staff": {
+      "pass": true,
+      "execution_id": "61003",
+      "expected": "reach bookkeeping logic",
+      "actual": "ok:true manual ledger entry"
+    },
+    "approval_handler_A_missing_secret": {
+      "pass": false,
+      "execution_id": "61004",
+      "expected": "REJECT webhook_secret_required",
+      "actual": "missing_approval_or_decision (auth bypass)"
+    },
+    "approval_handler_B_wrong_secret": {
+      "pass": false,
+      "execution_id": "61005",
+      "expected": "REJECT webhook_secret_required",
+      "actual": "missing_approval_or_decision (auth bypass)"
+    },
+    "approval_handler_C_unauth_user": {
+      "pass": false,
+      "execution_id": "61006",
+      "expected": "REJECT unauthorized",
+      "actual": "missing_approval_or_decision (auth bypass before allowlist)"
+    }
+  },
+  "rejection_side_effects": {
+    "note": "A/B/D incorrectly created closure_test ledger rows during run; cleaned afterward",
+    "cleanup_applied": true
+  },
+  "final_booking_state": {
+    "booking_id": "RU-2026-030",
+    "paid_amount": "0",
+    "payment_status": "unpaid",
+    "lifecycle_status": "CONFIRMED"
+  },
+  "booking_agent_uat": {
+    "pass": "12/12",
+    "overall": "PASS"
+  },
+  "workflow_failures_since_window": 0,
+  "static_policy_scan": {
+    "automated_money_movement": "ABSENT",
+    "payment_gateways": "NONE",
+    "pass": true
+  },
+  "pass": false,
+  "blocker": "BOOKING_AGENT_START_SECRET not configured in n8n production Easypanel env; SSH and Easypanel login unavailable to agent"
+}
