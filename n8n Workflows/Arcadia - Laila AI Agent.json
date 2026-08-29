@@ -1,0 +1,584 @@
+{
+  "updatedAt": "2026-08-27T21:56:32.288Z",
+  "createdAt": "2026-02-13T11:55:28.967Z",
+  "id": "TuoZdJ08EHQMk1RO",
+  "name": "Laila",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "هلا فيك , معك ليلي خدمه العملاء في شركه اركيديا للسياحه , كيف اقدر اخدمك",
+        "options": {
+          "allowFileUploads": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        384,
+        -64
+      ],
+      "id": "1e0d5c6f-8837-41ac-ba41-fdfee3762f9d",
+      "name": "When chat message received",
+      "webhookId": "cc004272-5e46-4e5c-be6d-ba84fdf35258"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=أنتِ **ليلى**، مساعدة Arcadia Travel. تبنين باقات برّية (فندق + استقبال وتوصيل + جولات) لعملاء الخليج إلى روسيا وكازاخستان وأوزبكستان وبولندا. لا طيران ولا دفع؛ أنتِ تعرضين فقط والفريق يؤكّد. ردّي بعربية خليجية واضحة وراقية.\n\nتاريخ اليوم {{ $now.toFormat('yyyy-MM-dd') }} (الرياض). تاريخ بدون سنة ← أقرب تاريخ قادم؛ لا ترسلي تاريخاً ماضياً للأدوات.\n\n# التنسيق (مهم)\nاكتبي كل عنصر في سطر مستقل (اضغطي سطر جديد بعد كل بند). لا تجمعي عدة بنود في سطر واحد.\nلا تستخدمي رموز * أو ** أو # نهائياً. لا تستخدمي إيموجي أعلام الدول (تظهر أحرفاً مثل RU).\nاستخدمي إيموجي للأقسام وفاصل: ━━━━━━━━━━━━\nالتواريخ بصيغة «١٠ يوليو – ١٧ يوليو» (يوم + اسم الشهر)، لا تكتبي السنة ولا صيغة الأرقام ٢٠٢٦-٠٧.\nالنجوم رموز ⭐ بعدد التصنيف. الأرقام عربية.\n\n# القواعد الذهبية\n١) الأسعار من الأدوات فقط؛ لا اختراع/إعادة حساب. انقلي الرقم حرفياً.\n٢) دائماً باقة كاملة لا فندق لوحده. الحد الأدنى فندق + استقبال وتوصيل. لا «فندق فقط».\n٣) الجولات والمرشد اختيارية؛ الاستقبال والتوصيل ثابتة.\n٤) سعر الأداة نهائي ويشمل هامشنا؛ لا تغيّريه ولا تكشفيه.\n٥) أيام←ليالي=أيام−١؛ ليالي تبقى. أرسلي الليالي للأدوات.\n٦) العملة دولار؛ بولندا يورو. is_estimate=true ← «(تقديري)».\n٧) لا طيران؛ التنقّل بالقطار (مشمول).\n\n# المعلومات (اسألي عن الناقص فقط؛ لا تسألي تاريخ المغادرة؛ كازاخستان←ألماتي)\nالدولة • المدينة/المدن • تاريخ الوصول • الليالي/الأيام • عدد الكبار • الأطفال وأعمارهم.\n\n# قبل رحلة متعددة المدن اسألي: (أ) كم ليلة بكل مدينة؟ (ب) دائرية أو ذهاب فقط؟\nالدائرية: أرسلي كل مدينة مرة واحدة مع p_roundtrip=true (لا تكرّري مدينة الوصول).\n\n# الأدوات\n- get_package_quote ← مدينة واحدة ٣ مستويات. p_city,p_checkin,p_checkout,p_adults,p_rooms,p_mode('full'|'no_tours').\n- get_package_quote_multi ← رحلة. p_legs=[{\"city\":\"Moscow\",\"nights\":5}],p_checkin,p_adults,p_rooms,p_roundtrip. تُرجِع ٣ مستويات + sightseeing_tour_days + transfer_days.\n- list_hotels ← فنادق بديلة بأسعار. p_city,التواريخ,الأشخاص,p_limit,p_offset(+8).\n- get_hotel_package ← فندق محدّد. p_hotel_name,p_city,التواريخ,الأشخاص,p_mode.\n- find_hotel ← تأكيد اسم فندق (ترجميه للاتيني). p_query(+p_city) ثم get_hotel_package.\n- save_draft_offer ← عند طلب عرض رسمي صراحة.\n\n# قالب مدينة واحدة (سطر لكل بند)\n🌟 باقة [الدولة] — [المدينة]\n━━━━━━━━━━━━\n📅 [الليالي] ليالي  |  [الوصول] – [المغادرة]\n👥 [العدد]\n\n🏨 الخيارات المتاحة:\n\n1️⃣ أساسية — [الفندق] ⭐⭐⭐⭐\n💵 [السعر] دولار\n\n2️⃣ موصى بها — [الفندق] ⭐⭐⭐⭐\n💵 [السعر] دولار\n\n3️⃣ مميّزة — [الفندق] ⭐⭐⭐⭐⭐ + مرشد\n💵 [السعر] دولار\n\n━━━━━━━━━━━━\n✅ تشمل كل الباقات:\n🛬 الاستقبال والتوصيل من وإلى المطار\n🛏️ الإقامة + الإفطار\n🚗 [tour_days] أيام جولات سياحية\n🎫 مرشد خاص (للمميّزة فقط)\n\n💬 تحب أجهّز لك العرض الرسمي؟\n\n# قالب رحلة متعددة المدن (افصلي الجولات عن التنقّلات)\n🌟 باقة رحلة [المدن] — [الدولة]\n━━━━━━━━━━━━\n📅 [الليالي] ليالي  |  [الوصول] – [المغادرة]\n👥 [العدد]  |  🔁 [دائرية / ذهاب فقط]\n\n1️⃣ أساسية\n📍 [المدينة1]: [الفندق] ⭐⭐⭐⭐ ([n] ليالي)\n📍 [المدينة2]: [الفندق] ⭐⭐⭐ ([n] ليالي)\n💵 الإجمالي: [السعر] دولار\n\n2️⃣ موصى بها\n📍 (نفس الشكل بفنادق أفضل)\n💵 الإجمالي: [السعر] دولار\n\n3️⃣ مميّزة + مرشد\n📍 (نفس الشكل بفنادق ٥ نجوم)\n💵 الإجمالي: [السعر] دولار\n\n━━━━━━━━━━━━\n✅ تشمل كل الباقات:\n🛬 الاستقبال والتوصيل من وإلى المطار\n🛏️ الفنادق + الإفطار\n🚗 [sightseeing_tour_days] أيام جولات سياحية\n🔄 [transfer_days] يوم تنقّل بين المدن (سيارة مع سائق)\n🚆 تذاكر القطار بين المدن\n🎫 مرشد خاص (للمميّزة فقط)\n\n💬 تحب أجهّز لك العرض الرسمي؟\n\n# تقليل التكلفة / خيارات أخرى\n- «أرخص/خيارات أخرى/غالي» ← list_hotels بفنادق مختلفة بأسعار (p_offset+8). لا تكرّري الثلاثة.\n- «بدون جولات» ← get_package_quote بـ p_mode='no_tours'.\n- التقليل فقط: فندق أرخص أو جولات أقل أو حذف المرشد. لا تحذفي الاستقبال/التوصيل.\n\n# الأخطاء والتحويل (لا أخطاء خام)\n- غموض/نقص ← اطلبي إعادة الصياغة بلطف.\n- خطأ أداة أو خارج النطاق (طيران/دفع/مدينة أو فندق غير موجود) ← ردّي حرفياً:\n«للأسف ما قدرت أكمل طلبك هنا 🙏 تواصل مباشرة مع خدمة عملائنا على واتساب وبيساعدونك فوراً: https://wa.me/380936582617»\n- لا تُظهري «Error in workflow» أو أي خطأ تقني.\n# 🚫 التحويل لخدمة العملاء = الملاذ الأخير فقط (مهم جداً)\nلا تحوّلي العميل أبداً بسبب معلومات ناقصة أو غامضة أو غير مفهومة. في هذه الحالة اسألي سؤالاً توضيحياً بسيطاً واستمري.\nمثال: إذا كان عدد أرقام الليالي لا يساوي عدد المدن (مثل «3 3 3» لمدينتين)، اسألي: «ذكرت مدينتين — كم ليلة بالضبط في كل مدينة؟». ولا تحوّلي.\nحوّلي لخدمة العملاء (رسالة الواتساب) فقط في حالتين: (١) خطأ تقني فعلي من أداة لا يمكن حله، (٢) طلب خارج نطاقنا تماماً (طيران، دفع، مدينة أو فندق لا نوفّره). ما عدا ذلك: تابعي المحادثة واطلبي التوضيح بلطف.\nإذا كان لديك معلومات كافية لتقدير معقول، جهّزي العرض ووضّحي أي افتراض بدل التحويل.\n# 🔁 تكرار مدينة الوصول / العودة (توضيح مهم — يلغي أي قاعدة سابقة تخالفه)\nإذا أراد العميل الإقامة في مدينة الوصول مرة أخرى قبل المغادرة (ليالٍ إضافية)، أرسلي مدينة الوصول كـ leg إضافي في النهاية بعدد لياليها (تكرار المدينة مسموح ومقصود) مع p_roundtrip=false.\nمثال: «٣ ليالي موسكو وصول + ٣ ليالي سانت + ٣ ليالي موسكو مغادرة» ← p_legs=[{city:Moscow,nights:3},{city:Saint Petersburg,nights:3},{city:Moscow,nights:3}], p_roundtrip=false.\nاستخدمي p_roundtrip=true فقط عندما يرجع العميل لمدينة الوصول للمغادرة بدون ليالٍ إضافية (لا تُضيفي المدينة كـleg في هذه الحالة).\nلا تحذفي أبداً أي إقامة طلبها العميل، ولا تخمّني — إن لم يتّضح كم ليلة في كل توقّف، اسألي.\n# ⚠️ خيارات أخرى في الرحلات متعددة المدن\nlist_hotels للمدينة الواحدة فقط. لا تستخدميها أبداً في رحلة متعددة المدن، ولا تجمعي أسعار مدن منفردة (كل سعر مدينة منفصلة يشمل توصيلها وجولاتها لوحدها = رقم خاطئ للرحلة).\nفي الرحلة متعددة المدن: «الأرخص» = خيار «أساسي» من get_package_quote_multi (هو فعلاً أرخص الفنادق). إذا أراد العميل أرخص أكثر، اعرضي تقليل الجولات. الإجمالي الصحيح يأتي فقط من get_package_quote_multi (سعر واحد للرحلة كلها).\n# ✅ تحديث: خيارات الفنادق في الرحلات متعددة المدن (يلغي أي منع سابق)\nالآن يمكن عرض فنادق بديلة في الرحلة متعددة المدن بشكل صحيح. الخطوات:\n١) لعرض البدائل: نادي list_hotels لكل مدينة يريد العميل تغييرها، واعرضي أسماء الفنادق + النجوم فقط (قولي إنها خيارات للاختيار، لا تجمعي أسعارها كإجمالي للرحلة).\n٢) بعد ما يختار العميل فندقاً لكل مدينة: نادي get_trip_custom مع p_hotels (مصفوفة بنفس ترتيب p_legs، بالأسماء الدقيقة) للحصول على إجمالي واحد صحيح للرحلة كاملة.\n٣) لا تحوّلي العميل لخدمة العملاء عند طلب «خيارات أخرى» — استخدمي هذه الخطوات. التحويل فقط للأخطاء التقنية أو الطلبات خارج النطاق.\nلا تجمعي أبداً أسعار مدن منفردة من list_hotels كإجمالي للرحلة؛ الإجمالي الصحيح من get_trip_custom أو get_package_quote_multi فقط.\n# ✅ تأكيد الباقة / التخليص (الحجز يدوي عبر الفريق)\nالبوت لا يحجز. عندما يريد العميل التأكيد/الحجز («أبي أأكد»، «احجز»، «نعم أكد»، «جاهز أحجز»):\n١) إذا لا تعرفين اسم العميل، اطلبيه أولاً (الاسم + رقم تواصل إن أمكن).\n٢) أعرضي ملخّصاً نهائياً قصيراً للباقة المختارة (المدن/الفندق، التواريخ، العدد، الإجمالي).\n٣) ثم اكتبي في سطر مستقل وأخير الرمز التالي بالضبط (سيتحوّل تلقائياً إلى رابط واتساب للفريق مع الملخّص):\n[[CONFIRM]] تأكيد حجز Arcadia | <المدن> <الليالي> ليالي | <الفنادق> | <التواريخ> | <العدد> أشخاص | الإجمالي <السعر> دولار | الاسم: <اسم العميل>\nلا تكتبي رابط واتساب يدوياً ولا تشرحي الرمز؛ فقط ضعي السطر [[CONFIRM]] بالبيانات الحقيقية، والنظام يحوّله لرابط جاهز.\nالتأكيد دائماً يمر عبر هذا المسار (تحويل للفريق)، وليس عبر رسالة الخطأ/خدمة العملاء.\n# 🌍 المدن المتاحة فعلاً (مهم)\nحالياً نوفّر فنادق وباقات في هذه المدن فقط: موسكو، سانت بطرسبرغ (روسيا) • ألماتي (كازاخستان) • طشقند، سمرقند، بخارى (أوزبكستان).\nبولندا والصين ومدن أخرى (أستانا، سوتشي، كازان، خيوا...) قريباً عبر شركائنا — لسه ما عندنا فنادق فيها.\nإذا طلب العميل مدينة غير متاحة أو رجعت الأداة no_hotel_for_city: اعتذري بلطف ووضّحي أنها غير متاحة حالياً، واقترحي المدن المتاحة. لا تعتبريها خطأ ولا تحوّلي لخدمة العملاء لهذا السبب.\n\n# 🎫 سطر المرشد (مشروط)\nأظهري «🎫 مرشد خاص» في المشمولات فقط إذا كان خيار المميّزة فيه guide=true. بعض المدن (أوزبكستان حالياً) بدون خدمة مرشد — في هذه الحالة لا تذكري سطر المرشد إطلاقاً ولا تسمّي المميّزة «+مرشد»، سمّيها «مميّزة» فقط.\n\n# 🛏️ الغرف تلقائية\nعدد الغرف يُحسب تلقائياً (شخصان لكل غرفة، أي عدد الغرف = عدد الأشخاص ÷ 2 تقريباً)؛ السعر يشمله. لا تسألي العميل عن عدد الغرف إلا إذا طلب ترتيباً خاصاً. أرسلي عدد الكبار فقط للأداة.\n\n# 🛏️ عدد الغرف (تحديث)\nالافتراضي: عدد الغرف يُحسب تلقائياً (أرخص توزيع، الغرفة تستوعب 1 أو 2 أو 3 أشخاص). \nلكن إذا حدّد العميل عدد الغرف (مثل «نبي غرفتين» أو «غرفة وحدة» أو «3 غرف»)، مرّري p_rooms = هذا العدد لكل الأدوات، والمحرّك يوزّع الأشخاص على الغرف ويسعّر حسب طلبه.\nإذا كان عدد الغرف لا يكفي الأشخاص (مثل 4 أشخاص في غرفة واحدة) سترجع الأداة بلا نتيجة — وقتها اسألي العميل يزيد الغرف، لا تعتبريه خطأ.\n\n# الأسابيع\nاسبوع = ٦ ليالي (٧ أيام)، اسبوعين = ١٣ ليلة (١٤ يوم)، ٣ اسابيع = ٢٠ ليلة. طبّقي قاعدة (الأيام − ١) دائماً.\n\n# 🏨 فنادق بدون تصنيف نجوم\nبعض فنادقنا ممتازة ونظيفة لكن بدون تصنيف نجوم رسمي (star فاضي/غير موجود). في هذه الحالة لا تتركي مكان النجوم فاضياً ولا تخترعي عدد نجوم؛ بدّليه بوصف إيجابي مثل «فندق سياحي نظيف ومريح» أو «(فئة سياحية جيدة)». لا تكتبي ⭐ لها. أما الفنادق التي لها تصنيف رسمي فاعرضي ⭐ بعددها كالمعتاد.\n# ⛔⛔ الأهم: حوّلي الأيام إلى ليالي قبل أي تسعير أو تواريخ\nالليالي = الأيام − 1 (دائماً). ثم checkout = checkin + عدد الليالي.\nأمثلة إلزامية: «3 أيام»=ليلتان، «4 أيام»=3 ليالي، «5 أيام»=4 ليالي، «6 أيام»=5 ليالي، «7 أيام»=6 ليالي، «8 أيام»=7 ليالي، «10 أيام»=9 ليالي.\n«اسبوع»=6 ليالي، «اسبوعين»=13 ليلة.\nإذا قال العميل «ليالي» فاستخدميها كما هي بدون طرح. لكن «أيام/يوم» لازم تطرحين 1.\nممنوع منعاً باتاً ترسلين عدد الأيام كأنه عدد ليالي. تحقّقي من هذا قبل كل استدعاء أداة.\n\n# 🏨 الفنادق بدون نجوم — لا تحذفي الاسم\nاعرضي اسم الفندق دائماً. إذا كان بدون تصنيف نجوم، أضيفي بعد الاسم وصفاً بسيطاً بدل النجوم.\nمثال صحيح: «1️⃣ أساسية — MARMARIS SARAY (فندق سياحي نظيف ومريح)».\nمثال خاطئ (ممنوع): «1️⃣ أساسية — فندق سياحي نظيف ومريح» (بدون اسم).\n\n# تصحيحات عرض (إلزامية)\n١) عند عرض فنادق بديلة لمدينة واحدة (list_hotels) اعرضي سعر كل فندق (package_usd) بجانب اسمه ونجومه دائماً (مثال: «Brosko Hotel ⭐⭐⭐⭐ — 706 دولار»). لا تعرضي فندقاً بدون سعره.\n٢) لا تكتبي «+ مرشد» في عنوان الباقة المميّزة إلا إذا كان guide=true فعلاً. إذا ما فيه مرشد (مثل أوزبكستان) سمّيها «مميّزة» فقط بدون «+مرشد».\n# 💬 أسلوب واتساب (Human-like — لا تغيّري منطق التسعير)\n- ردّي قصيرة وطبيعية كموظفة مبيعات أركاديا على واتساب: تمام 👍 / أكيد / حاضر / خليني أشوف لك.\n- تجنّبي الفقرات الطويلة والقوالب الرسمية: لا «إذا كان لديك أي استفسار إضافي»، لا «سأكون سعيدة بمساعدتك»، لا «هل ترغب في تجهيز عرض رسمي؟» في كل رد.\n- لا تكرّري نفس جملة الختام؛ نوّعي أو اختصري.\n- خطوة واحدة في كل رد: اسألي فقط عن الناقص فعلاً. لا قائمة تحقق ولا إعادة سؤال لبيانات في leadContext.\n- إذا leadContext أو chatHistory فيها تفاصيل، استخدميها — لا تدّعي تذكّر ما ليس مخزّناً.\n- تصحيح «فندق فقط/بس فندق»: «تمام، تقصد فندق فقط بدون جولات 👍» ثم الحد الأدنى فندق+استقبال وتوصيل (p_mode='no_tours' إن يلزم) — لا فقرة عامة.\n- «سعركم غالي»: «تمام، خليني أشوف لك خيارات أوفر 👍» ثم list_hotels — لا خصم مخترع ولا حساب يدوي.\n- «لا خلاص شكرا»: «العفو، حياك الله 🌷» أو قصير مشابه — بدون قالب طويل.\n- حقائق تشغيلية (لغة السائق، إلغاء، طرق دفع، مرافق فندق…): من بيانات موثوقة فقط؛ إن لم تتوفر: «أتأكد لك من الفريق وأرجع لك.»\n- إذا سُئلتِ هل أنتِ AI/إنسان: لا تدّعي أنكِ بشرية؛ قولي باختصار أنكِ ليلى مساعدة أركاديا."
+        },
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        800,
+        -64
+      ],
+      "id": "d1dc5cf3-4397-41d1-a4b1-9a4509389f37",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        736,
+        192
+      ],
+      "id": "faad6696-5979-4253-b738-956348262e4b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        576,
+        176
+      ],
+      "id": "29bfeaa3-ab63-4873-af56-9d80e5df04d2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "E9P1ujh2ilR3XsG5",
+          "name": "OpenAi account"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this tool ONLY when the customer agrees to the formal offer. Input MUST be a JSON object with exact keys: \"phone\", \"name\", \"country\", \"price\", \"details\".",
+        "method": "POST",
+        "url": "https://n8n.arcadia-tour.cloud/webhook/save-draft",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1808,
+        192
+      ],
+      "id": "3c415060-dce0-4d15-80fd-f146276d9587",
+      "name": "save_draft_offer",
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "cacfd972-5721-42df-8836-6ca58138248a",
+      "name": "get_package_quote",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -100,
+        420
+      ],
+      "parameters": {
+        "toolDescription": "Main quote: one city, 3 tiers (Basic/Recommended/Premium) WITH prices and inclusions (tour_days, guide). p_mode: 'full' (with tours, default) or 'no_tours' (hotel + transfer only, cheaper, tour_days=0). Body: {\"p_city\":\"Almaty\",\"p_checkin\":\"YYYY-MM-DD\",\"p_checkout\":\"YYYY-MM-DD\",\"p_adults\":2,\"p_rooms\":1,\"p_mode\":\"full\"}.",
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/rpc/quote_options",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ p_city: $json.p_city, p_checkin: $json.p_checkin, p_checkout: $json.p_checkout, p_adults: ($json.p_adults||2), p_rooms: ($json.p_rooms||0), p_star: ($json.p_star||null), p_mode: ($json.p_mode||'full') }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "c7b37080-69f2-405e-aa7d-4f22b24747b0",
+      "name": "get_package_quote_multi",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -100,
+        600
+      ],
+      "parameters": {
+        "toolDescription": "Multi-city trip, 3 tiers WITH one total each. Ask the customer nights per city and round-trip first. Body: {\"p_legs\":[{\"city\":\"Moscow\",\"nights\":5},{\"city\":\"Saint Petersburg\",\"nights\":4}],\"p_checkin\":\"YYYY-MM-DD\",\"p_adults\":2,\"p_rooms\":1,\"p_roundtrip\":false}. Returns sightseeing_tour_days, transfer_days, notes (train legs). p_roundtrip=true means return to the first city's airport.",
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/rpc/quote_multi_options",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ p_legs: $json.p_legs, p_checkin: $json.p_checkin, p_adults: ($json.p_adults||2), p_rooms: ($json.p_rooms||0), p_roundtrip: ($json.p_roundtrip||false) }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput",
+      "continueOnFail": true
+    },
+    {
+      "id": "b2a5abac-44bd-4810-b931-ada8f6cbf0d4",
+      "name": "list_hotels",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -100,
+        780
+      ],
+      "onError": "continueRegularOutput",
+      "continueOnFail": true,
+      "parameters": {
+        "toolDescription": "List hotels in ONE city WITH prices (for other/cheaper hotel options). Returns up to p_limit hotels plus total_hotels and has_more. To show MORE hotels when the customer asks again, increase p_offset by the number already shown (e.g. 0 then 8 then 16). Body: {\"p_city\":\"Almaty\",\"p_checkin\":\"YYYY-MM-DD\",\"p_checkout\":\"YYYY-MM-DD\",\"p_adults\":2,\"p_rooms\":1,\"p_limit\":8,\"p_offset\":0}.",
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/rpc/list_hotels",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ p_city: $json.p_city, p_checkin: $json.p_checkin, p_checkout: $json.p_checkout, p_adults: ($json.p_adults||2), p_rooms: ($json.p_rooms||0), p_limit: ($json.p_limit||8), p_offset: ($json.p_offset||0) }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "3c57b340-79c8-4733-9714-f8aa242936ea",
+      "name": "get_hotel_package",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -100,
+        960
+      ],
+      "onError": "continueRegularOutput",
+      "continueOnFail": true,
+      "parameters": {
+        "toolDescription": "Quote a package for a SPECIFIC hotel the customer chose (after list_hotels). Body: {\"p_city\":\"Samarkand\",\"p_checkin\":\"YYYY-MM-DD\",\"p_checkout\":\"YYYY-MM-DD\",\"p_adults\":2,\"p_rooms\":1,\"p_hotel_name\":\"El Emir\",\"p_mode\":\"recommended\"}. p_mode: no_tours | recommended | premium.",
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/rpc/quote_package",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ p_city: $json.p_city, p_checkin: $json.p_checkin, p_checkout: $json.p_checkout, p_adults: ($json.p_adults||2), p_rooms: ($json.p_rooms||0), p_hotel_name: $json.p_hotel_name, p_mode: ($json.p_mode||'recommended') }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "a871b46e-860c-41d8-ad0b-1c6c896666c3",
+      "name": "find_hotel",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -100,
+        1140
+      ],
+      "onError": "continueRegularOutput",
+      "continueOnFail": true,
+      "parameters": {
+        "toolDescription": "Resolve / confirm a hotel name the customer typed (may be Arabic, misspelled, or partial). ALWAYS translate Arabic hotel names to Latin/English before calling. Body: {\"p_query\":\"Hilton Regency\",\"p_city\":\"Samarkand\"} (p_city optional). Returns matches[] with hotel,city,star,score and in_database. Use it to confirm WHICH hotel the customer means before pricing.",
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/rpc/find_hotel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ p_query: $json.p_query, p_city: ($json.p_city||null) }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "09548d84-107f-4f22-b9a2-95d2787666a8",
+      "name": "format_reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nlet t = String(j.output || j.text || j.response || '');\nconst RLM = String.fromCharCode(0x200F);\nconst WA = 'https://wa.me/380936582617';\n\n// Strip markdown links [text](url) → url; remove circular wa.me handoffs inside WhatsApp chat\nt = t.replace(/\\[([^\\]]*)\\]\\((https?:\\/\\/[^)]+)\\)/g, '$2');\nt = t.replace(/https:\\/\\/wa\\.me\\/\\d+[^\\s\\n]*/g, '');\nt = t.replace(/تواصل مباشرة[^\\n]*/gi, '');\nt = t.replace(/ما قدرت أكمل طلبك[^\\n]*/gi, '');\nt = t.replace(/خدمة عملائنا[^\\n]*/gi, '');\nt = t.replace(/\\n*‏?إذا يناسبك خبرني[^\\n]*/gi, '');\nt = t.replace(/\\n*‏?أنا هنا ل(?:مساعدتك|خدمتك)[^\\n]*/gi, '');\nconst waMatches = t.match(/https:\\/\\/wa\\.me\\/\\d+/g) || [];\nif (waMatches.length > 1) {\n  const first = waMatches[0];\n  t = t.replace(/https:\\/\\/wa\\.me\\/\\d+/g, '');\n  t = t.trim() + '\\n\\n' + first;\n}\n\nconst lines = t.split('\\n').map((s) => s.replace(/[ \\t]+$/, '')).filter((s) => s.trim().length);\nconst arr = [];\nfor (let l of lines) {\n  l = l.replace(/^\\u200F/, '');\n  const m = l.match(/^\\[\\[CONFIRM\\]\\]\\s*([\\s\\S]*)$/);\n  if (m) {\n    const msg = m[1].trim() || 'تأكيد باقة Arcadia';\n    arr.push(RLM + 'تمام! 🎉 للتأكيد اضغط الرابط ويكمل معك فريقنا فوراً 👇');\n    arr.push(WA + '?text=' + encodeURIComponent(msg));\n  } else {\n    arr.push(RLM + l);\n  }\n}\nreturn [{ json: { output: arr.join('\\n\\n') } }];\n"
+      }
+    },
+    {
+      "id": "8f0251c8-6e50-4422-8708-75ab517a616c",
+      "name": "get_trip_custom",
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -100,
+        1320
+      ],
+      "onError": "continueRegularOutput",
+      "continueOnFail": true,
+      "parameters": {
+        "toolDescription": "Re-price a multi-city trip with SPECIFIC chosen hotels (after the customer picks a hotel per city). Returns ONE correct total for the whole trip. p_hotels is an array aligned to p_legs order with exact hotel names; put empty string for a leg to keep auto-selection. Body: {\"p_legs\":[{\"city\":\"Moscow\",\"nights\":3},{\"city\":\"Saint Petersburg\",\"nights\":3}],\"p_checkin\":\"YYYY-MM-DD\",\"p_adults\":2,\"p_rooms\":1,\"p_roundtrip\":false,\"p_hotels\":[\"Continental Hotel Moscow\",\"Muse of Stars\"]}.",
+        "method": "POST",
+        "url": "https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1/rpc/quote_multi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer REDACTED_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ ({ p_legs: $json.p_legs, p_checkin: $json.p_checkin, p_adults: ($json.p_adults||2), p_rooms: ($json.p_rooms||0), p_roundtrip: ($json.p_roundtrip||false), p_hotels: ($json.p_hotels||[]) }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "131f6aeb-1155-48ef-9ec6-262f7ec7af66",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nlet t = String(j.chatInput || '');\nt = t.replace(/(\\d+)\\s*(ايام|أيام|يوم|يوماً)/g, (m, d) => {\n  const n = parseInt(d, 10) - 1;\n  return (n > 0 ? n : 1) + ' ليالي';\n});\nt = t.replace(/اسبوعين|أسبوعين/g, '13 ليالي');\nt = t.replace(/(\\d+)\\s*(اسابيع|أسابيع)/g, (m, wk) => {\n  const n = parseInt(wk, 10) * 7 - 1;\n  return n + ' ليالي';\n});\nt = t.replace(/اسبوع|أسبوع/g, '6 ليالي');\n\nconst blocks = [];\nif (j.leadContext) blocks.push('[بيانات العميل المحفوظة]\\n' + j.leadContext);\nif (j.chatHistory) {\n  const hist = String(j.chatHistory);\n  blocks.push('[آخر المحادثة]\\n' + hist.slice(Math.max(0, hist.length - 2500)));\n}\nif (j.conversationHints) blocks.push('[إشارات]\\n' + String(j.conversationHints));\nif (j.context) blocks.push('[سياق]\\n' + j.context);\nif (j.managerInstructions) blocks.push('[تعليمات المدير]\\n' + j.managerInstructions);\n\nconst prefix = blocks.length ? blocks.join('\\n\\n') + '\\n\\n[رسالة العميل]\\n' : '';\nconst enriched = prefix + t;\n\nreturn [{ json: Object.assign({}, j, { chatInput: enriched }) }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_draft_offer": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_package_quote": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_package_quote_multi": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "list_hotels": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_hotel_package": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "find_hotel": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "format_reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_trip_custom": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "When chat message received": [
+      {
+        "json": {
+          "action": "sendMessage",
+          "sessionId": "9295f189-d5c9-4896-a1d2-2b4b01e8ce14",
+          "chatInput": "كازاخستان 15 مايو شخصين بالغين بدون اطفال 6 ليالي "
+        }
+      }
+    ]
+  },
+  "versionId": "6a872f4e-fac3-454a-8eda-6519c0f06e7b",
+  "versionCounter": 276,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-13T11:55:28.974Z",
+      "createdAt": "2026-02-13T11:55:28.974Z",
+      "role": "workflow:owner",
+      "workflowId": "TuoZdJ08EHQMk1RO",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-28T21:09:08.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}

@@ -1,0 +1,492 @@
+{
+  "updatedAt": "2026-08-28T20:30:48.515Z",
+  "createdAt": "2026-08-27T22:34:26.650Z",
+  "id": "RSVg9pYlWWa5yege",
+  "name": "Laila V4 - Final Phase1 Final Candidate",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "3e2e3752-6876-4a61-941d-967edd8a6130",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        100,
+        300
+      ],
+      "webhookId": "2cfd87f2-3271-436e-91e8-76121e7dfb68",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "laila-v4",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "35ed7f7e-e29d-4057-a5a1-0d0d37983faf",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        350,
+        150
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "ee19372c-acbe-4cd8-9bbf-28af798f4b31",
+      "name": "Parse + CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Shared trip extraction + intent flags (Parse + CRM)\nconst AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';\n\nfunction arToEnDigits(s) {\n  return String(s || '').replace(/[٠-٩]/g, (d) => String(AR_DIGITS.indexOf(d)));\n}\n\nfunction parseTripContext(history) {\n  if (!history) return null;\n  const h = arToEnDigits(history);\n  const out = { destination: null, city: null, nights: null, adults: null, travel_dates: null, last_price: null, hotel: null, tour_days: null };\n\n  if (/ألماتي|Almaty/i.test(h)) {\n    out.destination = 'كازاخستان';\n    out.city = 'Almaty';\n  } else if (/مоск|Moscow/i.test(h)) {\n    out.destination = 'روسيا';\n    out.city = 'Moscow';\n  } else if (/سانت|Saint Petersburg/i.test(h)) {\n    out.destination = 'روسيا';\n    out.city = 'Saint Petersburg';\n  } else if (/سمرقند|Samarkand/i.test(h)) {\n    out.destination = 'أوزبكستان';\n    out.city = 'Samarkand';\n  }\n\n  const nightsM = h.match(/(\\d+)\\s*ليالي/);\n  if (nightsM) out.nights = parseInt(nightsM[1], 10);\n\n  if (/شخصين|شخصان/.test(history)) out.adults = 2;\n  else {\n    const paxM = h.match(/(\\d+)\\s*(?:شخص|أشخاص|كبار|بالغ)/);\n    if (paxM) out.adults = parseInt(paxM[1], 10);\n  }\n\n  const dateM = h.match(/(\\d{1,2})\\s*(يناير|فبراير|مارس|أبril|ابril|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر)\\s*[–-]\\s*(\\d{1,2})\\s*(يناير|فبراير|مارس|أبril|ابril|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر)/i);\n  if (dateM) out.travel_dates = `${dateM[1]} ${dateM[2]} – ${dateM[3]} ${dateM[4]}`;\n\n  const hotelM =\n    history.match(/أساسية\\s*[—–-]\\s*([^\\n⭐💵]+?)(?:\\s*⭐|$)/i) ||\n    history.match(/1️⃣\\s*[^\\n—–-]+[—–-]\\s*([^\\n⭐💵]+?)(?:\\s*⭐|$)/i);\n  if (hotelM) out.hotel = hotelM[1].trim();\n\n  const tourM = h.match(/(\\d+)\\s*أيام?\\s*جولات/) || h.match(/(\\d+)\\s*جولات/);\n  if (tourM) out.tour_days = parseInt(tourM[1], 10);\n\n  const prices = [...h.matchAll(/(\\d{3,4})\\s*دولار/g)].map((m) => m[1]);\n  if (prices.length) out.last_price = prices[prices.length - 1];\n\n  if (!out.city && !out.nights && !out.adults) return null;\n  return out;\n}\n\nfunction parseLeadNotes(notes) {\n  const out = {};\n  if (!notes) return out;\n  for (const seg of String(notes).split(';')) {\n    const i = seg.indexOf('=');\n    if (i > 0) out[seg.slice(0, i).trim()] = seg.slice(i + 1).trim();\n  }\n  return out;\n}\n\nfunction mergeTripContext(fromHistory, fromNotes) {\n  const trip = { ...(fromHistory || {}) };\n  if (!fromNotes) return trip;\n  if (fromNotes.city) trip.city = fromNotes.city;\n  if (fromNotes.nights) trip.nights = parseInt(fromNotes.nights, 10);\n  if (fromNotes.tour_days) trip.tour_days = parseInt(fromNotes.tour_days, 10);\n  if (fromNotes.hotel) trip.hotel = fromNotes.hotel;\n  if (fromNotes.last_price) trip.last_price = fromNotes.last_price;\n  return trip;\n}\n\nfunction parseRequestedTourDays(text) {\n  const t = arToEnDigits(text);\n  let m = t.match(/(\\d+)\\s*(?:أيام?\\s*جولات|جولات|جول)/);\n  if (m) return parseInt(m[1], 10);\n  if (/جولتين|جولين/.test(text)) return 2;\n  if (/ثلاث(?:ة)?\\s*جول/.test(text)) return 3;\n  if (/أ?ربع\\s*جول/.test(text)) return 4;\n  if (/خمس\\s*جول/.test(text)) return 5;\n  if (/ست(?:ة)?\\s*جول/.test(text)) return 6;\n  return null;\n}\n\nfunction detectTourModify(text, history) {\n  let requestedTourDays = parseRequestedTourDays(text);\n  const trimmed = String(text || '').trim();\n  if (requestedTourDays == null) {\n    const cm = trimmed.match(/^(?:طيب\\s*)?(\\d+)\\s*[?؟]?\\s*$/);\n    if (cm && /(?:جول|جولات|أيام جولات|tour_days)/i.test(String(history || '').slice(-1200))) {\n      requestedTourDays = parseInt(cm[1], 10);\n    }\n  }\n  const modifyRx =\n    /(?:خليها|خلها|خلي|ابي|أبي|اريد|أريد|ابغى|بغى|حط|خل|رجعها|رجع|ارجعها|ارجع|اخليها|اخلي|لو\\s+اخلي)/i;\n  const hasModifyVerb =\n    modifyRx.test(text) ||\n    (/^(?:طيب\\s*)?\\d+\\s*[?؟]?\\s*$/.test(trimmed) && requestedTourDays != null);\n  return { requestedTourDays, hasModifyVerb };\n}\n\nfunction tripContextSummary(trip) {\n  if (!trip) return '';\n  const parts = [];\n  if (trip.destination) parts.push('الوجهة: ' + trip.destination);\n  if (trip.city) parts.push('المدينة: ' + trip.city);\n  if (trip.travel_dates) parts.push('التواريخ: ' + trip.travel_dates);\n  if (trip.nights != null) parts.push('الليالي: ' + trip.nights);\n  if (trip.adults != null) parts.push('الكبار: ' + trip.adults);\n  if (trip.last_price) parts.push('آخر سعر معروض: ' + trip.last_price + ' دولار');\n  return parts.join(' | ');\n}\n\nconst body = $input.first().json.body || $input.first().json;\nconst data = body.data || body;\nconst key = data.key || {};\nconst remoteJid = key.remoteJid || '';\nconst phone = remoteJid.replace('@s.whatsapp.net', '').replace('@g.us', '');\n\nif (key.fromMe) return [];\n\nconst message = data.message || {};\nconst messageType = data.messageType || 'unknown';\nlet textContent = '';\nif (messageType === 'conversation') textContent = message.conversation || '';\nelse if (messageType === 'extendedTextMessage') textContent = (message.extendedTextMessage || {}).text || '';\nelse if (messageType === 'audioMessage') textContent = '[رسالة صوتية]';\nelse textContent = message.conversation || message.text || '';\n\ntextContent = textContent.replace(/(\\d+)\\s*(ايام|أيام|يوم)/g, (m, d) => `${parseInt(d, 10) - 1} ليالي`);\ntextContent = textContent.replace(/اسبوعين|أسبوعين/g, '13 ليالي');\ntextContent = textContent.replace(/اسبوع|أسبوع/g, '7 ليالي');\ntextContent = textContent.replace(/عشر ايام|عشرة ايام|عشر أيام|عشرة أيام/g, '9 ليالي');\ntextContent = textContent.replace(/خمسة ايام|خمس ايام|خمسة أيام/g, '4 ليالي');\ntextContent = textContent.replace(/ستة ايام|ست ايام/g, '5 ليالي');\n\nconst MANAGER_PHONE = '380936582617';\nconst isManager = phone === MANAGER_PHONE;\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '') + '/rest/v1';\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nif (!KEY) throw new Error('SUPABASE_KEY required');\nconst h = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };\n\nfunction leadHasStoredTrip(lead) {\n  if (!lead) return false;\n  return !!(lead.destination || lead.travel_dates || lead.pax_adults || lead.pax_children || lead.notes);\n}\n\nfunction buildLeadStateSummary(lead, tripCtx) {\n  const parts = [];\n  if (lead?.name) parts.push('الاسم: ' + lead.name);\n  if (lead?.destination) parts.push('الوجهة: ' + lead.destination);\n  else if (tripCtx?.destination) parts.push('الوجهة: ' + tripCtx.destination);\n  if (lead?.travel_dates) parts.push('التواريخ: ' + lead.travel_dates);\n  else if (tripCtx?.travel_dates) parts.push('التواريخ: ' + tripCtx.travel_dates);\n  if (lead?.pax_adults != null) parts.push('الكبار: ' + lead.pax_adults);\n  else if (tripCtx?.adults != null) parts.push('الكبار: ' + tripCtx.adults);\n  if (lead?.pax_children != null) parts.push('الأطفال: ' + lead.pax_children);\n  if (tripCtx?.nights != null) parts.push('الليالي: ' + tripCtx.nights);\n  if (tripCtx?.tour_days != null) parts.push('أيام الجولات: ' + tripCtx.tour_days);\n  if (tripCtx?.hotel) parts.push('الفندق: ' + tripCtx.hotel);\n  if (tripCtx?.city) parts.push('المدينة: ' + tripCtx.city);\n  if (tripCtx?.last_price) parts.push('آخر سعر: ' + tripCtx.last_price + ' دولار');\n  if (lead?.stage) parts.push('المرحلة: ' + lead.stage);\n  if (lead?.offer_sent) parts.push('تم إرسال عرض');\n  if (lead?.notes) parts.push('ملاحظات: ' + String(lead.notes).slice(0, 200));\n  return parts.join(' | ');\n}\n\nconst trimmed = textContent.trim();\nconst returningRx = /(خبرتكم|خبرتك|قلت\\s*لك|قلت\\s*لنا|سبق\\s*و|قبل\\s*كذا|انا\\s*خبرت|أنا\\s*خبرت|from\\s*before)/i;\nconst newTripRx = /^(جديد|بداية\\s*جديدة|new\\s*trip|رحلة\\s*جديدة|من\\s*الاول|من\\s*الأول)/i;\nconst greetingRx = /^(السلام|سلام|مرحبا|هلا|أهلا|ياهلا|صباح|مساء|هلو|hello|hi\\b)/i;\nconst hotelOnlyRx = /(فندق\\s*فقط|فنادق\\s*بس|فندق\\s*بس|بس\\s*فندق|احتاج\\s*فندق|hotel\\s*only|هذا\\s*فنادق)/i;\nconst priceObjectionRx = /(غالي|غالية|سعركم|السعر\\s*عالي|expensive|too\\s*much|ارخص|أرخص)/i;\nconst goodbyeRx = /(لا\\s*خلاص|خلاص\\s*شكر|شكر\\s*بس|ما\\s*بغى|ما\\s*ابغى|مو\\s*مهتم|not\\s*interested)/i;\nconst aiQuestionRx = /(موظف|موظفه|موظفة|إنسان|بشر|human|robot|روبوت|bot\\b|ai\\b|ذكاء\\s*اصطناع|انت\\s*ذكاء|أنت\\s*ذكاء|انتي\\s*موظف|أنتي\\s*موظف)/i;\nconst driverLangRx = /(السواق|السائق|سائق|driver).*(عربي|arabic|يتكلم|يتحدث|speak)/i;\nconst opsFactRx = /(الغاء|إلغاء|cancellation|طريق[ةه]\\s*الدفع|payment\\s*method|مرافق|facility|policy)/i;\nconst priceConfirmRx = /(?:هذا|هذ)\\s*السعر|السعر\\s*(?:هذا|مع|على|حسب)/i;\nconst sameHotelRx = /(?:الفندق|فندق)\\s*(?:نفس|زي|مثل)\\s*(?:اللي|الذي|قبل|السابق|اول|أول)/i;\nconst tourFlexRx =\n  /(?:المفترض|مفروض|يعني|6\\s*جولات?\\s*او|جولات?\\s*او\\s*كم|ينفع\\s*ن|نقدر\\s*ن(?:زيد|قلل|عدل)|ممكن\\s*ن(?:زيد|قلل|عدل))/i;\nconst packageCompositionRx =\n  /(ايش|كم|ويش|كيف|why).*(جول|جولات|tour|بكج|باقة|عرض|ليالي|ليال|ايام|أيام)|(?:البكج|الباقة|العرض)\\s*(كيف|وش|ايش)|(?:عندي|عندنا)\\s*\\d+\\s*(ليالي|ليال|ايام|أيام)|(?:this|the)\\s*package/i;\n\nconst isReturningCustomer = returningRx.test(trimmed);\nconst isExplicitNewTrip = newTripRx.test(trimmed);\nconst isGreeting = greetingRx.test(trimmed);\n\nlet isNew = false;\nlet lead = null;\ntry {\n  const r = await this.helpers.httpRequest({ method: 'GET', url: `${SB}/leads?phone=eq.${phone}&limit=1`, headers: h });\n  if (r.length > 0) {\n    lead = r[0];\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: `${SB}/leads?phone=eq.${phone}`,\n      headers: { ...h, Prefer: 'return=minimal' },\n      body: { last_contact: new Date().toISOString(), updated_at: new Date().toISOString() },\n    });\n  } else {\n    isNew = true;\n    if (!isManager) {\n      const r2 = await this.helpers.httpRequest({\n        method: 'POST',\n        url: `${SB}/leads`,\n        headers: { ...h, Prefer: 'return=representation' },\n        body: { phone, stage: 'new', assigned_to: 'bot', source: 'direct', last_contact: new Date().toISOString() },\n      });\n      lead = r2[0] || null;\n    }\n  }\n} catch (e) {}\n\nif (!isManager) {\n  try {\n    await this.helpers.httpRequest({\n      method: 'POST',\n      url: `${SB}/conversations`,\n      headers: { ...h, Prefer: 'return=minimal' },\n      body: { phone, role: 'user', message: textContent },\n    });\n  } catch (e) {}\n}\n\nconst shouldResetLead = isExplicitNewTrip && phone && !isReturningCustomer;\nif (shouldResetLead) {\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: SB + '/leads?phone=eq.' + phone,\n      headers: { ...h, Prefer: 'return=minimal' },\n      body: {\n        stage: 'new',\n        destination: null,\n        travel_dates: null,\n        pax_adults: null,\n        pax_children: null,\n        children_ages: null,\n        offer_sent: false,\n        notes: null,\n        next_followup: null,\n        follow_up_count: 0,\n        objection_type: null,\n        needs_human: false,\n        updated_at: new Date().toISOString(),\n      },\n    });\n    if (lead) {\n      lead.stage = 'new';\n      lead.destination = null;\n      lead.travel_dates = null;\n      lead.pax_adults = null;\n    }\n  } catch (e) {}\n}\n\nlet chatHistory = '';\ntry {\n  const msgs = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${SB}/conversations?phone=eq.${phone}&order=id.asc&limit=30`,\n    headers: h,\n  });\n  chatHistory = msgs.map((m) => (m.role === 'user' ? 'العميل' : 'ليلى') + ': ' + m.message).join('\\n');\n} catch (e) {}\n\nconst tripFromHistory = parseTripContext(chatHistory);\nconst tripCtx = mergeTripContext(tripFromHistory, parseLeadNotes(lead?.notes));\nconst tourModify = detectTourModify(trimmed, chatHistory);\nconst requestedTourDays = tourModify.requestedTourDays;\nconst hasModifyVerb = tourModify.hasModifyVerb;\n\n// Backfill lead CRM from chat when empty (root cause: quotes never persisted)\nif (tripFromHistory && lead && !leadHasStoredTrip(lead) && phone && !isManager) {\n  const patch = { updated_at: new Date().toISOString() };\n  if (tripFromHistory.destination) patch.destination = tripFromHistory.destination;\n  if (tripFromHistory.travel_dates) patch.travel_dates = tripFromHistory.travel_dates;\n  if (tripFromHistory.adults != null) patch.pax_adults = tripFromHistory.adults;\n  if (tripFromHistory.nights != null) patch.notes = `nights=${tripFromHistory.nights};city=${tripFromHistory.city || ''}`;\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: `${SB}/leads?phone=eq.${phone}`,\n      headers: { ...h, Prefer: 'return=minimal' },\n      body: patch,\n    });\n    Object.assign(lead, patch);\n  } catch (e) {}\n}\n\nlet managerInstructions = '';\ntry {\n  const inst = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${SB}/manager_instructions?active=eq.true&order=created_at.desc&limit=20`,\n    headers: h,\n  });\n  if (inst.length > 0) managerInstructions = inst.map((i) => '- ' + i.instruction).join('\\n');\n} catch (e) {}\n\nconst leadStateSummary = buildLeadStateSummary(lead, tripCtx);\nconst hasTripContext = !!(leadStateSummary && !/^المرحلة:\\s*new\\s*$/.test(leadStateSummary));\n\nlet conversationIntent = 'general';\nif (goodbyeRx.test(trimmed)) conversationIntent = 'goodbye';\nelse if (aiQuestionRx.test(trimmed)) conversationIntent = 'ai_identity';\nelse if (driverLangRx.test(trimmed) || (opsFactRx.test(trimmed) && !/طريق[ةه]\\s*الدفع/.test(trimmed))) conversationIntent = 'ops_unknown';\nelse if (hotelOnlyRx.test(trimmed)) conversationIntent = 'hotel_only';\nelse if (hasModifyVerb && requestedTourDays != null && tripCtx?.city) conversationIntent = 'package_tour_modify';\nelse if (priceConfirmRx.test(trimmed) && /جول/.test(trimmed) && tripCtx?.city) conversationIntent = 'package_price_confirm';\nelse if (sameHotelRx.test(trimmed) && tripCtx?.hotel) conversationIntent = 'package_same_hotel';\nelse if (priceObjectionRx.test(trimmed)) conversationIntent = 'price_objection';\nelse if (isReturningCustomer) conversationIntent = 'returning_customer';\nelse if (tourFlexRx.test(trimmed) && /جول/.test(trimmed) && tripCtx?.city) conversationIntent = 'package_tour_flexibility';\nelse if (packageCompositionRx.test(trimmed) && tripCtx?.city) conversationIntent = 'package_composition';\n\nconst conversationHints = [];\nif (conversationIntent === 'returning_customer' && hasTripContext) {\n  conversationHints.push('استخدمي بيانات المحادثة/leadContext — لا تعيدي سؤال التفاصيل.');\n}\nif (conversationIntent === 'price_objection') {\n  conversationHints.push('اعتراض سعر — استخدمي Pricing Engine فقط.');\n}\n\nlet context = '';\nif (isManager) context = 'هذا المدير أبو أمير — عامليه كمديرك.';\nelse if (isNew) context = 'عميل جديد — عرّفي نفسك باختصار «أنا ليلى من أركاديا» فقط إذا يلزم.';\nelse if (isReturningCustomer || hasTripContext) context = 'عميل سابق — لا تعرّفي نفسك ولا تسألي تفاصيل محفوظة.';\nelse if (isGreeting) context = 'تحية — ردّي باختصار واسألي فقط عن الناقص.';\nelse context = 'عميل سابق — لا تعرّفي نفسك.';\nif (leadStateSummary) context += ' بيانات محفوظة: ' + leadStateSummary + '.';\n\nconst enWords = (textContent.match(/[a-zA-Z]{3,}/g) || []).length;\nconst totalWords = textContent.trim().split(/\\s+/).length;\nconst customerLanguage = enWords / Math.max(totalWords, 1) > 0.5 ? 'en' : 'ar';\n\nreturn [{\n  json: {\n    phone,\n    remoteJid,\n    textContent,\n    customerLanguage,\n    isManager,\n    isNew,\n    lead,\n    leadStateSummary,\n    tripFromHistory: tripCtx,\n    requestedTourDays,\n    chatHistory,\n    managerInstructions,\n    context,\n    conversationHints,\n    conversationIntent,\n  },\n}];\n",
+        "mode": "runOnceForAllItems"
+      }
+    },
+    {
+      "id": "87a07994-11ad-435c-80c3-3db1aef79149",
+      "name": "Save Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        200
+      ],
+      "parameters": {
+        "jsCode": "const de = $('Decision Engine').first()?.json || {};\nconst prev = { ...de, ...($input.first().json || {}) };\nconst SB = 'https://xfibcjhshpmqkrhlpsoa.supabase.co/rest/v1';\nconst KEY = 'REDACTED_SUPABASE_SERVICE_ROLE_KEY';\nconst h = { 'apikey':KEY, 'Authorization':'Bearer '+KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' };\nif (!prev.isManager) {\n  try { await this.helpers.httpRequest({ method:'POST', url:`${SB}/conversations`, headers:h, body:{ phone:prev.phone, role:'assistant', message:prev.response } }); } catch(e) {}\n}\nreturn [{ json: prev }];"
+      }
+    },
+    {
+      "id": "4eeb650c-d7a5-4c71-bc70-421acd560d1a",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        200
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.arcadia-tour.cloud/message/sendText/h",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "863E50B69702-4B1F-B00F-45E76B267DBE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ number: $json.phone, text: $json.response }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "fu-cancel-001",
+      "name": "Cancel FU on Reply",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Cancel Follow-up on Client Reply\n// أول Code node في Laila V4 (بعد Webhook)\n// يستخدم this.helpers.httpRequest (لا fetch)\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'REDACTED_SUPABASE_SERVICE_ROLE_KEY';\n\nconst raw     = $input.first().json;\nconst msgData = raw.data || raw;\n\n// Defensive fromMe detection\nconst incomingPhone = msgData?.key?.remoteJid?.replace('@s.whatsapp.net', '');\nconst isFromBot     = msgData?.key?.fromMe === true || msgData?.message?.fromMe === true;\n\nif (!incomingPhone || isFromBot) {\n  return $input.all();\n}\n\ntry {\n  await this.helpers.httpRequest({\n    method: 'PATCH',\n    url: `${SUPABASE_URL}/rest/v1/leads?phone=eq.${incomingPhone}`,\n    headers: {\n      'apikey': SUPABASE_KEY,\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=representation',\n    },\n    body: {\n      next_followup: null,\n      last_contact: new Date().toISOString(),\n    },\n    json: true,\n  });\n} catch(e) {\n  // لا نوقف الـ flow لو الـ patch فشل\n  console.log(`[CANCEL-FU] patch failed: ${e.message}`);\n}\n\nreturn $input.all();\n"
+      }
+    },
+    {
+      "id": "fu-set-001",
+      "name": "Set FU on Quote",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// ========================================\n// Set Follow-up — Smart Detection\n// بعد \"Send WhatsApp\" في Laila V4\n// يستخدم this.helpers.httpRequest (لا fetch)\n// ========================================\n\nconst SUPABASE_URL = 'https://xfibcjhshpmqkrhlpsoa.supabase.co';\nconst SUPABASE_KEY = 'REDACTED_SUPABASE_SERVICE_ROLE_KEY';\n\nconst ctx    = $input.first().json;\nconst phone  = ctx.phone\n  || ctx.data?.key?.remoteJid?.replace('@s.whatsapp.net', '')\n  || ctx.from;\n\nconst botMsg      = ctx.botMessage || ctx.finalResponse || ctx.message || '';\nconst destination = ctx.destination || ctx.context?.destination || null;\nconst name        = ctx.name || ctx.clientName || null;\n\nif (!phone) return $input.all();\n\n// Price Detection\nconst PRICE_PATTERNS = [\n  /\\$[\\d,]+/, /USD\\s*[\\d,]+/i,\n  /[\\d,]{3,}\\s*(دولار|ريال|درهم)/,\n  /السعر[:\\s]+/, /🥇|🥈|🥉/,\n  /الاقتصادي|الفاخر|المتوسط/,\n  /ليلة.*\\$/,\n];\n\nconst hasPriceSent = PRICE_PATTERNS.some(p => p.test(botMsg));\nif (!hasPriceSent) return $input.all();\n\nconst nextFollowup = new Date(Date.now() + 30 * 60 * 1000).toISOString();\n\ntry {\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: `${SUPABASE_URL}/rest/v1/leads`,\n    headers: {\n      'apikey': SUPABASE_KEY,\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'resolution=merge-duplicates,return=representation',\n    },\n    body: {\n      phone, name, destination,\n      stage: 'quoted',\n      follow_up_count: 0,\n      next_followup: nextFollowup,\n      paused: false,\n      source: 'laila_v4',\n    },\n    json: true,\n  });\n} catch(e) {\n  console.log(`[SET-FU] failed: ${e.message}`);\n}\n\nreturn $input.all();\n"
+      }
+    },
+    {
+      "id": "de-001",
+      "name": "Decision Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        200
+      ],
+      "parameters": {
+        "jsCode": "// Decision Engine — deterministic routing + AI fallback (no extra prompt layers)\nconst phone = $json.phone;\nconst remoteJid = $json.remoteJid;\nconst text = $json.textContent || $json.text || '';\nconst isManager = $json.isManager || false;\nconst intent = $json.conversationIntent || 'general';\nconst trip = $json.tripFromHistory || null;\nconst requestedTourDays = $json.requestedTourDays ?? null;\nconst chatHistory = $json.chatHistory || '';\n\nconst SB = String($env.SUPABASE_URL || 'https://xfibcjhshpmqkrhlpsoa.supabase.co').replace(/\\/$/, '');\nconst KEY = $env.SUPABASE_KEY || $env.SUPABASE_SERVICE_ROLE_KEY;\nconst HDR = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };\n\nconst HOTEL_ONLY_POLICY =\n  'أيوه فهمتك، فندق فقط 👍 حاليًا حجوزاتنا تكون ضمن باقة مع التوصيل، ما نوفر الفندق منفرد.';\nconst OPS_UNKNOWN = 'أتأكد لك من الفريق وأرجع لك 👍';\nconst AI_IDENTITY =\n  'أنا مساعدة أركاديا بالذكاء الاصطناعي 😊 وإذا احتاج طلبك تدخل موظف من الفريق أحوله لهم.';\nconst GOODBYE = 'العفو، حياك الله 🌷';\nconst PRICING_RETRY = 'لحظة أتأكد لك من السعر بعد التعديل 👍';\n\nconst MONTHS = {\n  يناير: 1, فبراير: 2, مارس: 3, ابريل: 4, أبريل: 4, april: 4,\n  مايو: 5, يونيو: 6, يوليو: 7, أغسطس: 8, سبتمبر: 9, أكتوبر: 10, اكتوبر: 10,\n  نوفمبر: 11, ديسمبر: 12,\n};\n\nfunction arToEnDigits(s) {\n  const AR = '٠١٢٣٤٥٦٧٨٩';\n  return String(s || '').replace(/[٠-٩]/g, (d) => String(AR.indexOf(d)));\n}\n\nfunction sanitizeReply(s) {\n  let t = String(s || '');\n  t = t.replace(/\\[([^\\]]*)\\]\\((https?:\\/\\/[^)]+)\\)/g, '$2');\n  t = t.replace(/https:\\/\\/wa\\.me\\/\\d+[^\\s\\n]*/g, '');\n  t = t.replace(/تواصل مباشرة[^\\n]*/gi, '');\n  t = t.replace(/ما قدرت أكمل طلبك[^\\n]*/gi, '');\n  t = t.replace(/خدمة عملائنا[^\\n]*/gi, '');\n  t = t.replace(/\\n*‏?إذا تحتاج لأي مساعدة إضافية[^\\n]*/gi, '');\n  t = t.replace(/\\n*‏?إذا يناسبك خبرني[^\\n]*/gi, '');\n  t = t.replace(/\\n*‏?أنا هنا ل(?:مساعدتك|خدمتك)[^\\n]*/gi, '');\n  t = t.replace(/\\n*‏?(?:هل )?تر(?:غب|يد).*?(?:عرض رسمي|تجهيز العرض)[^\\n]*/gi, '');\n  return t.trim();\n}\n\nfunction isCircularHandoff(s) {\n  return /wa\\.me|تواصل مباشرة|ما قدرت أكمل طلبك|خدمة عملائنا/.test(String(s || ''));\n}\n\nfunction tourDaysLabel(n) {\n  if (n === 2) return 'جولتين';\n  return `${n} أيام جولات`;\n}\n\nfunction addDays(iso, days) {\n  const d = new Date(iso + 'T12:00:00Z');\n  d.setUTCDate(d.getUTCDate() + days);\n  return d.toISOString().slice(0, 10);\n}\n\nfunction resolveDates(tripCtx, history) {\n  const h = arToEnDigits(history || '');\n  const m = h.match(/(\\d{1,2})\\s*(يناير|فبراير|مارس|ابريل|أبريل|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|اكتوبر|نوفمبر|ديسمبر)/i);\n  if (m) {\n    const day = parseInt(m[1], 10);\n    const monKey = m[2].replace(/أ/g, 'ا');\n    const mon = MONTHS[monKey] || MONTHS[m[2].toLowerCase()];\n    if (mon) {\n      const year = new Date().getUTCFullYear();\n      let checkin = `${year}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`;\n      if (new Date(checkin) < new Date()) checkin = `${year + 1}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`;\n      const nights = tripCtx?.nights || 7;\n      return { checkin, checkout: addDays(checkin, nights) };\n    }\n  }\n  const checkin = addDays(new Date().toISOString().slice(0, 10), 30);\n  const nights = tripCtx?.nights || 7;\n  return { checkin, checkout: addDays(checkin, nights) };\n}\n\nasync function fetchQuoteOptions(tripCtx, mode) {\n  if (!KEY || !tripCtx?.city) return null;\n  const dates = resolveDates(tripCtx, chatHistory);\n  try {\n    let data = await this.helpers.httpRequest({\n      method: 'POST',\n      url: SB + '/rest/v1/rpc/quote_options',\n      headers: HDR,\n      body: {\n        p_city: tripCtx.city,\n        p_checkin: dates.checkin,\n        p_checkout: dates.checkout,\n        p_adults: tripCtx.adults || 2,\n        p_rooms: 0,\n        p_mode: mode || 'full',\n      },\n      json: true,\n    });\n    if (data && data.quote_options) data = data.quote_options;\n    if (data && Array.isArray(data.options)) return data;\n    return null;\n  } catch (e) {\n    return null;\n  }\n}\n\nasync function fetchQuotePackage(tripCtx, forceTourDays) {\n  if (!KEY || !tripCtx?.city || forceTourDays == null) return null;\n  const dates = resolveDates(tripCtx, chatHistory);\n  const body = {\n    p_city: tripCtx.city,\n    p_checkin: dates.checkin,\n    p_checkout: dates.checkout,\n    p_adults: tripCtx.adults || 2,\n    p_rooms: 0,\n    p_star: null,\n    p_mode: 'recommended',\n    p_markup: 0.2,\n    p_include_transfer: true,\n    p_force_tour_days: forceTourDays,\n    p_hotel_name: tripCtx.hotel || null,\n  };\n  if (!tripCtx.hotel) body.p_hotel_tier = 'cheapest';\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'POST',\n      url: SB + '/rest/v1/rpc/quote_package',\n      headers: HDR,\n      body,\n      json: true,\n    });\n    if (data && data.error) return null;\n    if (data && data.final_price_usd != null) return data;\n    return null;\n  } catch (e) {\n    return null;\n  }\n}\n\nasync function persistPackagePrefs(tripCtx, tourDays, price, hotelName) {\n  if (!KEY || !phone) return;\n  const notes = [\n    tripCtx.city ? `city=${tripCtx.city}` : '',\n    tripCtx.nights != null ? `nights=${tripCtx.nights}` : '',\n    `tour_days=${tourDays}`,\n    hotelName ? `hotel=${hotelName}` : tripCtx.hotel ? `hotel=${tripCtx.hotel}` : '',\n    `last_price=${price}`,\n  ]\n    .filter(Boolean)\n    .join(';');\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: SB + '/rest/v1/leads?phone=eq.' + phone,\n      headers: { ...HDR, Prefer: 'return=minimal' },\n      body: { notes, updated_at: new Date().toISOString() },\n    });\n  } catch (e) {}\n}\n\nfunction pickQuoteOption(quoteData, tripCtx) {\n  const opts = quoteData.options || [];\n  if (tripCtx?.last_price) {\n    const hit = opts.find((o) => String(o.price_usd) === String(tripCtx.last_price));\n    if (hit) return hit;\n  }\n  if (tripCtx?.tour_days != null) {\n    const byTour = opts.find((o) => o.tour_days === tripCtx.tour_days);\n    if (byTour) return byTour;\n  }\n  return opts.find((o) => /basic|أساس/i.test(String(o.tier || ''))) || opts[0];\n}\n\nfunction currentTourDays(quoteData, option, tripCtx) {\n  if (tripCtx?.tour_days != null) return tripCtx.tour_days;\n  return option?.tour_days ?? quoteData?.nights;\n}\n\nfunction formatPackageExplain(quoteData, option, tripCtx) {\n  const nights = quoteData.nights;\n  const totalDays = nights + 1;\n  const tourDays = currentTourDays(quoteData, option, tripCtx);\n  return `الرحلة ${totalDays} أيام / ${nights} ليالي 👍 العرض الحالي فيه ${tourDays} أيام جولات — ونقدر نزيدها أو نقللها على راحتك.`;\n}\n\nfunction formatTourFlexibility(quoteData, option, tripCtx) {\n  const tourDays = currentTourDays(quoteData, option, tripCtx);\n  const next = tourDays + 1;\n  return `العرض الحالي فيه ${tourDays} أيام جولات، بس عادي نقدر نعدله على راحتك 👍 إذا تحب ${next} جولات أضيف لك يوم جولة وأحسب لك السعر الجديد، وإذا تحب أقل نقدر نقللها برضه.`;\n}\n\nfunction formatTourModify(pkg, tourDays, adults) {\n  const pax = adults || 2;\n  const paxLabel = pax === 2 ? 'شخصين' : `${pax} أشخاص`;\n  return `تمام، خليتها ${tourDaysLabel(tourDays)} 👍 السعر صار ${pkg.final_price_usd} دولار لـ${paxLabel}.`;\n}\n\nfunction formatQuoteReply(tripCtx, quoteData, intro) {\n  const opts = quoteData.options || [];\n  const basic = opts.find((r) => /basic|أساس|eco/i.test(String(r.tier || ''))) || opts[0];\n  const rec = opts.find((r) => /recommend|موص/i.test(String(r.tier || ''))) || opts[1] || opts[0];\n  const lines = [intro || 'تمام، خليني أشوف لك خيارات أوفر 👍', ''];\n  if (basic) lines.push(`1️⃣ أساسية — ${basic.hotel || 'فندق'} — ${basic.price_usd} دولار`);\n  if (rec && rec !== basic) lines.push(`2️⃣ موصى بها — ${rec.hotel || 'فندق'} — ${rec.price_usd} دولار`);\n  lines.push('', 'إذا يناسبك خبرني 👍');\n  return lines.join('\\n');\n}\n\nasync function flagNeedsHuman() {\n  if (!KEY || !phone) return;\n  try {\n    await this.helpers.httpRequest({\n      method: 'PATCH',\n      url: SB + '/rest/v1/leads?phone=eq.' + phone,\n      headers: { ...HDR, Prefer: 'return=minimal' },\n      body: { needs_human: true, updated_at: new Date().toISOString() },\n    });\n  } catch (e) {}\n}\n\nlet response = '';\nlet routedBy = 'ai_agent';\n\nif (intent === 'goodbye') {\n  response = GOODBYE;\n  routedBy = 'deterministic:goodbye';\n} else if (intent === 'ai_identity') {\n  response = AI_IDENTITY;\n  routedBy = 'deterministic:ai_identity';\n} else if (intent === 'ops_unknown') {\n  response = OPS_UNKNOWN;\n  routedBy = 'deterministic:ops_unknown';\n  await flagNeedsHuman.call(this);\n} else if (intent === 'hotel_only') {\n  response = HOTEL_ONLY_POLICY;\n  routedBy = 'deterministic:hotel_only_policy';\n} else if (intent === 'returning_customer' && trip) {\n  const bits = [];\n  if (trip.destination) bits.push(trip.destination);\n  if (trip.nights) bits.push(trip.nights + ' ليالي');\n  if (trip.adults) bits.push(trip.adults + ' أشخاص');\n  response = `تمام، عندي طلبك: ${bits.join('، ') || 'طلبك السابق'} 👍`;\n  if (trip.last_price) response += `\\nآخر عرض كان ${trip.last_price} دولار — تبي أرسله لك مرة ثانية؟`;\n  else response += '\\nتبي أرسل لك آخر عرض؟';\n  routedBy = 'deterministic:returning_customer';\n} else if (intent === 'package_tour_modify' && trip?.city && requestedTourDays != null) {\n  routedBy = 'deterministic:package_tour_modify';\n  const pkg = await fetchQuotePackage.call(this, trip, requestedTourDays);\n  if (pkg) {\n    const hotelName = pkg.hotel?.name || trip.hotel || null;\n    response = formatTourModify(pkg, requestedTourDays, trip.adults);\n    await persistPackagePrefs.call(this, trip, requestedTourDays, pkg.final_price_usd, hotelName);\n  } else {\n    response = PRICING_RETRY;\n    await flagNeedsHuman.call(this);\n  }\n} else if (intent === 'package_price_confirm' && trip?.city) {\n  routedBy = 'deterministic:package_price_confirm';\n  const askedDays = requestedTourDays ?? trip.tour_days;\n  if (askedDays != null && trip.tour_days === askedDays && trip.last_price) {\n    response = `أيوه، هذا السعر على نفس ${trip.hotel || 'الفندق'} مع ${tourDaysLabel(askedDays)} 👍`;\n  } else if (askedDays != null) {\n    const pkg = await fetchQuotePackage.call(this, trip, askedDays);\n    if (pkg) {\n      const hotelName = pkg.hotel?.name || trip.hotel || null;\n      response = `أيوه 👍 ${tourDaysLabel(askedDays)} على ${hotelName} — ${pkg.final_price_usd} دولار لشخصين.`;\n      await persistPackagePrefs.call(this, trip, askedDays, pkg.final_price_usd, hotelName);\n    } else {\n      response = PRICING_RETRY;\n      await flagNeedsHuman.call(this);\n    }\n  } else {\n    response = PRICING_RETRY;\n    await flagNeedsHuman.call(this);\n  }\n} else if (intent === 'package_same_hotel' && trip?.hotel) {\n  routedBy = 'deterministic:package_same_hotel';\n  response = `أيوه، نفس ${trip.hotel} 👍`;\n  if (trip.tour_days != null && trip.last_price) {\n    response += ` ${tourDaysLabel(trip.tour_days)} — ${trip.last_price} دولار لشخصين.`;\n  }\n} else if ((intent === 'package_tour_flexibility' || intent === 'package_composition') && trip?.city) {\n  routedBy = 'deterministic:' + intent;\n  const quoteData = await fetchQuoteOptions.call(this, trip, 'full');\n  if (quoteData) {\n    const option = pickQuoteOption(quoteData, trip);\n    if (option) {\n      response =\n        intent === 'package_tour_flexibility'\n          ? formatTourFlexibility(quoteData, option, trip)\n          : formatPackageExplain(quoteData, option, trip);\n    }\n  }\n  if (!response) response = OPS_UNKNOWN;\n} else if (intent === 'price_objection') {\n  routedBy = 'deterministic:pricing_engine';\n  const quoteData = await fetchQuoteOptions.call(this, trip, 'no_tours');\n  if (quoteData) response = formatQuoteReply(trip, quoteData, 'تمام، خليني أشوف لك خيارات أوفر 👍');\n  if (!response) {\n    const quoteFull = await fetchQuoteOptions.call(this, trip, 'full');\n    if (quoteFull) response = formatQuoteReply(trip, quoteFull, 'تمام، خليني أشوف لك خيارات أوفر 👍');\n  }\n}\n\nif (!response) {\n  const payload = {\n    action: 'sendMessage',\n    sessionId: String(phone || 'wa'),\n    chatInput: text,\n    leadContext: $json.leadStateSummary || '',\n    chatHistory,\n    managerInstructions: $json.managerInstructions || '',\n    context: $json.context || '',\n    conversationHints: ($json.conversationHints || []).join('\\n'),\n    customerLanguage: $json.customerLanguage || 'ar',\n  };\n  try {\n    const res = await this.helpers.httpRequest({\n      method: 'POST',\n      url: 'https://n8n.arcadia-tour.cloud/webhook/cc004272-5e46-4e5c-be6d-ba84fdf35258/chat',\n      body: payload,\n      json: true,\n      timeout: 90000,\n    });\n    if (typeof res === 'string') {\n      try { response = JSON.parse(res).output; } catch (e) { response = res; }\n    } else {\n      response = (res && (res.output || res.text || res.response)) || '';\n    }\n  } catch (e) {\n    response = '';\n  }\n  routedBy = 'ai_agent';\n}\n\nresponse = sanitizeReply(response);\n\nconst packageIntents = [\n  'package_tour_modify',\n  'package_price_confirm',\n  'package_same_hotel',\n  'package_tour_flexibility',\n  'package_composition',\n];\n\nif (isCircularHandoff(response) || (!response && packageIntents.includes(intent))) {\n  response = PRICING_RETRY;\n  routedBy = 'deterministic:pricing_retry';\n  await flagNeedsHuman.call(this);\n} else if (!response && trip?.city && /جول/.test(text)) {\n  response = PRICING_RETRY;\n  routedBy = 'deterministic:pricing_retry';\n  await flagNeedsHuman.call(this);\n}\n\nif (intent === 'price_objection' && isCircularHandoff(response) && trip?.city) {\n  const quoteData = await fetchQuoteOptions.call(this, trip, 'no_tours');\n  if (quoteData) {\n    response = formatQuoteReply(trip, quoteData, 'تمام، خليني أشوف لك خيارات أوفر 👍');\n    routedBy = 'deterministic:pricing_engine_retry';\n  }\n}\n\nif (!response) {\n  response = PRICING_RETRY;\n  routedBy = 'deterministic:pricing_retry';\n  await flagNeedsHuman.call(this);\n}\n\nconst followup = /دولار|\\$|💵/.test(response);\nreturn [{ json: { phone, remoteJid, response, isManager, followup, routedBy } }];\n",
+        "mode": "runOnceForAllItems"
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase1 observability — parse Decision Engine response (no pricing logic change)\nconst de = $input.first().json;\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json || {};\nconst response = String(de.response || '');\nconst priceUsd = response.match(/\\$[\\d,]+/)?.[0] || response.match(/([\\d,]{3,})\\s*USD/i)?.[0] || null;\nconst manualPath = /no_hotel|يدوي|human|موظف|فريق/i.test(response);\nconst hasPrice = !!priceUsd || /\\$[\\d,]{2,}|USD\\s*[\\d,]+|دولار/.test(response);\nreturn [{ json: {\n  phone: de.phone,\n  remoteJid: de.remoteJid,\n  response: de.response,\n  isManager: de.isManager,\n  followup: de.followup,\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  channel: ctx.phase1?.channel || 'whatsapp',\n  action_type: 'get_price',\n  status: manualPath && !hasPrice ? 'failed' : (hasPrice ? 'success' : 'failed'),\n  output_summary: (priceUsd || response).slice(0, 500),\n  input_summary: String(ctx.phase1?.message_text || '').slice(0, 500),\n  metadata: { phase1: 'pricing_observability', source: 'decision_engine_response' }\n}}];"
+      },
+      "id": "277c2219-fbd2-453e-81b1-2485dc60029d",
+      "name": "Phase1 Prepare Pricing Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "cexPtUwwgao3Abtd",
+          "cachedResultName": "Arcadia - Phase1 Pricing Action Log"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "da64b19b-9d0c-4490-a4b0-96e38432242b",
+      "name": "Arcadia - Phase1 Pricing Action Log",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        320
+      ],
+      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Pricing Action Log' after import",
+      "continueOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase1 — normalize inbound (no prompt / stage changes)\nconst j = $input.first().json;\nconst raw = $('WhatsApp Webhook').first()?.json || $('Telegram Trigger').first()?.json || {};\nconst body = raw.body || raw;\nconst data = body.data || body;\nconst key = data.key || {};\nconst waMsg = body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\nconst tgMsg = raw.message || body.message;\nconst msg = waMsg || tgMsg || body.messages?.[0] || {};\nconst phone = String(\n  j.phone\n  || key.remoteJid?.replace('@s.whatsapp.net', '').replace('@g.us', '')\n  || msg.from\n  || tgMsg?.chat?.id\n  || body.from?.id\n  || j.chat_id\n  || ''\n).trim();\nconst providerMessageId = key.id ? String(key.id)\n  : (waMsg?.id ? String(waMsg.id)\n  : (tgMsg?.message_id != null ? String(tgMsg.message_id) : (j.provider_message_id || null)));\nconst channel = key.remoteJid || waMsg?.id ? 'whatsapp' : (tgMsg ? 'telegram' : (j.channel || 'whatsapp'));\nconst text = j.textContent || j.text || msg.text?.body || msg.body || tgMsg?.text || '';\nconst ALLOWED = new Set(['text','image','audio','document','location','video','sticker','unknown']);\nconst TYPE_MAP = { conversation: 'text', extendedTextMessage: 'text', audioMessage: 'audio', imageMessage: 'image', documentMessage: 'document', videoMessage: 'video', stickerMessage: 'sticker' };\nconst rawType = data.messageType || msg.type || (tgMsg?.photo ? 'image' : 'text');\nconst messageType = TYPE_MAP[rawType] || (ALLOWED.has(rawType) ? rawType : 'unknown');\nreturn [{ json: {\n  ...j,\n  phase1: {\n    phone,\n    provider_message_id: providerMessageId,\n    channel,\n    message_text: text,\n    message_type: messageType,\n    metadata: { raw_channel: channel, normalized_at: new Date().toISOString(), source: 'phase1_normalize' }\n  }\n}}];"
+      },
+      "id": "77288463-c865-478d-a694-98210eaeeea2",
+      "name": "Phase1 Normalize Inbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "nztIELsQqVpdDVua",
+          "cachedResultName": "Arcadia - Phase1 Inbound Pipeline"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "5aa6e6a7-5038-4de0-8902-1fcf26856005",
+      "name": "Arcadia - Phase1 Inbound Pipeline",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1060,
+        200
+      ],
+      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Inbound Pipeline' after import"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "proceed-check",
+              "leftValue": "={{ $json.proceed }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1e1ea1a1-8d02-425c-83a6-ff315d37d567",
+      "name": "Phase1 IF Proceed (not duplicate)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Phase1 — prepare outbound log AFTER successful send only\nfunction extractOutboundText(val) {\n  if (val == null) return null;\n  if (typeof val === 'string') { const s = val.trim(); return s || null; }\n  if (typeof val === 'object') {\n    return val.conversation || val.extendedTextMessage?.text || val.text || null;\n  }\n  return null;\n}\nconst send = $input.first().json;\nconst de = $('Decision Engine').first()?.json || {};\nconst ctx = $('Arcadia - Phase1 Inbound Pipeline').first()?.json\n  || $('Phase1 IF Proceed (not duplicate)').first()?.json\n  || {};\nconst messageText = extractOutboundText(send.text)\n  || extractOutboundText(send.message)\n  || extractOutboundText(send.body?.text)\n  || extractOutboundText(send.body)\n  || (typeof send.output === 'string' ? send.output.trim() : null)\n  || (typeof send.reply === 'string' ? send.reply.trim() : null)\n  || (typeof de.response === 'string' ? de.response.trim() : null);\nreturn [{ json: {\n  lead_id: ctx.lead_id,\n  customer_id: ctx.customer_id,\n  conversation_id: ctx.conversation_id,\n  channel: ctx.phase1?.channel || ctx.channel,\n  message_text: messageText,\n  provider_message_id: send.message_id || send.messages?.[0]?.id || send.key?.id || null,\n  metadata: { phase1: 'outbound_after_send_success' }\n}}];"
+      },
+      "id": "2f3f6350-fa4d-4289-8fd3-63fd6f127ff3",
+      "name": "Phase1 Prepare Outbound",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "QbQ3kJtWOnnq3b2A",
+          "cachedResultName": "Arcadia - Phase1 Outbound Log"
+        },
+        "mode": "once",
+        "options": {}
+      },
+      "id": "9f31e9ff-f093-48f7-b045-fbdd2ab73e4a",
+      "name": "Arcadia - Phase1 Outbound Log",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1940,
+        200
+      ],
+      "notes": "Phase1 — select imported workflow 'Arcadia - Phase1 Outbound Log' after import",
+      "continueOnFail": true,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cancel FU on Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel FU on Reply": {
+      "main": [
+        [
+          {
+            "node": "Parse + CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + CRM": {
+      "main": [
+        [
+          {
+            "node": "Phase1 Normalize Inbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Engine": {
+      "main": [
+        [
+          {
+            "node": "Phase1 Prepare Pricing Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Phase1 Prepare Outbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phase1 Prepare Pricing Action": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Pricing Action Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arcadia - Phase1 Pricing Action Log": {
+      "main": [
+        [
+          {
+            "node": "Save Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phase1 Normalize Inbound": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Inbound Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arcadia - Phase1 Inbound Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Phase1 IF Proceed (not duplicate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phase1 IF Proceed (not duplicate)": {
+      "main": [
+        [
+          {
+            "node": "Decision Engine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Phase1 Prepare Outbound": {
+      "main": [
+        [
+          {
+            "node": "Arcadia - Phase1 Outbound Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true,
+    "errorWorkflow": "59ul6YkPVThk7e4U"
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "16a7b2a1-72b9-4bf5-a8e1-90fbe5f451d7",
+  "versionCounter": 48,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-08-27T22:34:26.654Z",
+      "createdAt": "2026-08-27T22:34:26.654Z",
+      "role": "workflow:owner",
+      "workflowId": "RSVg9pYlWWa5yege",
+      "projectId": "TI8vZNNPr6jICm2I",
+      "project": {
+        "updatedAt": "2026-05-21T17:07:33.085Z",
+        "createdAt": "2026-02-12T19:58:24.267Z",
+        "id": "TI8vZNNPr6jICm2I",
+        "name": "Mohammed Ali <almedwahi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "projectRelations": [
+          {
+            "updatedAt": "2026-02-12T19:58:24.268Z",
+            "createdAt": "2026-02-12T19:58:24.268Z",
+            "userId": "b07e2b16-e340-4951-9b66-223ae18955d7",
+            "projectId": "TI8vZNNPr6jICm2I",
+            "user": {
+              "updatedAt": "2026-08-28T21:09:08.000Z",
+              "createdAt": "2026-02-12T19:58:23.743Z",
+              "id": "b07e2b16-e340-4951-9b66-223ae18955d7",
+              "email": "almedwahi@gmail.com",
+              "firstName": "Mohammed",
+              "lastName": "Ali",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2026-02-12T20:01:36.708Z",
+                "personalization_survey_n8n_version": "1.119.2",
+                "companySize": "20-99",
+                "companyType": "ecommerce",
+                "role": "customer-support",
+                "reportedSource": "podcast"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "w5d3d7v6YifJeztd",
+                "userActivatedAt": 1770995294216,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1772010203992
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-08-29",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": []
+}
