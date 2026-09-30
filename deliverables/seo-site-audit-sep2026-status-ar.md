@@ -1,8 +1,8 @@
 # المراجعة الشاملة لموقع arcadia-tour.com — 30 سبتمبر 2026
 
 **نطاق الفحص الفعلي:** الواجهة العامة كاملة (487 صفحة من خريطة الموقع: 253 صفحة + 214 مقال + 20 تصنيف)، 1,395 رابطاً داخلياً وخارجياً، الروابط القديمة من SITE123، robots/sitemap، Schema، السرعة عبر Lighthouse (جوال + سطح مكتب).
-**ما لم يُفحص بعد:** داخل WordPress (الإضافات، القوائم من اللوحة، الروابط الدائمة، إعدادات Yoast/LiteSpeed) ولوحة Hostinger — السبب في القسم 7.
-**التعديلات المنفذة على الموقع:** **لا شيء بعد** (لا يمكن التعديل بدون دخول WordPress). كل ما يلي جاهز للتنفيذ فور توفر الدخول.
+**فُحص من داخل WordPress عبر REST API:** الإضافات (20)، القالب، الإعدادات، القائمتان (61 عنصراً)، Code Snippets (24)، قواعد Redirection (7)، محتوى المقالات المتأثرة. **لم يُفحص:** لوحة Hostinger (لا يوجد وصول) وإعدادات LiteSpeed/WPCode التي لا تُقرأ عبر REST.
+**التعديلات المنفذة على الموقع (30 سبتمبر، مساءً بعد توفر Application Password):** انظر القسم 10 — ما نُفّذ وما رفضته طبقة الأمان في بيئة العمل ويحتاج تنفيذكم يدوياً (خطوات دقيقة).
 
 الملفات المرفقة: `seo-audit-sep2026-broken-links.csv` (الروابط المكسورة والمحوَّلة) و `seo-audit-sep2026-legacy-redirects.csv` (خريطة تحويلات الروابط القديمة).
 
@@ -121,3 +121,55 @@
 - الأدلة الطويلة (ألماتي، موسكو، بولندا، قوانزو، سانت بطرسبرغ) أصول قوية.
 
 *مصدر البيانات: زحف كامل بتاريخ 30 سبتمبر 2026، Lighthouse 13.5 على Chromium، نتائج Google/Bing لروابط SITE123، رسائل Hostinger.*
+
+
+---
+
+## 10) سجل التنفيذ — 30 سبتمبر 2026 (بعد الدخول)
+
+### ✅ نُفّذ وتحقق منه على الموقع
+| # | التغيير | التفاصيل | التحقق |
+|---|---------|----------|--------|
+| 1 | إصلاح زر واتساب مكسور في 11 مقالاً إنجليزياً | كان الرابط `href="https://wa.me/` مقطوعاً ويبتلع كتلة «You may also be interested». أُكمل الزر بالرقم `+77064007561` وأُغلقت الكتلة. المعرّفات: 2667, 2669, 2672, 2673, 2674, 2675, 2676, 2678, 2679, 2682, 2684. نسخ ما قبل التعديل في `backups/posts-before-wa-fix-2026-09-30/`. | الخادم يعرض الزر الصحيح ✅ — نسخة Cloudflare القديمة ستبقى حتى التفريغ (انظر أدناه). |
+| 2 | القائمة الإنجليزية: عنصر «Tourism in Moscow» | كان يشير لصفحة 2560 (رابط قديم يُحوَّل 301 على 257 صفحة). صار يشير مباشرة إلى المقال 2501. | ظاهر على الموقع ✅ |
+| 3 | نسخ احتياطية قبل التعديل | Code Snippets، قواعد Redirection، عناصر القوائم، الإعدادات، قائمة الإضافات → `deliverables/backups/` | ✅ |
+
+### ⛔ رفضته طبقة الأمان في بيئة التنفيذ — يحتاج تنفيذكم (5–10 دقائق)
+طبقة الأمان في هذه البيئة تسمح لي بتعديل المحتوى والقوائم، لكنها ترفض تغيير الإضافات وقواعد التحويل وأكواد الـ Snippets. الخطوات جاهزة للنسخ:
+
+**أ) تفريغ الكاش (الأهم الآن — بدونه تبقى النسخ القديمة ظاهرة للزوار حتى 18 ساعة):**
+1. WordPress → LiteSpeed Cache → **Purge All**.
+2. Cloudflare → الموقع → Caching → Configuration → **Purge Everything**.
+
+**ب) قواعد التحويل — WordPress → Tools → Redirection → Add new:**
+| Source URL | ✓ Regex | Target URL |
+|-----------|---------|------------|
+| `^/t-en/?$` | ✓ | `/en/home/` |
+| `^/t-(fr-fr\|ar\|ru)/?$` | ✓ | `/` |
+| `^/t-[a-z-]+/(.+)$` | ✓ | `/$1` |
+| `/kazakhstan-family-children-trip/` | | `/kazakhstan-family-trip-cost-2026/` |
+| `/kolsai-lake-day-trip/` | | `/almaty-guide/` |
+| `/mountain-resorts-south-poland/` | | `/poland-guide/` |
+| `/السياحه-في-اوكرانيا/` | | `/السياحة-في-أوكرانيا/` |
+| `/أخبار-أوكرانيا/` | | `/category/ukraine/` |
+| `/?p=528` (اختر Query: Exact match) | | `/almaty-guide/` |
+| `/?page_id=596` (Query: Exact match) | | `/why-travel-to-uzbekistan/` |
+
+**ج) Snippet #23 «Arcadia Homepage SEO Hub» — كتلة عربية تظهر في الرئيسية الإنجليزية:** Code Snippets → افتح #23 → في دالة `wp_footer` بعد السطر `if ( ! is_front_page() || is_admin() ) { return; }` أضف:
+```php
+if ( function_exists( 'pll_current_language' ) && 'ar' !== pll_current_language( 'slug' ) ) { return; }
+```
+
+**د) Jetpack:** Plugins → Jetpack → Deactivate (ثم Delete إن لم تحتاجوه). و**Disable WP REST API** (غير نشط) → Delete.
+
+**هـ) مصدر Schema العامة غير معروف عبر REST:** كتلة `TravelAgency/LocalBusiness` مع `ratingCount: 7546` وكتلة FAQ الشركة (3 أسئلة) تظهر على **كل** الصفحات وليستا في أي Snippet ولا في محتوى الصفحات. الأرجح أنهما في **WPCode → Header & Footer** أو **Code Snippets → Settings**. افتحوا WPCode Lite → Header & Footer وابحثوا عن `aggregateRating`. القرار المطلوب: قصر التقييم على الرئيسية فقط، وإزالة FAQ الشركة من المقالات.
+
+**و) السرعة (LiteSpeed Cache → Page Optimization):** JS Settings → **Load JS Deferred: Delayed** + إضافة `googletagmanager.com`, `connect.facebook.net`, `analytics.tiktok.com` إلى Delayed JS Inclusion. Media → **Lazy Load Images: ON**. Image Optimization → **Image WebP Replacement: ON** ثم Send Optimization Request.
+
+### ℹ️ ملاحظات من الفحص الداخلي
+- Snippet #20 يُظهر أن إعادة فهرسة `/real-estate-ukraine/` كانت **قراراً مقصوداً بتاريخ 3 سبتمبر 2026** (`arcadia_real_estate_index_recovery_20260903_v1`) — لم ألمسه.
+- Snippet #5 «WA HTML Source Fix» صار بلا أثر بعد توحيد الرقم؛ يمكن تعطيله.
+- Snippet #6 يحوي 66 تحويلاً دقيقاً للروابط القديمة ويعمل ✅؛ ما ينقصه فقط بادئات `/t-xx/` (القاعدة الثالثة في الجدول أعلاه تكفي).
+- لا يوجد 404 log في Redirection (مُعطَّل) — يُستحسن تفعيله أسبوعاً بعد التحويلات لالتقاط ما تبقى.
+- إضافتان لربط الموقع بوكلاء AI مثبتتان: **Cowboy MCP** و **WPVibe** (تملك صلاحية قراءة/كتابة الملفات وتشغيل أوامر). إن لم تستخدموهما فعطّلوهما لتقليل سطح الهجوم.
+- الصورة الاجتماعية (og:image) للرئيسية الإنجليزية: لم أستطع ضبطها عبر REST (حقل Yoast غير مكشوف). من اللوحة: صفحة Home (EN) → Yoast → Social → Facebook image.
