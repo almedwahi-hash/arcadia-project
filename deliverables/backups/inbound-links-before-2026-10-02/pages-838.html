@@ -1,0 +1,297 @@
+<style>
+.program-page { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+.hero-section { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border-radius: 20px; padding: 60px 40px; text-align: center; color: white; margin-bottom: 50px; }
+.hero-section h1 { font-size: 42px; margin-bottom: 15px; color: white; }
+.hero-section p { font-size: 20px; opacity: 0.9; }
+.price-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-bottom: 60px; }
+.price-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); position: relative; }
+.badge { position: absolute; top: 15px; right: 15px; padding: 8px 20px; border-radius: 20px; color: white; font-weight: 600; font-size: 14px; }
+.badge-economy { background: #10b981; }
+.badge-standard { background: #0ea5e9; }
+.badge-luxury { background: #8b5cf6; }
+.hotel-name { font-size: 24px; color: #1a1a2e; margin: 10px 0; }
+.stars { color: #f59e0b; font-size: 16px; margin-bottom: 20px; }
+.price-box { background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; }
+.total-price { font-size: 32px; color: #dc2626; font-weight: 700; }
+.per-person { font-size: 14px; color: #666; }
+.book-btn { display: block; background: #25d366; color: white; padding: 15px; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 600; margin-top: 20px; }
+.book-btn:hover { background: #1da851; }
+.program-section { background: white; border-radius: 15px; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin-bottom: 40px; }
+.day-item { padding: 25px; margin-bottom: 20px; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 12px; border-right: 5px solid #dc2626; }
+.day-title { font-size: 22px; color: #1a1a2e; margin-bottom: 15px; font-weight: 700; }
+.activity { padding: 8px 0; font-size: 16px; color: #334155; display: flex; align-items: center; gap: 10px; }
+.includes-section { background: #fef2f2; border-radius: 15px; padding: 40px; margin-bottom: 40px; }
+.includes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
+.include-item { display: flex; align-items: center; gap: 10px; font-size: 16px; color: #334155; }
+.reviews-section { background: white; border-radius: 15px; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin-bottom: 40px; }
+.review-card { background: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+.reviewer-name { font-weight: 600; color: #1a1a2e; margin-bottom: 5px; }
+.review-stars { color: #f59e0b; margin-bottom: 10px; }
+.review-text { color: #666; line-height: 1.6; }
+</style>
+
+<div class="program-page">
+
+<!-- Hero Section -->
+<div class="hero-section">
+  <h1>🇷🇺 برنامج روسيا السياحي الشامل</h1>
+  <p>10 أيام / 9 ليالي - موسكو + سانت بطرسبرغ + موسكو</p>
+</div>
+
+<!-- Price Cards -->
+<div class="price-cards">
+  
+  <div class="price-card">
+    <span class="badge badge-economy">اقتصادي 💰</span>
+    <h3 class="hotel-name">Holiday Tagansky + Express Sadovaya</h3>
+    <div class="stars">⭐⭐⭐⭐ (4 نجوم - مدينتين)</div>
+    <div class="price-box">
+      <div class="total-price">$2,131</div>
+      <div class="per-person">$1,066 للشخص الواحد (شخصين)</div>
+    </div>
+    <div style="margin-top: 15px; padding: 15px; background: #fef2f2; border-radius: 8px; font-size: 14px">
+      <strong>🏨 موسكو:</strong> Holiday Tagansky (4⭐)<br>
+      <strong>🏨 سانت بطرسبرغ:</strong> Express Sadovaya (4⭐)<br>
+      <strong>🚄 قطار سريع:</strong> بين المدينتين (ذهاب وعودة)
+    </div>
+    <div class="whatsapp-cta" style="text-align:center;margin:20px 0;"><a href="https://wa.me/77064007561" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:12px;background-color:#25D366;color:#ffffff;padding:16px 36px;border-radius:50px;text-decoration:none;font-size:18px;font-weight:700;box-shadow:0 4px 15px rgba(37,211,102,0.4);" aria-label="Contact us via WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.122 1.523 5.862L0 24l6.313-1.496A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.844 9.844 0 01-5.031-1.383l-.361-.214-3.741.982.999-3.648-.235-.374A9.851 9.851 0 012.118 12C2.118 6.533 6.533 2.118 12 2.118c5.468 0 9.882 4.415 9.882 9.8820 5.468-4.414 9.882-9.882 9.882z"/></svg>Contact us via WhatsApp</a></div>
+  </div>
+
+  <div class="price-card">
+    <span class="badge badge-standard">متوسط ⭐</span>
+    <h3 class="hotel-name">SADU Hotel + Theatre Square</h3>
+    <div class="stars">⭐⭐⭐⭐ (4 نجوم - مدينتين)</div>
+    <div class="price-box">
+      <div class="total-price">$2,294</div>
+      <div class="per-person">$1,147 للشخص الواحد (شخصين)</div>
+    </div>
+    <div style="margin-top: 15px; padding: 15px; background: #fef2f2; border-radius: 8px; font-size: 14px">
+      <strong>🏨 موسكو:</strong> SADU Hotel Moscow (4⭐)<br>
+      <strong>🏨 سانت بطرسبرغ:</strong> Theatre Square (4⭐)<br>
+      <strong>🚄 قطار سريع:</strong> بين المدينتين (ذهاب وعودة)
+    </div>
+    <div class="whatsapp-cta" style="text-align:center;margin:20px 0;"><a href="https://wa.me/77064007561" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:12px;background-color:#25D366;color:#ffffff;padding:16px 36px;border-radius:50px;text-decoration:none;font-size:18px;font-weight:700;box-shadow:0 4px 15px rgba(37,211,102,0.4);" aria-label="Contact us via WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.122 1.523 5.862L0 24l6.313-1.496A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.844 9.844 0 01-5.031-1.383l-.361-.214-3.741.982.999-3.648-.235-.374A9.851 9.851 0 012.118 12C2.118 6.533 6.533 2.118 12 2.118c5.468 0 9.882 4.415 9.882 9.8820 5.468-4.414 9.882-9.882 9.882z"/></svg>Contact us via WhatsApp</a></div>
+  </div>
+
+  <div class="price-card">
+    <span class="badge badge-luxury">فاخر 👑</span>
+    <h3 class="hotel-name">Continental + Hotel Gamma</h3>
+    <div class="stars">⭐⭐⭐⭐⭐ (5 نجوم - مدينتين)</div>
+    <div class="price-box">
+      <div class="total-price">$3,028</div>
+      <div class="per-person">$1,514 للشخص الواحد (شخصين)</div>
+    </div>
+    <div style="margin-top: 15px; padding: 15px; background: #fef2f2; border-radius: 8px; font-size: 14px">
+      <strong>🏨 موسكو:</strong> Continental Hotel Moscow (5⭐)<br>
+      <strong>🏨 سانت بطرسبرغ:</strong> Hotel Gamma (5⭐)<br>
+      <strong>🚄 قطار سريع:</strong> بين المدينتين (ذهاب وعودة)
+    </div>
+    <div class="whatsapp-cta" style="text-align:center;margin:20px 0;"><a href="https://wa.me/77064007561" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:12px;background-color:#25D366;color:#ffffff;padding:16px 36px;border-radius:50px;text-decoration:none;font-size:18px;font-weight:700;box-shadow:0 4px 15px rgba(37,211,102,0.4);" aria-label="Contact us via WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.122 1.523 5.862L0 24l6.313-1.496A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.844 9.844 0 01-5.031-1.383l-.361-.214-3.741.982.999-3.648-.235-.374A9.851 9.851 0 012.118 12C2.118 6.533 6.533 2.118 12 2.118c5.468 0 9.882 4.415 9.882 9.8820 5.468-4.414 9.882-9.882 9.882z"/></svg>Contact us via WhatsApp</a></div>
+  </div>
+
+</div>
+
+<!-- Daily Program -->
+<div class="program-section">
+  <h2 style="font-size: 32px; color: #1a1a2e; margin-bottom: 30px; text-align: center">📅 البرنامج اليومي التفصيلي</h2>
+  
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم الأول - الوصول إلى موسكو</div>
+    <div class="activity">✈️ الاستقبال من مطار موسكو الدولي</div>
+    <div class="activity">🚗 التوصيل إلى الفندق بسيارة مريحة</div>
+    <div class="activity">🛌 تسجيل الدخول والراحة بعد السفر</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم الثاني - موسكو الكلاسيكية</div>
+    <div class="activity">🛍️ زيارة السوق الشعبي الروسي التقليدي</div>
+    <div class="activity">🏰 الساحة الحمراء الشهيرة + الكرملين</div>
+    <div class="activity">🌳 حديقة زرياديا + الجسر الطائر</div>
+    <div class="activity">🛒 مول جوم الفاخر + شارع الأضواء</div>
+    <div class="activity">🛍️ المول تحت الأرض (أخوتني رياد)</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم الثالث - المعالم الحديثة</div>
+    <div class="activity">🌺 حديقة الفندخة - من أجمل حدائق موسكو</div>
+    <div class="activity">👁️ عين موسكو - إطلالة بانورامية 360°</div>
+    <div class="activity">🚀 معرض الفضاء الروسي</div>
+    <div class="activity">📸 التصوير في الأماكن الشهيرة</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم الرابع - الانتقال إلى سانت بطرسبرغ</div>
+    <div class="activity">🚄 السفر بالقطار السريع إلى سانت بطرسبرغ (3-4 ساعات)</div>
+    <div class="activity">🚗 الاستقبال من المحطة والتوصيل إلى الفندق</div>
+    <div class="activity">☕ راحة واستكشاف المنطقة المحيطة</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم الخامس - سانت بطرسبرغ</div>
+    <div class="activity">🏟️ منطقة أرينا - ستاد كأس العالم 2018</div>
+    <div class="activity">🌳 حديقة بريمورسكي - إطلالة على البحر</div>
+    <div class="activity">🍽️ زيارة مول أو مطعم مميز</div>
+    <div class="activity">🚤 جولة بالقنوات المائية - البندقية الروسية</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم السادس - القصر الصيفي</div>
+    <div class="activity">🏰 زيارة القصر الصيفي (بيترهوف) - فرساي الروسية</div>
+    <div class="activity">⛲ النافورات الذهبية والحدائق الملكية</div>
+    <div class="activity">🛍️ مول جلوريا للتسوق</div>
+    <div class="activity">🍽️ وجبة في مطعم مميز</div>
+    <div class="activity">🌉 رحلة نهرية لمشاهدة الليالي البيضاء والجسور المتحركة</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم السابع - العودة إلى موسكو</div>
+    <div class="activity">🚄 السفر بالقطار العائد إلى موسكو</div>
+    <div class="activity">🚗 التوصيل من المحطة إلى الفندق</div>
+    <div class="activity">🛍️ وقت حر للتسوق أو الراحة</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم الثامن - موسكو الحرة</div>
+    <div class="activity">🆓 يوم حر للاستكشاف الشخصي</div>
+    <div class="activity">🛍️ تسوق في الأسواق المحلية</div>
+    <div class="activity">☕ الاسترخاء في المقاهي الروسية</div>
+    <div class="activity">📸 التصوير في الأماكن المفضلة</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم التاسع - موسكو الختامية</div>
+    <div class="activity">🎭 زيارة معالم إضافية أو نشاطات اختيارية</div>
+    <div class="activity">🎁 شراء الهدايا الأخيرة</div>
+    <div class="activity">🍽️ عشاء وداع في مطعم روسي</div>
+  </div>
+
+  <div class="day-item">
+    <div class="day-title">🗓️ اليوم العاشر - العودة إلى الوطن</div>
+    <div class="activity">🍳 الإفطار الأخير في الفندق</div>
+    <div class="activity">📦 تجهيز الحقائب والمغادرة</div>
+    <div class="activity">🚗 التوصيل من الفندق إلى المطار</div>
+    <div class="activity">✈️ المغادرة بسلامة الله مع أجمل الذكريات</div>
+  </div>
+
+</div>
+
+<!-- Includes Section -->
+<div class="includes-section">
+  <h2 style="font-size: 28px; color: #1a1a2e; margin-bottom: 25px; text-align: center">✅ البرنامج يشمل</h2>
+  
+  <div class="includes-grid">
+    <div class="include-item">
+      <span style="font-size: 24px">🏨</span>
+      إقامة 9 ليالي (6 موسكو + 3 سانت بطرسبرغ)
+    </div>
+    <div class="include-item">
+      <span style="font-size: 24px">🍳</span>
+      الإفطار اليومي في الفندق
+    </div>
+    <div class="include-item">
+      <span style="font-size: 24px">🚄</span>
+      تذاكر القطار السريع (ذهاب وعودة)
+    </div>
+    <div class="include-item">
+      <span style="font-size: 24px">🚗</span>
+      المواصلات الداخلية في المدينتين
+    </div>
+    <div class="include-item">
+      <span style="font-size: 24px">✈️</span>
+      استقبال ووداع المطار
+    </div>
+    <div class="include-item">
+      <span style="font-size: 24px">📱</span>
+      شرائح اتصال محلية
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #fecaca">
+    <h3 style="font-size: 22px; color: #dc2626; margin-bottom: 15px">❌ لا يشمل البرنامج</h3>
+    <div style="color: #64748b; font-size: 16px; line-height: 2">
+      • تذاكر الطيران الدولية<br>
+      • التأشيرة الروسية (نساعدك في استخراجها)<br>
+      • وجبات الغداء والعشاء<br>
+      • النشاطات الإضافية الاختيارية
+    </div>
+  </div>
+</div>
+
+<!-- Reviews -->
+<div class="reviews-section">
+  <h2 style="font-size: 32px; color: #1a1a2e; margin-bottom: 30px; text-align: center">⭐ تقييمات عملائنا من الخليج</h2>
+  
+  <div class="review-card">
+    <div class="reviewer-name">🇸🇦 فيصل الشمري - الرياض، السعودية</div>
+    <div class="review-stars">⭐⭐⭐⭐⭐</div>
+    <div class="review-text">"برنامج 10 أيام شامل وممتع جداً! موسكو وسانت بطرسبرغ مدينتين رائعتين. القطار السريع مريح والفنادق ممتازة."</div>
+  </div>
+
+  <div class="review-card">
+    <div class="reviewer-name">🇦🇪 حمدان الظاهري - أبو ظبي، الإمارات</div>
+    <div class="review-stars">⭐⭐⭐⭐⭐</div>
+    <div class="review-text">"رحلة العمر! سانت بطرسبرغ أجمل من موسكو. القصر الصيفي والقنوات المائية مذهلة. ننصح بهذا البرنامج بشدة!"</div>
+  </div>
+
+  <div class="review-card">
+    <div class="reviewer-name">🇰🇼 مشاعل العنزي - الكويت</div>
+    <div class="review-stars">⭐⭐⭐⭐⭐</div>
+    <div class="review-text">"برنامج متكامل ورائع! القطار السريع مريح جداً والانتقال بين المدينتين سهل. تجربة لا تُنسى!"</div>
+  </div>
+
+  <div class="review-card">
+    <div class="reviewer-name">🇧🇭 علي البنعلي - المنامة، البحرين</div>
+    <div class="review-stars">⭐⭐⭐⭐⭐</div>
+    <div class="review-text">"أفضل رحلة سياحية! البرنامج متنوع وكل يوم فيه شي جديد. شكراً أركاديا على التنظيم الممتاز!"</div>
+  </div>
+
+</div>
+
+<!-- CTA Section -->
+<div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border-radius: 20px; padding: 50px; text-align: center; margin-bottom: 40px">
+  <h2 style="color: white; font-size: 36px; margin-bottom: 20px">🎯 جاهز لحجز رحلتك؟</h2>
+  <p style="color: #fecaca; font-size: 18px; margin-bottom: 30px">تواصل معنا الآن عبر واتساب واحجز مكانك</p>
+  <div class="whatsapp-cta" style="text-align:center;margin:20px 0;"><a href="https://wa.me/77064007561" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:12px;background-color:#25D366;color:#ffffff;padding:16px 36px;border-radius:50px;text-decoration:none;font-size:18px;font-weight:700;box-shadow:0 4px 15px rgba(37,211,102,0.4);" aria-label="Contact us via WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.122 1.523 5.862L0 24l6.313-1.496A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.844 9.844 0 01-5.031-1.383l-.361-.214-3.741.982.999-3.648-.235-.374A9.851 9.851 0 012.118 12C2.118 6.533 6.533 2.118 12 2.118c5.468 0 9.882 4.415 9.882 9.8820 5.468-4.414 9.882-9.882 9.882z"/></svg>Contact us via WhatsApp</a></div>
+</div>
+
+<!-- Map Section -->
+<div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin-bottom: 40px">
+  <h2 style="font-size: 28px; color: #1a1a2e; margin-bottom: 25px; text-align: center">🗺️ خريطة روسيا التفاعلية</h2>
+  <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d8907455.272442808!2d30.0!3d58.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x414ab44593d59dbd%3A0x2ae888eaaad63c07!2z2LPYp9mG2Kog2KjYt9ix2LPYqNix2LrYjCDYsdmI2LPZitin!5e0!3m2!1sar!2s!4v1234567890123!5m2!1sar!2s" width="100%" height="450" style="border:0; border-radius: 12px" allowfullscreen="" loading="lazy"></iframe>
+  <p style="text-align: center; color: #64748b; margin-top: 15px; font-size: 14px">📍 موقع موسكو وسانت بطرسبرغ في روسيا</p>
+</div>
+
+<!-- Info Section -->
+<div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.08)">
+  <h2 style="font-size: 28px; color: #1a1a2e; margin-bottom: 25px">📋 معلومات مهمة عن روسيا</h2>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px">
+    <div>
+      <div style="font-weight: 600; color: #1a1a2e; margin-bottom: 8px">🌡️ أفضل وقت للزيارة</div>
+      <div style="color: #64748b">الصيف (مايو-سبتمبر) للطقس المعتدل<br>يونيو-يوليو للياليالبيضاء في سانت بطرسبرغ</div>
+    </div>
+    <div>
+      <div style="font-weight: 600; color: #1a1a2e; margin-bottom: 8px">💬 اللغة</div>
+      <div style="color: #64748b">الروسية<br>(نوفر مترجم عربي)</div>
+    </div>
+    <div>
+      <div style="font-weight: 600; color: #1a1a2e; margin-bottom: 8px">💰 العملة</div>
+      <div style="color: #64748b">روبل روسي (RUB)<br>1 دولار ≈ 90 روبل</div>
+    </div>
+    <div>
+      <div style="font-weight: 600; color: #1a1a2e; margin-bottom: 8px">🚄 القطار السريع</div>
+      <div style="color: #64748b">موسكو - سانت بطرسبرغ<br>3-4 ساعات فقط</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- arcadia-index-boost:russia_10_days_ar -->
+<section class="arcadia-index-boost" dir="rtl" aria-label="طلب برنامج روسيا" style="margin:32px 0 12px;padding:24px 20px;border:1px solid #dbe6ef;border-radius:16px;background:#f7fbfd;text-align:center">
+  <h2 style="margin:0 0 10px;color:#17324d">اطلب برنامج روسيا 10 أيام وسعره</h2>
+  <p style="margin:0 auto 14px;max-width:680px;line-height:1.9">أرسل عدد المسافرين وتاريخ الرحلة، وسنجهز برنامج موسكو وسانت بطرسبرغ مع الفنادق والتنقلات والجولات ومرشد عربي حسب احتياجكم.</p>
+  <p style="margin:0 0 15px"><a href="https://arcadia-tour.com/%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D9%81%D9%8A-%D8%B1%D9%88%D8%B3%D9%8A%D8%A7/">دليل السياحة في روسيا</a> · <a href="https://arcadia-tour.com/moscow-guide/">دليل موسكو</a> · <a href="https://arcadia-tour.com/السياحة-في-روسيا/عروض-السياحة-في-روسيا/">عروض روسيا السياحية</a></p>
+  <a href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D9%88%D8%B3%D8%B9%D8%B1%20%D9%84%D8%B1%D8%AD%D9%84%D8%A9%20%D8%B1%D9%88%D8%B3%D9%8A%D8%A7%2010%20%D8%A3%D9%8A%D8%A7%D9%85.%0A%D8%A7%D9%84%D8%AC%D9%86%D8%B3%D9%8A%D8%A9%3A%20%0A%D8%B9%D8%AF%D8%AF%20%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D9%81%D8%B1%D9%8A%D9%86%3A%20%0A%D8%AA%D8%A7%D8%B1%D9%8A%D8%AE%20%D8%A7%D9%84%D8%B3%D9%81%D8%B1%3A%20" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:13px 22px;border-radius:10px;background:#168b52;color:#fff;text-decoration:none;font-weight:700">احصل على البرنامج والسعر عبر واتساب</a>
+</section>
+<!-- /arcadia-index-boost:russia_10_days_ar -->
