@@ -1,0 +1,359 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --dark: #0D1B2A;
+    --white: #FFFFFF;
+    --gray: #F4F6F8;
+    --text: #2C3E50;
+    --russia-red: #CC0000;
+    --russia-dark: #8B0000;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Tajawal', sans-serif; direction: rtl; color: var(--text); background: var(--white); }
+  /* HERO */
+  .hero {
+    min-height: 60vh;
+    background: linear-gradient(135deg, #1a0000 0%, var(--russia-dark) 50%, var(--russia-red) 100%);
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; position: relative; overflow: hidden; padding: 80px 20px;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url('https://arcadia-tour.com/wp-content/uploads/2026/03/ru-info.jpg') center/cover no-repeat;
+    opacity: 0.2;
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 800px; }
+  .hero-badge {
+    display: inline-block; background: rgba(255,215,0,0.2);
+    border: 1px solid rgba(255,215,0,0.5); color: #FFD700;
+    padding: 8px 24px; border-radius: 50px; font-size: 14px; margin-bottom: 20px;
+  }
+  .hero h1 { font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; color: var(--white); margin-bottom: 16px; }
+  .hero p { font-size: 1.15rem; color: rgba(255,255,255,0.85); max-width: 650px; margin: 0 auto 32px; line-height: 1.9; }
+  .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-gold { background: var(--gold); color: var(--dark); padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--white); padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; border: 2px solid rgba(255,255,255,0.4); transition: all 0.3s; }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  /* INTRO */
+  .intro { padding: 80px 20px; max-width: 900px; margin: 0 auto; text-align: center; }
+  .section-tag { display: inline-block; color: var(--gold); font-size: 14px; font-weight: 700; letter-spacing: 3px; margin-bottom: 12px; }
+  .intro h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: var(--dark); margin-bottom: 20px; }
+  .intro p { color: #555; font-size: 1.05rem; line-height: 1.9; margin-bottom: 12px; }
+  /* CARDS */
+  .cards-section { padding: 20px 20px 80px; background: var(--gray); }
+  .cards-title { text-align: center; font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; color: var(--dark); margin-bottom: 48px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1200px; margin: 0 auto; }
+  .card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.4s; text-decoration: none; color: inherit; display: block; }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+  .card-img { height: 200px; overflow: hidden; position: relative; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .card:hover .card-img img { transform: scale(1.05); }
+  .card-num { position: absolute; top: 16px; right: 16px; background: var(--russia-red); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; }
+  .card-body { padding: 24px; }
+  .card-body h3 { font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; line-height: 1.4; }
+  .card-body p { color: #666; font-size: 0.95rem; line-height: 1.7; margin-bottom: 20px; }
+  .card-link { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
+  /* PACKAGES */
+  .packages { padding: 80px 20px; }
+  .packages-inner { max-width: 1100px; margin: 0 auto; }
+  .packages h2 { text-align: center; font-size: 2rem; font-weight: 900; color: var(--dark); margin-bottom: 48px; }
+  .pkg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; }
+  .pkg-card { border: 2px solid #eee; border-radius: 20px; padding: 28px; transition: all 0.3s; text-decoration: none; color: inherit; display: block; }
+  .pkg-card:hover { border-color: var(--gold); box-shadow: 0 10px 30px rgba(201,168,76,0.15); transform: translateY(-4px); }
+  .pkg-tag { display: inline-block; background: rgba(204,0,0,0.1); color: var(--russia-red); padding: 4px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; }
+  .pkg-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; line-height: 1.4; }
+  .pkg-price { font-size: 1.5rem; font-weight: 900; color: var(--gold); margin-bottom: 16px; }
+  .pkg-features { list-style: none; }
+  .pkg-features li { padding: 6px 0; color: #555; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
+  .pkg-features li:last-child { border: none; }
+  .pkg-features li::before { content: '✓ '; color: var(--gold); font-weight: 700; }
+  .pkg-btn { display: block; text-align: center; background: var(--dark); color: white; padding: 12px; border-radius: 50px; margin-top: 20px; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+  .pkg-btn:hover { background: var(--russia-red); }
+  /* TESTIMONIALS */
+  .testimonials { padding: 80px 20px; background: var(--dark); }
+  .testimonials h2 { text-align: center; font-size: 2rem; font-weight: 900; color: white; margin-bottom: 48px; }
+  .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1100px; margin: 0 auto; }
+  .test-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px; transition: all 0.3s; }
+  .test-card:hover { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.3); }
+  .stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 14px; }
+  .test-text { color: rgba(255,255,255,0.8); line-height: 1.8; font-size: 0.95rem; margin-bottom: 20px; }
+  .test-author { display: flex; align-items: center; gap: 12px; }
+  .test-avatar { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--dark); font-size: 1.1rem; flex-shrink: 0; }
+  .test-name { font-weight: 700; color: white; }
+  .test-trip { color: var(--gold); font-size: 0.85rem; }
+  /* FAQ */
+  .faq { padding: 80px 20px; background: var(--gray); }
+  .faq-inner { max-width: 900px; margin: 0 auto; }
+  .faq h2 { text-align: center; font-size: 2rem; font-weight: 900; color: var(--dark); margin-bottom: 48px; }
+  .faq-item { background: white; border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .faq-q { padding: 20px 24px; font-weight: 700; color: var(--dark); font-size: 1rem; line-height: 1.5; border-right: 4px solid var(--russia-red); }
+  .faq-a { padding: 0 24px 20px; color: #555; font-size: 0.95rem; line-height: 1.8; }
+  /* CTA */
+  .cta { padding: 80px 20px; text-align: center; }
+  .cta-box { max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, var(--russia-dark) 0%, #3D0000 100%); border-radius: 24px; padding: 60px 40px; color: white; }
+  .cta-box h2 { font-size: 2rem; font-weight: 900; margin-bottom: 16px; }
+  .cta-box p { color: rgba(255,255,255,0.7); margin-bottom: 32px; font-size: 1.05rem; }
+  .whatsapp-btn { background: #25D366; color: white; padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; }
+  .whatsapp-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37,211,102,0.4); }
+  @media (max-width: 768px) {
+    .cards-grid, .pkg-grid, .test-grid { grid-template-columns: 1fr; }
+    .cta-box { padding: 40px 24px; }
+  }
+</style>
+<!-- HERO -->
+<section style="background-image:linear-gradient(rgba(15,23,42,.6),rgba(15,23,42,.6)),url('https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-russia-moscow-1.jpg');background-size:cover;background-position:center;background-repeat:no-repeat;">
+    🇷🇺 وجهة سياحية استثنائية
+    <h1>السياحة في روسيا</h1>
+    <p>روسيا تتمتع بتراث ثقافي غني مع تنوع طبيعي رائع — تحظى بـ 23 موقعاً من التراث العالمي في قائمة اليونسكو. سافر معنا واستمتع بتجربة استثنائية ومزيج رائع من الماضي والحاضر</p>
+      <a href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%AD%D8%B5%D9%88%D9%84%20%D8%B9%D9%84%D9%89%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D9%88%D8%B3%D8%B9%D8%B1%20%D9%84%D8%B1%D8%AD%D9%84%D8%A9%20%D8%B1%D9%88%D8%B3%D9%8A%D8%A7.%0A%D8%A7%D9%84%D8%AC%D9%86%D8%B3%D9%8A%D8%A9%3A%20%0A%D8%B9%D8%AF%D8%AF%20%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D9%81%D8%B1%D9%8A%D9%86%3A%20%0A%D8%AA%D8%A7%D8%B1%D9%8A%D8%AE%20%D8%A7%D9%84%D8%B3%D9%81%D8%B1%3A%20%0A%D9%85%D8%AF%D8%A9%20%D8%A7%D9%84%D8%B1%D8%AD%D9%84%D8%A9%3A%20">💬 احصل على برنامج وسعر</a>
+      <a href="/العروض-والحجوزات">🌍 استعرض العروض</a>
+    ✓ مرشد عربي✓ استقبال من المطار✓ برامج مناسبة للعائلات✓ دعم أثناء الرحلة
+</section>
+<!-- INTRO -->
+<section>
+  عن الوجهة
+  <h2>لماذا روسيا؟</h2>
+  <p>السياحة في روسيا مميزة فهي ليست أوروبية أو آسيوية، هي فريدة من نوعها. سياحة تجمع ما بين الطبيعة والتراث والمغامرة. تصلح للجميع — للأفراد والمجموعات والعوائل والشباب.</p>
+  <p>موسكو وسان بطرسبرغ أهم المدن السياحية في روسيا التي يقصدها السائحون العرب. شركة أركاديا السياحية تقدم لك تجربة سفر متكاملة مع مرشدين ناطقين بالعربية.</p>
+</section>
+<!-- CARDS -->
+<section>
+  <h2>اكتشف كل ما تحتاجه عن السياحة في روسيا</h2>
+    <a href="/السياحة-في-روسيا/russia-info/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-info.jpg" alt="معلومات عن السياحة في روسيا" loading="lazy">
+        1
+        <h3>معلومات تهمك عن السياحة في روسيا</h3>
+        <p>روسيا ليست مجرد آثار معمارية ومدن تاريخية، ولكنها أيضاً مجمع عرقي وثقافي فريد. يوجد أكثر من عشرين موقعاً للتراث التابع لليونسكو</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/المدن-في-روسيا/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-cities.jpg" alt="المدن في روسيا" loading="lazy">
+        2
+        <h3>المدن في روسيا</h3>
+        <p>هناك العديد من المدن السياحية في روسيا التي تتميز كل منها بطابع مميز ومختلف. تعرف على أهم المدن السياحية في روسيا</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/دليل-السياحة-في-روسيا/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-guide.jpg" alt="دليل السياحة في روسيا" loading="lazy">
+        3
+        <h3>دليل السياحة في روسيا</h3>
+        <p>إذا كنت مهتماً بالسياحة في روسيا نوفر لك هنا دليلاً مهماً سيساعدك في ترتيب رحلتك القادمة لروسيا</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/عروض-السياحة-في-روسيا/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-offers.jpg" alt="العروض السياحية روسيا" loading="lazy">
+        4
+        <h3>العروض السياحية في روسيا</h3>
+        <p>استمتع بأفضل العروض السياحية في روسيا — برامج سياحية متنوعة وباقات سياحية مميزة في روسيا</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/موسكو/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-guide.jpg" alt="السياحة في موسكو" loading="lazy">
+        5
+        <h3>السياحة في موسكو — 10 أماكن يجب زيارتها</h3>
+        <p>السياحة في موسكو مميزة ومثيرة للاهتمام وتحتاج إلى زيارتها عشرات المرات لتكتشف كل مرة جمالاً مختلفاً</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/عروض-السياحة-في-روسيا/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-visa.jpg" alt="خدمات السفر إلى روسيا" loading="lazy">
+        6
+        <h3>خدمات السفر إلى روسيا</h3>
+        <p>برامج سياحية متكاملة تشمل الفنادق والتنقلات والجولات مع مرشدين ناطقين بالعربية ودعم أثناء الرحلة</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/السياحة-الشتوية-في-روسيا/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-winter.jpg" alt="السياحة في الشتاء في روسيا" loading="lazy">
+        7
+        <h3>السياحة في الشتاء في موسكو وسانت بطرسبرغ</h3>
+        <p>السياحة في روسيا في الشتاء تجربة فريدة وساحرة — التزلج على الجليد ومشاهدة الشفق القطبي</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-روسيا/رحلات-جماعية-روسيا/">
+        <img decoding="async" src="https://arcadia-tour.com/wp-content/uploads/2026/03/ru-group.jpg" alt="الرحلات الجماعية إلى روسيا" loading="lazy">
+        8
+        <h3>تنظيم الرحلات الجماعية إلى روسيا</h3>
+        <p>رحلات مذهلة عبر روسيا الشاسعة والجميلة — التخطيط الكامل من التذاكر وحجز الفنادق وزيارة المواقع</p>
+        اعرف أكثر ←
+    </a>
+</section>
+<!-- PACKAGES -->
+<section>
+    <h2>⭐ أفضل العروض السياحية في روسيا</h2>
+      <a href="/العروض-والحجوزات/رحله-سياحيه-6-أيام-5-أيام-في-سان-بطرسبرج">
+        سان بطرسبرغ
+        <h3>رحلة سياحية 6 أيام | 5 أيام في سان بطرسبرغ</h3>
+        $540
+        <ul>
+          <li>6 أيام / 5 ليالي</li>
+          <li>مرشد ناطق بالعربية</li>
+          <li>نقل من وإلى المطار</li>
+          <li>زيارة أهم المعالم</li>
+        </ul>
+        احجز الآن
+      </a>
+      <a href="/العروض-والحجوزات/رحله-سياحيه-روسيا-6-أيام-موسكو-وسانت-بطرسبرغ">
+        موسكو + سان بطرسبرغ
+        <h3>رحلة سياحية روسيا 6 أيام موسكو وسانت بطرسبرغ</h3>
+        $685
+        <ul>
+          <li>6 أيام / 5 ليالي</li>
+          <li>مدينتان في رحلة واحدة</li>
+          <li>مرشد ناطق بالعربية</li>
+          <li>فنادق مميزة</li>
+        </ul>
+        احجز الآن
+      </a>
+      <a href="/العروض-والحجوزات/برنامج-سياحي-في-روسيا-8-ايام-7-ليالي">
+        الباقة الشاملة
+        <h3>برنامج سياحي في روسيا 8 أيام / 7 ليالي</h3>
+        $895
+        <ul>
+          <li>8 أيام / 7 ليالي</li>
+          <li>برنامج شامل ومتنوع</li>
+          <li>مرشد ناطق بالعربية</li>
+          <li>سيارة خاصة مع سائق</li>
+        </ul>
+        احجز الآن
+      </a>
+</section>
+<!-- TESTIMONIALS -->
+<section>
+  <h2>ماذا قال عملاؤنا عن روسيا</h2>
+      ★★★★★
+      <p>شركة محترمة جداً مواعيدها مضبوطة استقبال ممتاز وأكثر من رائع والإقامة كانت مميزة مرشدون على مستوى عالٍ جداً بالأخص الاستاذ عباس وإن شاء الله تتكرر التجربة قريباً. شكراً من القلب</p>
+        أ
+          أبو مشاري
+          رحلة روسيا
+      ★★★★★
+      <p>رحلة كانت من أجمل الرحلات ولا غلطة. كل شيء كان رائعاً. شكراً شركة أركاديا. شركة رائعة بكل معنى الكلمة السائقين المرشدين البرنامج الفنادق كل شيء مميز. شكراً</p>
+        خ
+          خالد الشمري
+          رحلة زوجين
+      ★★★★★
+      <p>كانت رحلة مميزة تتسم بالتنظيم والتنوع والدقة في المواعيد. كان الأخ أبو أمير يتابع سير الرحلة باستمرار ودائماً على تواصل معنا وكان متعاوناً جداً. الشكر الخاص له</p>
+        س
+          سارة عادل
+          رحلة روسيا
+</section>
+<!-- FAQ -->
+<section>
+    <h2>أسئلة شائعة عن السياحة في روسيا</h2>
+      ما هو أفضل وقت للسفر إلى روسيا؟
+      أفضل وقت لزيارة روسيا هو الربيع والصيف والخريف. تمت الإشارة إلى الموسمية الموصى بها لكل وجهة سياحية في وصف الجولة.
+      هل يحتاج مواطنو دول الخليج لفيزا للسفر إلى روسيا؟
+      لا يحتاج مواطنو دول مجلس التعاون الخليجي إلى تأشيرة سياحية لزيارة روسيا، ويشمل ذلك مواطني السعودية والإمارات وقطر والكويت والبحرين وعُمان.
+      هل الحجاب مسموح في روسيا؟
+      نعم الحجاب مسموح في روسيا. يوجد الكثير من العرقيات في روسيا وفيها تعدد الديانات فلا داعي للقلق.
+      ما هي العملة المتداولة في روسيا؟
+      العملة المحلية هي الروبل. ينصح بأخذ دولارات أو يورو وصرفها هناك، والأفضل الصرف خارج المطار في المدينة.
+      ما هي أفضل الأماكن للزيارة في موسكو؟
+      أهم 10 أماكن في موسكو: الساحة الحمراء، الكرملين، فدينخا، معرض تريتياكوف، حديقة حيوان موسكو، مدينة موسكو، التلفريك، برج أوستانكينو، مسرح البولشوي، حديقة زاريادي.
+      هل تعمل بطاقات الفيزا والماستر كارد في روسيا؟
+      لا تعمل البطاقات البنكية مثل الفيزا أو الماستر كارد في روسيا حالياً. الأفضل أخذ دولارات أو يورو نقداً معك.
+</section>
+<!-- ARCADIA SEO CONTENT 2026-10-01: START -->
+<style>
+  .ar-seo{max-width:960px;margin:0 auto;padding:56px 20px;line-height:1.95;color:#2C3E50}
+  .ar-seo h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;color:#0D1B2A;margin:40px 0 14px}
+  .ar-seo h3{font-size:1.15rem;font-weight:800;color:#1A2E42;margin:22px 0 8px}
+  .ar-seo p{margin:0 0 14px;font-size:1.05rem}
+  .ar-seo ul{margin:0 0 16px;padding-right:22px}
+  .ar-seo li{margin:6px 0}
+  .ar-seo table{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:.98rem}
+  .ar-seo th,.ar-seo td{border:1px solid #e3e8ee;padding:10px 12px;text-align:right;vertical-align:top}
+  .ar-seo th{background:#F4F6F8;color:#0D1B2A;font-weight:800}
+  .ar-seo .note{background:#FFF8E6;border-right:4px solid #C9A84C;padding:14px 18px;border-radius:10px;margin:14px 0 22px}
+  .ar-seo details{background:#F4F6F8;border-radius:12px;padding:14px 18px;margin:10px 0}
+  .ar-seo summary{font-weight:800;color:#0D1B2A;cursor:pointer}
+  .ar-seo a{color:#9a7520;font-weight:700}
+  .ar-seo .cta-inline{display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:50px;font-weight:800;text-decoration:none;margin-top:6px}
+</style>
+<section class="ar-seo" dir="rtl">
+  <h2>لماذا روسيا مع أركاديا؟</h2>
+  <p>روسيا هي الوجهة الأوروبية الأقرب والأكثر تنوعاً للمسافر الخليجي: موسكو بساحتها الحمراء وقصورها وأكبر مراكز التسوق، وسانت بطرسبرغ بقنواتها ومتحف الهرميتاج وقصور القياصرة، ثم كازان الإسلامية وسوتشي الساحلية لمن يريد أكثر. رحلات مباشرة من الرياض وجدة ودبي والدوحة في نحو خمس ساعات، وتأشيرة إلكترونية سهلة لمواطني دول الخليج. فريق أركاديا في موسكو يوفّر مرشداً عربياً وسائقاً خاصاً وفنادق مناسبة للعائلات، ويتولى التنسيق كاملاً من المطار إلى المطار.</p>
+  <ul>
+    <li><strong>للعائلات:</strong> حدائق موسكو، حديقة الحيوان، مدينة الألعاب «جزيرة الأحلام»، وعروض السيرك والباليه المناسبة للأطفال.</li>
+    <li><strong>لشهر العسل:</strong> جولات الأنهار الليلية في موسكو، والليالي البيضاء في سانت بطرسبرغ من مايو إلى يوليو.</li>
+    <li><strong>للمجموعات:</strong> باصات خاصة وبرامج مجدولة للشركات والعوائل الكبيرة. راجع <a href="/السياحة-في-روسيا/رحلات-جماعية-روسيا/">الرحلات الجماعية إلى روسيا</a>.</li>
+  </ul>
+
+  <h2>أفضل وقت للسياحة في روسيا</h2>
+  <table>
+    <tr><th>الموسم</th><th>الأشهر</th><th>الطقس في موسكو</th><th>الأنسب لـ</th></tr>
+    <tr><td>الربيع</td><td>أبريل – مايو</td><td>8 إلى 18 درجة</td><td>أسعار معتدلة، الحدائق في أبهى حال</td></tr>
+    <tr><td>الصيف</td><td>يونيو – أغسطس</td><td>20 إلى 28 درجة</td><td>الليالي البيضاء في بطرسبرغ، الهروب من حرّ الخليج، الإجازات العائلية</td></tr>
+    <tr><td>الخريف</td><td>سبتمبر – أكتوبر</td><td>6 إلى 16 درجة</td><td>الخريف الذهبي، التصوير، أفضل قيمة مقابل السعر</td></tr>
+    <tr><td>الشتاء</td><td>نوفمبر – مارس</td><td>-12 إلى 0 درجة</td><td>الثلج وأسواق الشتاء وتزلج الجليد للأطفال</td></tr>
+  </table>
+  <p>التفاصيل في <a href="/best-time-visit-moscow-2026/">أفضل وقت لزيارة موسكو 2026</a> و<a href="/russia-weather-month-by-month/">الطقس في روسيا شهراً بشهر</a>، وتجربة الشتاء كاملة في <a href="/السياحة-في-روسيا/السياحة-الشتوية-في-روسيا/">السياحة في روسيا شتاءً</a>.</p>
+
+  <h2>أهم الوجهات السياحية في روسيا</h2>
+  <h3>موسكو</h3>
+  <p>الساحة الحمراء والكرملين وكاتدرائية القديس باسيل، شارع أرباط القديم، حديقة زارياديه المعلّقة، برج أوستانكينو، ومركز موسكو سيتي بناطحات سحابه. تكفي 4 إلى 5 أيام. الدليل الكامل في <a href="/moscow-guide/">دليل موسكو 2026</a> و<a href="/red-square-arab-tourists/">دليل الساحة الحمراء</a>.</p>
+  <h3>سانت بطرسبرغ</h3>
+  <p>على بُعد أربع ساعات بالقطار السريع «سابسان»: متحف الهرميتاج، قصر بيترهوف ونوافيره، كاتدرائية الدم المسفوك، وجولات القنوات. يومان إلى ثلاثة أيام. راجع <a href="/saint-petersburg-guide/">دليل سانت بطرسبرغ</a> و<a href="/white-nights-russia/">الليالي البيضاء</a>.</p>
+  <h3>كازان وسوتشي</h3>
+  <p>كازان عاصمة تتارستان المسلمة بمسجد قول شريف ومطاعمها الحلال، وسوتشي على البحر الأسود بجبالها ومنتجعات التزلج الأولمبية. تفاصيل المدن في <a href="/السياحة-في-روسيا/المدن-في-روسيا/">أفضل 10 مدن سياحية في روسيا</a>.</p>
+
+  <h2>برامج أركاديا في روسيا والأسعار التقريبية</h2>
+  <p>أسعار تقديرية للشخص في غرفة مزدوجة، تشمل الإقامة والنقل الخاص والمرشد العربي والجولات، ولا تشمل الطيران الدولي:</p>
+  <table>
+    <tr><th>البرنامج</th><th>المدة</th><th>ما يشمله</th><th>السعر التقريبي</th></tr>
+    <tr><td><a href="/السياحة-في-روسيا/russia-7-days/">موسكو الشاملة</a></td><td>7 أيام / 6 ليالٍ</td><td>الساحة الحمراء، الكرملين، أرباط، جولة النهر، موسكو سيتي، التسوق</td><td>من 900 دولار</td></tr>
+    <tr><td><a href="/السياحة-في-روسيا/russia-10-days/">موسكو وسانت بطرسبرغ</a></td><td>10 أيام / 9 ليالٍ</td><td>موسكو + قطار سابسان + الهرميتاج وبيترهوف</td><td>من 1,350 دولاراً</td></tr>
+    <tr><td><a href="/السياحة-في-روسيا/russia-12-days/">الجولة الكاملة</a></td><td>12 يوماً / 11 ليلة</td><td>موسكو + بطرسبرغ + كازان أو سوتشي</td><td>من 1,650 دولاراً</td></tr>
+    <tr><td>شتاء موسكو</td><td>5 أيام / 4 ليالٍ</td><td>أسواق الشتاء، تزلج الجليد، حديقة غوركي الثلجية</td><td>من 700 دولار</td></tr>
+  </table>
+  <div class="note">تفصيل الميزانية اليومية في <a href="/russia-family-trip-cost-2026/">تكلفة رحلة روسيا للعائلات 2026</a> و<a href="/تكلفة-السياحة-في-روسيا-الميزانية-اليو/">تكلفة السياحة في روسيا</a>. أرسل لنا التاريخ وعدد الأفراد لنرسل عرضاً دقيقاً.</div>
+
+  <h2>تأشيرة روسيا للخليجيين والعرب</h2>
+  <p>مواطنو السعودية وقطر والكويت والبحرين وعُمان يحصلون على التأشيرة الإلكترونية الموحدة خلال أيام قليلة لإقامة تصل إلى 16 يوماً، ومواطنو الإمارات يدخلون بدون تأشيرة. الجنسيات العربية الأخرى تحتاج تأشيرة من القنصلية بخطاب دعوة نوفّره لكم. الخطوات والمستندات في <a href="/السياحة-في-روسيا/تأشيرة-روسيا/">دليل تأشيرة روسيا للعرب</a>.</p>
+
+  <h2>الفنادق والطعام الحلال</h2>
+  <p>نحجز لكم فنادق مجرّبة من 3 إلى 5 نجوم قرب الساحة الحمراء أو شارع تفرسكايا في موسكو، وقرب شارع نيفسكي في سانت بطرسبرغ، مع غرف عائلية متصلة. الطعام الحلال متوفر بكثرة: مطاعم عربية وتركية وأوزبكية وتتارية، ومسجد موسكو الكبير في وسط المدينة. المرشد يرافقكم إلى المطاعم المناسبة ويترجم القوائم.</p>
+
+  <h2>نصائح عملية قبل السفر إلى روسيا</h2>
+  <ul>
+    <li><strong>العملة:</strong> الروبل. أحضروا نقداً بالدولار أو اليورو واصرفوا في البنوك داخل المدينة؛ البطاقات الخليجية الدولية لا تعمل حالياً في روسيا.</li>
+    <li><strong>الاتصال:</strong> شريحة MTS أو Beeline من المطار، وتطبيق Yandex Go للمواصلات وYandex Maps للخرائط.</li>
+    <li><strong>اللغة:</strong> الروسية، والإنجليزية محدودة؛ لهذا يرافقكم مرشد عربي طوال البرنامج.</li>
+    <li><strong>الملابس:</strong> طبقات شتوية ثقيلة وحذاء مانع للانزلاق من نوفمبر إلى مارس، وسترة خفيفة في الصيف للمساء.</li>
+    <li><strong>التنقل بين المدن:</strong> قطار سابسان السريع موسكو – بطرسبرغ في 4 ساعات، أو طيران داخلي ساعة ونصف.</li>
+  </ul>
+  <p>المزيد في <a href="/السياحة-في-روسيا/russia-info/">معلومات ونصائح السياحة في روسيا</a> و<a href="/دليل-السياحة-في-روسيا-المسافرون-العرب/">أول رحلة إلى روسيا للمسافر العربي</a>.</p>
+
+  <h2>أنشطة لا تفوّتها في روسيا</h2>
+  <ul>
+    <li>جولة نهر موسكفا الليلية مع العشاء وإطلالة الكرملين.</li>
+    <li>عرض الباليه في البولشوي أو السيرك الروسي للأطفال.</li>
+    <li>مترو موسكو ومحطاته التي تشبه القصور.</li>
+    <li>نوافير بيترهوف وقصر كاترين في سانت بطرسبرغ.</li>
+    <li>جزيرة الأحلام: أكبر مدينة ألعاب مغلقة في أوروبا.</li>
+    <li>التسوق في غوم وأفيمول وسوق إزمايلوفو للهدايا التذكارية.</li>
+  </ul>
+  <p>المزيد في <a href="/moscow-parks-tourism/">حدائق موسكو السياحية</a> و<a href="/السياحة-في-روسيا/موسكو/">أفضل 10 أماكن في موسكو</a>.</p>
+
+  <h2>كيف تحجز رحلتك إلى روسيا مع أركاديا؟</h2>
+  <ul>
+    <li><strong>1. أرسل التاريخ وعدد الأفراد</strong> وأعمار الأطفال ومستوى الفندق على واتساب.</li>
+    <li><strong>2. نرسل برنامجاً يوماً بيوم</strong> مع السعر النهائي خلال 24 ساعة.</li>
+    <li><strong>3. تأكيد بعربون</strong> ثم خطاب الدعوة للتأشيرة وتأكيدات الفنادق.</li>
+    <li><strong>4. الاستقبال في مطار موسكو</strong> ومتابعة يومية حتى العودة.</li>
+  </ul>
+  <p><a class="cta-inline" href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A3%D8%B1%D9%83%D8%A7%D8%AF%D9%8A%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%D8%A7%D9%8B%20%D9%84%D8%B1%D9%88%D8%B3%D9%8A%D8%A7" rel="noopener">اطلب برنامجك على واتساب +7 706 400 7561</a> &nbsp; <a href="/offers-bookings/">أو استعرض العروض الحالية</a></p>
+
+</section>
+<!-- ARCADIA SEO CONTENT 2026-10-01: END -->
+<!-- CTA -->
+<section>
+    <h2>🇷🇺 جاهز لاكتشاف روسيا؟</h2>
+    <p>تواصل معنا الآن وسنصمم لك رحلة لا تنسى مع مرشد عربي وخدمة متكاملة</p>
+    <a href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%AD%D8%B5%D9%88%D9%84%20%D8%B9%D9%84%D9%89%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D9%88%D8%B3%D8%B9%D8%B1%20%D9%84%D8%B1%D8%AD%D9%84%D8%A9%20%D8%B1%D9%88%D8%B3%D9%8A%D8%A7.%0A%D8%A7%D9%84%D8%AC%D9%86%D8%B3%D9%8A%D8%A9%3A%20%0A%D8%B9%D8%AF%D8%AF%20%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D9%81%D8%B1%D9%8A%D9%86%3A%20%0A%D8%AA%D8%A7%D8%B1%D9%8A%D8%AE%20%D8%A7%D9%84%D8%B3%D9%81%D8%B1%3A%20%0A%D9%85%D8%AF%D8%A9%20%D8%A7%D9%84%D8%B1%D8%AD%D9%84%D8%A9%3A%20">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      واتساب: 77064007561
+    </a>
+</section>

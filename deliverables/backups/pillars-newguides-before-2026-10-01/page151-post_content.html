@@ -1,0 +1,503 @@
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --dark: #0D1B2A;
+    --dark2: #1A2E42;
+    --white: #FFFFFF;
+    --gray: #F4F6F8;
+    --text: #2C3E50;
+    --kz-blue: #00AFCA;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Tajawal, sans-serif;
+    direction: rtl;
+    color: var(--text);
+    background: var(--white);
+  }
+  /* HERO */
+  .hero {
+    min-height: 60vh;
+    background: linear-gradient(135deg, rgba(13,59,110,.66) 0%, rgba(21,101,192,.5) 50%, rgba(2,136,209,.55) 100%), url(https://arcadia-tour.com/wp-content/uploads/2026/03/normal_67d61036a4336.jpg) center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 20px;
+  }
+  .hero::before {
+    content: ;
+    position: absolute;
+    inset: 0;
+    background: url(https://arcadia-tour.com/wp-content/uploads/2026/03/kazakhstan-hero-v2.jpg) center/cover no-repeat;
+    opacity: 0;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,215,0,0.2);
+    border: 1px solid rgba(255,215,0,0.5);
+    color: #FFD700;
+    padding: 8px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.85);
+    max-width: 600px;
+    margin: 0 auto 32px;
+    line-height: 1.8;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--dark);
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+  .btn-gold:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 2px solid rgba(255,255,255,0.4);
+    transition: all 0.3s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  /* INTRO */
+  .intro {
+    padding: 80px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .section-tag {
+    display: inline-block;
+    color: var(--gold);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .intro h2 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+  .intro p {
+    color: #555;
+    font-size: 1.1rem;
+    line-height: 1.9;
+  }
+  /* CARDS */
+  .cards-section {
+    padding: 20px 20px 80px;
+    background: var(--gray);
+  }
+  .cards-title {
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 48px;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.4s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  }
+  .card-img {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+  }
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
+  .card:hover .card-img img { transform: scale(1.05); }
+  .card-num {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--gold);
+    color: var(--dark);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1rem;
+  }
+  .card-body {
+    padding: 24px;
+  }
+  .card-body h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .card-body p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .card-link {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* FACTS */
+  .facts {
+    padding: 80px 20px;
+    background: var(--dark);
+  }
+  .facts-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .facts h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--white);
+    margin-bottom: 48px;
+  }
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+  }
+  .fact-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 32px 20px;
+  }
+  .fact-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .fact-num {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .fact-label {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.95rem;
+  }
+  /* CTA */
+  .cta {
+    padding: 80px 20px;
+    text-align: center;
+  }
+  .cta-box {
+    max-width: 700px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, var(--dark) 0%, #1A3A5C 100%);
+    border-radius: 24px;
+    padding: 60px 40px;
+    color: var(--white);
+  }
+  .cta-box h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 16px;
+  }
+  .cta-box p {
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 32px;
+    font-size: 1.05rem;
+  }
+  .whatsapp-btn {
+    background: #25D366;
+    color: white;
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+  }
+  .whatsapp-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(37,211,102,0.4);
+  }
+  @media (max-width: 768px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .cta-box { padding: 40px 24px; }
+  }
+</style>
+<!-- HERO -->
+<section>
+    🇰🇿 وجهة سياحية مميزة
+    <h1>السياحة في كازاخستان</h1>
+    <p>استمتع بثقافة غنية وطبيعة خلابة وكرم الضيافة الأصيل — مع مرشدين ناطقين بالعربية</p>
+      <a href="https://wa.me/77064007561">💬 احجز رحلتك الآن</a>
+      <a href="/offers-bookings/">🌍 استعرض العروض</a>
+</section>
+<!-- INTRO -->
+<section>
+  عن الوجهة
+  <h2>لماذا كازاخستان؟</h2>
+  <p>كازاخستان بلد رائع يجمع بين الحداثة والتراث العريق. تمتد على مساحة شاسعة تضم جبالاً شاهقة، سهولاً خضراء، بحيرات ساحرة، ومدناً عصرية تبهر الزوار. مدينة ألماتي العاصمة الاقتصادية تعد من أجمل المدن في آسيا الوسطى، بينما تبهر أستانا العالم بمعمارها الفريد. شركة أركاديا السياحية تقدم لك تجربة سفر متكاملة مع مرشدين ناطقين بالعربية وخدمة على أعلى المستويات.</p>
+</section>
+<!-- CARDS -->
+<section>
+  <h2>اكتشف كل ما تحتاجه عن كازاخستان</h2>
+    <a href="/kazakhstan-tourism-overview/">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/normal_67d61036a4336.jpg" alt="السياحة في كازاخستان" loading="lazy">
+        1
+        <h3>السياحة في كازاخستان</h3>
+        <p>استمتع بثقافة غنية وطبيعة خلابة وكرم الضيافة الأصيل في ألماتي وأستانا وأجمل المدن الكازاخستانية</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-كازاخستان/%d8%a7%d9%84%d9%85%d8%af%d9%86-%d9%81%d9%8a-%d9%83%d8%a7%d8%b2%d8%a7%d8%ae%d8%b3%d8%aa%d8%a7%d9%86-%d8%aa%d8%b9%d8%b1%d9%81-%d8%b9%d9%84%d9%89-%d8%a3%d9%87%d9%85-9-%d9%85%d8%af%d9%86-%d8%b3%d9%8a">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/kaz-cities.jpg" alt="المدن في كازاخستان" loading="lazy">
+        2
+        <h3>المدن في كازاخستان — أهم 9 مدن سياحية</h3>
+        <p>يوجد العديد من المدن السياحية في كازاخستان التي تستحق الزيارة لما تضمه من تاريخ وثقافة وحضارة</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-كازاخستان/تأشيرة-كازاخستان">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/kaz-visa.jpg" alt="تأشيرة كازاخستان" loading="lazy">
+        3
+        <h3>تأشيرة كازاخستان</h3>
+        <p>معلومات تأشيرة كازاخستان: معظم مواطني دول الخليج يدخلون بدون تأشيرة، وجنسيات عديدة لديها إعفاء أو تأشيرة إلكترونية — راجع دليلنا الإرشادي قبل رحلتك</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/تجارب-لا-ت-نسى-أنشطة-مميزة-عند-السياحة-ف/">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/kaz-nature.jpg" alt="الأنشطة السياحية في كازاخستان" loading="lazy">
+        4
+        <h3>الأنشطة السياحية في كازاخستان</h3>
+        <p>الأنشطة السياحية متنوعة ومثيرة بفضل طبيعتها الجذابة من جبال ووديان وأنهار ومرتفعات ومسطحات مائية</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-كازاخستان/معلومات-ونصائح-كازاخستان/">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/kaz-tips.jpg" alt="نصائح السفر إلى كازاخستان" loading="lazy">
+        5
+        <h3>معلومات ونصائح قبل السفر إلى كازاخستان</h3>
+        <p>قبل سفرك إلى كازاخستان تحتاج أن تعرف بعض المعلومات المهمة وأهم مدينة يجب أن تزورها وهي ألماتي</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-كازاخستان/%d8%a7%d9%84%d8%b3%d9%8a%d8%a7%d8%ad%d8%a9-%d9%81%d9%8a-%d9%83%d8%a7%d8%b2%d8%a7%d8%ae%d8%b3%d8%aa%d8%a7%d9%86-%d9%81%d9%8a-%d8%a7%d9%84%d8%b4%d8%aa%d8%a7%d8%a1-%d9%85%d8%b9-%d8%a3%d8%ac%d9%88%d8%a7">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/kaz-winter.jpg" alt="السياحة في كازاخستان في الشتاء" loading="lazy">
+        6
+        <h3>السياحة في كازاخستان في الشتاء</h3>
+        <p>السياحة الشتوية في ألماتي تجربة ليس لها مثيل. تبدأ الثلوج في التساقط مع نهاية أكتوبر وتستمر حتى مارس</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-كازاخستان/الرحلات-الجماعية-كازاخستان/">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/kaz-group.jpg" alt="الرحلات الجماعية في كازاخستان" loading="lazy">
+        7
+        <h3>الرحلات والقروبات الجماعية في كازاخستان</h3>
+        <p>شركتنا تقوم بتنظيم الرحلات الجماعية والقروبات للشركات والعوائل الراغبين في السفر الجماعي</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/%d8%a7%d9%84%d8%af%d8%b1%d8%a7%d8%b3%d8%a9-%d9%81%d9%8a-%d9%83%d8%a7%d8%b2%d8%a7%d8%ae%d8%b3%d8%aa%d8%a7%d9%86-%d8%af%d9%84%d9%8a%d9%84%d9%83-%d8%a7%d9%84%d8%b4%d8%a7%d9%85%d9%84-%d9%84%d8%a3%d9%81">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/normal_67d446dcaff50.jpg" alt="الدراسة في كازاخستان" loading="lazy">
+        8
+        <h3>الدراسة في كازاخستان</h3>
+        <p>دليل معلوماتي للتعرّف على الجامعات والتخصصات والمتطلبات العامة قبل التواصل مع الجهات التعليمية الرسمية</p>
+        اعرف أكثر ←
+    </a>
+</section>
+<!-- FACTS -->
+<section>
+    <h2>كازاخستان بالأرقام</h2>
+        🗺️
+        9
+        مدن سياحية رئيسية
+        🌡️
+        أبريل - أكتوبر
+        أفضل وقت للزيارة
+        ✈️
+        بدون
+        تأشيرة لكثير من الجنسيات
+        🗣️
+        عربي
+        مرشدون ناطقون بالعربية
+</section>
+<!-- ARCADIA SEO CONTENT 2026-09-30: START -->
+<style>
+  .kz-seo{max-width:960px;margin:0 auto;padding:56px 20px;line-height:1.95;color:#2C3E50}
+  .kz-seo h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;color:#0D1B2A;margin:40px 0 14px}
+  .kz-seo h3{font-size:1.15rem;font-weight:800;color:#1A2E42;margin:22px 0 8px}
+  .kz-seo p{margin:0 0 14px;font-size:1.05rem}
+  .kz-seo ul{margin:0 0 16px;padding-right:22px}
+  .kz-seo li{margin:6px 0}
+  .kz-seo table{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:.98rem}
+  .kz-seo th,.kz-seo td{border:1px solid #e3e8ee;padding:10px 12px;text-align:right;vertical-align:top}
+  .kz-seo th{background:#F4F6F8;color:#0D1B2A;font-weight:800}
+  .kz-seo .note{background:#FFF8E6;border-right:4px solid #C9A84C;padding:14px 18px;border-radius:10px;margin:14px 0 22px}
+  .kz-seo details{background:#F4F6F8;border-radius:12px;padding:14px 18px;margin:10px 0}
+  .kz-seo summary{font-weight:800;color:#0D1B2A;cursor:pointer}
+  .kz-seo a{color:#9a7520;font-weight:700}
+  .kz-seo .cta-inline{display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:50px;font-weight:800;text-decoration:none;margin-top:6px}
+</style>
+<section class="kz-seo" dir="rtl">
+
+  <h2>لماذا يختار المسافر العربي كازاخستان مع أركاديا؟</h2>
+  <p>كازاخستان أقرب مما تتخيل: نحو أربع ساعات طيران من الخليج، ودخول بدون تأشيرة لمواطني السعودية والإمارات وقطر والكويت والبحرين وعُمان لمدة تصل إلى 30 يوماً، وأسعار أقل بوضوح من أوروبا مع طبيعة جبلية وبحيرات وثلوج لا تجدها في المنطقة. فريق أركاديا مقيم في ألماتي منذ سنوات، ويقدّم لك مرشداً ناطقاً بالعربية، وسائقاً خاصاً، وفنادق مختارة للعائلات، وتنسيقاً كاملاً قبل الرحلة وأثناءها على واتساب.</p>
+  <ul>
+    <li><strong>للعائلات:</strong> أنشطة آمنة ومناسبة للأطفال، غرف عائلية، ومطاعم حلال في كل برنامج.</li>
+    <li><strong>لشهر العسل:</strong> جولات خاصة في الجبال والبحيرات مع سائق ومرشد مخصصين.</li>
+    <li><strong>للمجموعات والقروبات:</strong> باصات خاصة وبرامج مجدولة للشركات والأصدقاء. راجع <a href="/السياحة-في-كازاخستان/الرحلات-الجماعية-كازاخستان/">الرحلات الجماعية في كازاخستان</a>.</li>
+  </ul>
+
+  <h2>أفضل وقت للسياحة في كازاخستان</h2>
+  <p>كازاخستان وجهة على مدار السنة، لكن كل موسم له طابعه. الجدول التالي يختصر لك التوقيت المناسب حسب ما تبحث عنه:</p>
+  <table>
+    <tr><th>الموسم</th><th>الأشهر</th><th>الطقس في ألماتي</th><th>الأنسب لـ</th></tr>
+    <tr><td>الربيع</td><td>أبريل – مايو</td><td>12 إلى 22 درجة، أزهار وخضرة</td><td>العائلات، الجولات الطبيعية، الأسعار المتوسطة</td></tr>
+    <tr><td>الصيف</td><td>يونيو – أغسطس</td><td>25 إلى 32 درجة نهاراً، معتدل في الجبال</td><td>الهروب من حرّ الخليج، بحيرات كولساي وكايندي، الإجازات الطويلة</td></tr>
+    <tr><td>الخريف</td><td>سبتمبر – أكتوبر</td><td>10 إلى 20 درجة، ألوان ذهبية</td><td>التصوير، الهدوء، أفضل قيمة مقابل السعر</td></tr>
+    <tr><td>الشتاء</td><td>نوفمبر – مارس</td><td>-10 إلى 3 درجات، ثلوج</td><td>التزلج في شيمبولاك، تجربة الثلج للأطفال</td></tr>
+  </table>
+  <p>التفاصيل الشهرية والفعاليات في <a href="/best-time-visit-almaty-2026/">دليل أفضل وقت لزيارة ألماتي 2026</a>، وتجربة الشتاء كاملة في <a href="/السياحة-في-كازاخستان/السياحة-في-كازاخستان-في-الشتاء-مع-أجوا/">السياحة في كازاخستان في الشتاء</a>.</p>
+
+  <h2>أهم الأماكن السياحية في كازاخستان</h2>
+  <h3>ألماتي وما حولها</h3>
+  <p>ألماتي هي قلب السياحة في كازاخستان، وتكفي وحدها لبرنامج من 5 إلى 7 أيام: منتزه ميديو وأعلى حلبة تزلج في العالم، تلفريك شيمبولاك، بحيرة بيغ ألماتي الفيروزية، برج كوك توبي، البازار الأخضر، وحديقة الرئيس. على بُعد ساعات قليلة تجد وادي تشارين الذي يشبه غراند كانيون، وبحيرات كولساي وكايندي بأشجارها الغارقة. الدليل الكامل بالأسعار والخرائط في <a href="/almaty-guide/">دليل ألماتي الشامل</a>.</p>
+  <h3>أستانا</h3>
+  <p>العاصمة الحديثة على بُعد ساعة ونصف طيران من ألماتي: برج بايتيريك، مركز خان شاطر، مسجد حضرة السلطان، ومنطقة إكسبو. مناسبة لإضافة يومين لمن يريد الجمع بين الطبيعة والمدينة العصرية.</p>
+  <h3>وجهات أخرى</h3>
+  <p>تركستان ومزار خوجة أحمد يسوي التاريخي، شيمكنت الجنوبية، وبحر قزوين في أكتاو لمحبي الشواطئ. تعرّف على المدن التسع الأهم في <a href="/السياحة-في-كازاخستان/المدن-في-كازاخستان-تعرف-على-أهم-9-مدن-سي/">المدن السياحية في كازاخستان</a>.</p>
+
+  <h2>برامج أركاديا في كازاخستان والأسعار التقريبية</h2>
+  <p>كل برامجنا قابلة للتعديل حسب عدد الأيام وعدد الأفراد ومستوى الفندق. الأسعار التالية تقديرية للشخص الواحد في غرفة مزدوجة، وتشمل الإقامة والنقل الخاص والمرشد العربي والجولات، ولا تشمل تذاكر الطيران:</p>
+  <table>
+    <tr><th>البرنامج</th><th>المدة</th><th>ما يشمله</th><th>السعر التقريبي</th></tr>
+    <tr><td><a href="/السياحة-في-كازاخستان/kazakhstan-6-days/">ألماتي كلاسيك</a></td><td>6 أيام / 5 ليالٍ</td><td>ميديو، شيمبولاك، بحيرة بيغ ألماتي، جولة المدينة، وادي تشارين</td><td>من 650 دولاراً</td></tr>
+    <tr><td>ألماتي والبحيرات</td><td>7 أيام / 6 ليالٍ</td><td>برنامج الكلاسيك + مبيت في كولساي وكايندي</td><td>من 800 دولار</td></tr>
+    <tr><td><a href="/السياحة-في-كازاخستان/kazakhstan-10-days/">كازاخستان الشاملة</a></td><td>10 أيام / 9 ليالٍ</td><td>ألماتي + البحيرات + أستانا بالطيران الداخلي</td><td>من 1,250 دولاراً</td></tr>
+    <tr><td>شتاء شيمبولاك</td><td>5 أيام / 4 ليالٍ</td><td>تزلج، تلفريك، أنشطة ثلجية للأطفال</td><td>من 550 دولاراً</td></tr>
+  </table>
+  <div class="note">تفصيل التكلفة اليومية للعائلة (الفنادق، الطعام، المواصلات، التذاكر) موجود في <a href="/kazakhstan-family-trip-cost-2026/">دليل تكلفة رحلة كازاخستان للعائلات 2026</a>. للحصول على عرض سعر دقيق أرسل لنا التاريخ وعدد الأفراد وأعمار الأطفال.</div>
+
+  <h2>تأشيرة كازاخستان للخليجيين والعرب</h2>
+  <p>مواطنو دول مجلس التعاون الخليجي يدخلون كازاخستان بدون تأشيرة لمدة تصل إلى 30 يوماً بجواز سفر صالح لستة أشهر. معظم الجنسيات العربية الأخرى تحتاج تأشيرة إلكترونية أو تأشيرة من السفارة، ويمكن لفريق أركاديا إصدار خطاب الدعوة والحجوزات المطلوبة. المقيمون في الخليج بجنسيات أخرى يراجعون <a href="/السياحة-في-كازاخستان/تأشيرة-كازاخستان">دليل تأشيرة كازاخستان</a> قبل الحجز.</p>
+
+  <h2>الفنادق والإقامة</h2>
+  <p>نتعامل مع فنادق مجرّبة في ألماتي من فئة 3 إلى 5 نجوم، بعضها بغرف عائلية ومطابخ صغيرة، وفنادق قريبة من شارع أرباط والبازار الأخضر لمن يفضّل المشي. في كولساي نوفّر أكواخاً خشبية مطلة على البحيرة. مقارنة الفنادق حسب الميزانية في <a href="/best-hotels-almaty-2026/">أفضل فنادق ألماتي 2026</a>.</p>
+
+  <h2>الطعام الحلال في كازاخستان</h2>
+  <p>كازاخستان دولة ذات غالبية مسلمة، والطعام الحلال متوفر بسهولة: مطاعم تركية وأوزبكية وعربية في ألماتي، واللحوم في الأسواق حلال. أشهر الأطباق: البشبرماق باللحم والعجين، والبلوف بالأرز، والسمسا المخبوزة، والكازي. مرشدنا يرافقك إلى المطاعم المناسبة للعائلات ويساعدك في الطلب.</p>
+
+
+  <h2>أنشطة وتجارب لا تفوّتها في كازاخستان</h2>
+  <ul>
+    <li><strong>تلفريك شيمبولاك:</strong> صعود ثلاث مراحل حتى ارتفاع 3,200 متر، ثلوج حتى في أوائل الصيف.</li>
+    <li><strong>حلبة ميديو:</strong> تزلج على الجليد شتاءً، ودرج «الصحة» بألف درجة صيفاً.</li>
+    <li><strong>بحيرة بيغ ألماتي:</strong> مياه فيروزية على ارتفاع 2,500 متر على بُعد 40 دقيقة من المدينة.</li>
+    <li><strong>وادي تشارين:</strong> رحلة يوم كامل بين تكوينات صخرية حمراء تشبه غراند كانيون.</li>
+    <li><strong>بحيرات كولساي وكايندي:</strong> مبيت في الأكواخ، ركوب الخيل، وقوارب الكاياك.</li>
+    <li><strong>هضبة أسّي ومروج الخيول:</strong> مخيمات صيفية على طريقة البدو الكازاخ مع وجبة تقليدية.</li>
+    <li><strong>ساحة الجمهورية وبرج كوك توبي:</strong> إطلالة ليلية على ألماتي كاملة.</li>
+    <li><strong>البازار الأخضر:</strong> فواكه مجففة، عسل جبلي، وجبن كازاخي للهدايا.</li>
+  </ul>
+  <p>مزيد من الأفكار في <a href="/تجارب-لا-ت-نسى-أنشطة-مميزة-عند-السياحة-ف/">الأنشطة السياحية في كازاخستان</a>.</p>
+
+  <h2>نصائح عملية قبل السفر إلى كازاخستان</h2>
+  <ul>
+    <li><strong>العملة:</strong> التينغي الكازاخي. الصرف في المطار أغلى؛ الأفضل مكاتب الصرافة في المدينة أو السحب من الصراف. البطاقات مقبولة في الفنادق والمطاعم الكبيرة.</li>
+    <li><strong>الاتصال:</strong> شرائح Beeline أو Tele2 بالجواز من المطار بأسعار رمزية، والإنترنت سريع في المدن.</li>
+    <li><strong>اللغة:</strong> الكازاخية والروسية. الإنجليزية محدودة خارج الفنادق، ولهذا يرافقك مرشد عربي طوال الرحلة.</li>
+    <li><strong>الملابس:</strong> طبقات خفيفة صيفاً مع سترة للجبال، وملابس شتوية ثقيلة وأحذية مانعة للانزلاق من نوفمبر إلى مارس.</li>
+    <li><strong>الكهرباء:</strong> 220 فولت بمقبس أوروبي، أحضر محوّلاً.</li>
+    <li><strong>الصلاة:</strong> مساجد في كل حي، وأكبرها المسجد المركزي في ألماتي وحضرة السلطان في أستانا.</li>
+    <li><strong>فرق التوقيت:</strong> ألماتي تسبق مكة بساعتين.</li>
+  </ul>
+  <p>المزيد في <a href="/السياحة-في-كازاخستان/معلومات-ونصائح-كازاخستان/">معلومات ونصائح قبل السفر إلى كازاخستان</a>.</p>
+
+  <h2>كيف تحجز رحلتك إلى كازاخستان مع أركاديا؟</h2>
+  <ul>
+    <li><strong>1. تواصل معنا على واتساب</strong> وأرسل التاريخ التقريبي وعدد الأفراد وأعمار الأطفال ومستوى الفندق المطلوب.</li>
+    <li><strong>2. نرسل لك برنامجاً مفصلاً</strong> يوماً بيوم مع السعر النهائي خلال 24 ساعة.</li>
+    <li><strong>3. تأكيد الحجز بعربون</strong>، ثم نرسل تأكيدات الفنادق وبيانات المرشد والسائق.</li>
+    <li><strong>4. الاستقبال في مطار ألماتي</strong> ومتابعة يومية طوال الرحلة.</li>
+  </ul>
+  <p><a class="cta-inline" href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A3%D8%B1%D9%83%D8%A7%D8%AF%D9%8A%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%D8%A7%D9%8B%20%D9%84%D9%83%D8%A7%D8%B2%D8%A7%D8%AE%D8%B3%D8%AA%D8%A7%D9%86" rel="noopener">اطلب برنامجك على واتساب +7 706 400 7561</a> &nbsp; <a href="/offers-bookings/">أو استعرض العروض الحالية</a></p>
+
+  <h2>أسئلة شائعة عن السياحة في كازاخستان</h2>
+  <details><summary>هل كازاخستان آمنة للعائلات العربية؟</summary><p>نعم. ألماتي وأستانا من أكثر مدن آسيا الوسطى أماناً، والشعب مضياف ومعتاد على السياح الخليجيين، وفريقنا معك على مدار الساعة.</p></details>
+  <details><summary>كم تكلفة رحلة أسبوع لعائلة من 4 أفراد؟</summary><p>تقريبياً من 2,500 إلى 4,000 دولار بدون الطيران حسب مستوى الفندق والموسم. التفصيل في دليل التكلفة أعلاه.</p></details>
+  <details><summary>هل يوجد مرشد يتكلم العربية؟</summary><p>نعم، جميع برامجنا تشمل مرشداً ناطقاً بالعربية وسائقاً خاصاً.</p></details>
+  <details><summary>ما مدة الرحلة الجوية من الخليج؟</summary><p>نحو 4 ساعات من الرياض وجدة ودبي والدوحة والكويت إلى ألماتي برحلات مباشرة.</p></details>
+  <details><summary>هل يناسب الشتاء الأطفال؟</summary><p>نعم، شيمبولاك فيها مناطق تزلج للمبتدئين وزلاجات للأطفال، والفنادق مدفأة جيداً. ننصح بملابس شتوية ثقيلة.</p></details>
+  <details><summary>هل يمكن دمج كازاخستان مع أوزبكستان أو روسيا؟</summary><p>نعم، ننظّم برامج مشتركة بالطيران المباشر بين ألماتي وطشقند أو موسكو. راجع <a href="/السياحة-في-أوزبكستان/">السياحة في أوزبكستان</a> و<a href="/السياحة-في-روسيا/">السياحة في روسيا</a>.</p></details>
+</section>
+<!-- ARCADIA SEO CONTENT 2026-09-30: END -->
+
+<!-- CTA -->
+<section>
+    <h2>🇰🇿 جاهز لاكتشاف كازاخستان؟</h2>
+    <p>تواصل معنا الآن وسنصمم لك رحلة لا تنسى مع مرشد عربي وخدمة متكاملة</p>
+    <a href="https://wa.me/77064007561">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      واتساب: 77064007561
+    </a>
+</section>

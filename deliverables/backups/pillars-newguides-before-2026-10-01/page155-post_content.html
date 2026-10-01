@@ -1,0 +1,235 @@
+<style>
+  :root { --gold: #C9A84C; --gold-light: #E8C97A; --dark: #0D1B2A; --white: #FFFFFF; --gray: #F4F6F8; --text: #2C3E50; --poland-red: #DC143C; --poland-dark: #8B0000; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Tajawal', sans-serif; direction: rtl; color: var(--text); background: var(--white); }
+  .hero { min-height: 60vh; background: linear-gradient(135deg, #1a0010 0%, var(--poland-dark) 50%, var(--poland-red) 100%); display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; padding: 80px 20px; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: url('https://arcadia-tour.com/wp-content/uploads/2026/03/pl-warsaw.jpg') center/cover no-repeat; opacity: 0.2; }
+  .hero-content { position: relative; z-index: 2; max-width: 800px; }
+  .hero-badge { display: inline-block; background: rgba(255,215,0,0.2); border: 1px solid rgba(255,215,0,0.5); color: #FFD700; padding: 8px 24px; border-radius: 50px; font-size: 14px; margin-bottom: 20px; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; color: var(--white); margin-bottom: 16px; }
+  .hero p { font-size: 1.15rem; color: rgba(255,255,255,0.85); max-width: 650px; margin: 0 auto 32px; line-height: 1.9; }
+  .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-gold { background: var(--gold); color: var(--dark); padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--white); padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; border: 2px solid rgba(255,255,255,0.4); transition: all 0.3s; }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .intro { padding: 80px 20px; max-width: 900px; margin: 0 auto; text-align: center; }
+  .section-tag { display: inline-block; color: var(--gold); font-size: 14px; font-weight: 700; letter-spacing: 3px; margin-bottom: 12px; }
+  .intro h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: var(--dark); margin-bottom: 20px; }
+  .intro p { color: #555; font-size: 1.05rem; line-height: 1.9; }
+  .cards-section { padding: 20px 20px 80px; background: var(--gray); }
+  .cards-title { text-align: center; font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; color: var(--dark); margin-bottom: 48px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1200px; margin: 0 auto; }
+  .card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.4s; text-decoration: none; color: inherit; display: block; }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+  .card-img { height: 200px; overflow: hidden; position: relative; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .card:hover .card-img img { transform: scale(1.05); }
+  .card-num { position: absolute; top: 16px; right: 16px; background: var(--poland-red); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; }
+  .card-body { padding: 24px; }
+  .card-body h3 { font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; line-height: 1.4; }
+  .card-body p { color: #666; font-size: 0.95rem; line-height: 1.7; margin-bottom: 20px; }
+  .card-link { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
+  .cta { padding: 80px 20px; text-align: center; }
+  .cta-box { max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, var(--poland-dark) 0%, #3D0010 100%); border-radius: 24px; padding: 60px 40px; color: white; }
+  .cta-box h2 { font-size: 2rem; font-weight: 900; margin-bottom: 16px; }
+  .cta-box p { color: rgba(255,255,255,0.7); margin-bottom: 32px; font-size: 1.05rem; }
+  .whatsapp-btn { background: #25D366; color: white; padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; }
+  .whatsapp-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37,211,102,0.4); }
+  @media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .cta-box { padding: 40px 24px; } }
+</style>
+<section style="background-image:linear-gradient(rgba(15,23,42,.6),rgba(15,23,42,.6)),url('https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-poland-krakow-1.jpg');background-size:cover;background-position:center;background-repeat:no-repeat;">
+    🇵🇱 جوهرة أوروبا الوسطى
+    <h1>السياحة في بولندا</h1>
+    <p>من تاريخها الغني وتراثها الثقافي إلى مناظرها الطبيعية الخلابة — اكتشف وارسو وكراكوف وزاكوباني مع خدماتنا المتميزة</p>
+      <a href="https://wa.me/77064007561">💬 احجز رحلتك الآن</a>
+      <a href="/العروض-والحجوزات">🌍 استعرض العروض</a>
+</section>
+<section>
+  عن الوجهة
+  <h2>لماذا بولندا؟</h2>
+  <p>مرحباً بكم في وجهتكم المثالية لاكتشاف جمال وروعة بولندا. نهدف لتقديم أفضل الرحلات السياحية التي تتيح لكم تجربة فريدة وممتعة في هذه البلاد الرائعة. اكتشفوا معنا المدن الساحرة مثل وارسو وكراكوف وزاكوباني، واستمتعوا بالمناظر الطبيعية في جبال تاترا وبحيرة ماسوريا.</p>
+</section>
+<section>
+  <h2>اكتشف كل ما تحتاجه عن السياحة في بولندا</h2>
+    <a href="/السياحة-في-بولندا-1/بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-warsaw.jpg" alt="بولندا" loading="lazy">
+        1
+        <h3>السياحة في بولندا</h3>
+        <p>السياحة في بولندا فرصة رائعة لاكتشاف إحدى الدول الأوروبية الساحرة ذات الجمال المخفي عن العيون في أوروبا الوسطى</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/المدن-في-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-krakow.jpg" alt="المدن في بولندا" loading="lazy">
+        2
+        <h3>المدن في بولندا</h3>
+        <p>استكشف جمال مدن بولندا — أدق التفاصيل حول المدن والأماكن التي تستحق الزيارة مع نصائح وإرشادات مخصصة</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/العروض-السياحيه-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-offers.jpg" alt="العروض السياحية بولندا" loading="lazy">
+        3
+        <h3>العروض السياحية في بولندا</h3>
+        <p>باقات شاملة تشمل الإقامة والنقل والجولات السياحية لأهم المعالم — تجربة سفر لا تُنسى في بولندا</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/سياحة-الأكواخ-في-زاكوباني">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-zakopane.jpg" alt="سياحة الأكواخ في زاكوباني" loading="lazy">
+        4
+        <h3>سياحة الأكواخ في زاكوباني</h3>
+        <p>مغامرة فريدة في أحضان الطبيعة — أكواخ زاكوباني مجهزة للمجموعات والعائلات والمسافر الباحث عن الهدوء</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/الفيزا-او-التاشيره-الى-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-visa.jpg" alt="تأشيرة بولندا" loading="lazy">
+        5
+        <h3>الفيزا والتأشيرة إلى بولندا</h3>
+        <p>معلومات تأشيرة بولندا (شنغن): تعرف على المتطلبات والمستندات ومدة المعالجة في دليلنا الإرشادي قبل التخطيط لرحلتك</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/شتاء-كراكوف-زاكوباني">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-winter.jpg" alt="السياحة الشتوية في بولندا" loading="lazy">
+        6
+        <h3>السياحة بمذاق أوروبي في شتاء كراكوف وزاكوباني</h3>
+        <p>مشاهد أسطورية يشكلها الجليد — مزيج من التاريخ والثقافة والفنون ودفء الشعب البولندي بزوّاره</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/الرحلات-الجماعية-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-group.jpg" alt="الرحلات الجماعية إلى بولندا" loading="lazy">
+        7
+        <h3>تنظيم الرحلات الجماعية إلى بولندا</h3>
+        <p>تجربة فريدة للمسافرين — تخطيط شامل للرحلة وحجز الفنادق والتنسيق مع الجولات السياحية المحلية</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/حجوزات-الفنادق">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-hotel.jpg" alt="حجوزات الفنادق في بولندا" loading="lazy">
+        8
+        <h3>حجوزات الفنادق في بولندا</h3>
+        <p>أفضل العروض وأفضل الأسعار لحجوزات الفنادق في بولندا مع ضمان الحصول على حجوزات مؤكدة</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/الدراسه-في-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/featured-592.jpg?w=600" alt="الدراسة في بولندا" loading="lazy">
+        9
+        <h3>الدراسة في بولندا</h3>
+        <p>فرصة مميزة للطلاب للاستفادة من التعليم العالي ذي الجودة العالية في واحدة من أبرز الدول الأوروبية</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/برامج-سياحيه-في-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-offers.jpg" alt="برامج سياحية في بولندا" loading="lazy">
+        10
+        <h3>برامج سياحية في بولندا</h3>
+        <p>جولات سياحية مخصصة لاستكشاف أجمل المعالم السياحية والطبيعية في بولندا مع أركاديا السياحية</p>
+        اعرف أكثر ←
+    </a>
+</section>
+<!-- ARCADIA SEO CONTENT 2026-10-01: START -->
+<style>
+  .ar-seo{max-width:960px;margin:0 auto;padding:56px 20px;line-height:1.95;color:#2C3E50}
+  .ar-seo h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;color:#0D1B2A;margin:40px 0 14px}
+  .ar-seo h3{font-size:1.15rem;font-weight:800;color:#1A2E42;margin:22px 0 8px}
+  .ar-seo p{margin:0 0 14px;font-size:1.05rem}
+  .ar-seo ul{margin:0 0 16px;padding-right:22px}
+  .ar-seo li{margin:6px 0}
+  .ar-seo table{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:.98rem}
+  .ar-seo th,.ar-seo td{border:1px solid #e3e8ee;padding:10px 12px;text-align:right;vertical-align:top}
+  .ar-seo th{background:#F4F6F8;color:#0D1B2A;font-weight:800}
+  .ar-seo .note{background:#FFF8E6;border-right:4px solid #C9A84C;padding:14px 18px;border-radius:10px;margin:14px 0 22px}
+  .ar-seo details{background:#F4F6F8;border-radius:12px;padding:14px 18px;margin:10px 0}
+  .ar-seo summary{font-weight:800;color:#0D1B2A;cursor:pointer}
+  .ar-seo a{color:#9a7520;font-weight:700}
+  .ar-seo .cta-inline{display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:50px;font-weight:800;text-decoration:none;margin-top:6px}
+</style>
+<section class="ar-seo" dir="rtl">
+  <h2>لماذا بولندا مع أركاديا؟</h2>
+  <p>بولندا هي البوابة الأوفر سعراً إلى أوروبا للعائلات الخليجية: مدن أوروبية كلاسيكية مثل كراكوف ووارسو، جبال تاترا وأكواخ زاكوباني، شواطئ غدانسك على البلطيق، وأسعار أقل بنحو 40% من ألمانيا وفرنسا. آمنة وهادئة، والطعام الحلال متوفر في كل المدن الكبيرة. فريق أركاديا في وارسو يقدّم مرشداً عربياً وسائقاً خاصاً وشققاً وفنادق عائلية، ويساعد في ملف تأشيرة الشنغن.</p>
+  <ul>
+    <li><strong>للعائلات:</strong> حدائق ألعاب «إنرجي لاند»، مناجم الملح في فيليتشكا، حديقة الديناصورات، وأكواخ الجبال بمسابح خاصة. راجع <a href="/السياحة-في-بولندا-للعوائل/">السياحة في بولندا للعوائل</a>.</li>
+    <li><strong>لشهر العسل:</strong> المدينة القديمة في كراكوف ونزهات القوارب في نهر فيستولا.</li>
+    <li><strong>للمجموعات:</strong> برامج مجدولة للشركات والقروبات. راجع <a href="/السياحة-في-بولندا/برامج-سياحيه-في-بولندا/">برامج بولندا السياحية</a>.</li>
+  </ul>
+
+  <h2>أفضل وقت للسياحة في بولندا</h2>
+  <table>
+    <tr><th>الموسم</th><th>الأشهر</th><th>الطقس في كراكوف</th><th>الأنسب لـ</th></tr>
+    <tr><td>الربيع</td><td>أبريل – مايو</td><td>10 إلى 20 درجة</td><td>أزهار، أسعار معتدلة، مدن هادئة</td></tr>
+    <tr><td>الصيف</td><td>يونيو – أغسطس</td><td>20 إلى 28 درجة</td><td>الإجازات العائلية، الجبال والبحيرات، شواطئ غدانسك</td></tr>
+    <tr><td>الخريف</td><td>سبتمبر – أكتوبر</td><td>8 إلى 18 درجة</td><td>أجمل ألوان الغابات، أقل ازدحام</td></tr>
+    <tr><td>الشتاء</td><td>ديسمبر – فبراير</td><td>-5 إلى 3 درجات</td><td>أسواق الكريسماس، التزلج في زاكوباني، الثلج للأطفال</td></tr>
+  </table>
+  <p>تفاصيل الشتاء في <a href="/السياحة-في-بولندا/شتاء-كراكوف-زاكوباني/">السياحة الشتوية في بولندا</a> و<a href="/warsaw-christmas-markets/">أسواق الكريسماس في وارسو</a>.</p>
+
+  <h2>أهم المدن والوجهات في بولندا</h2>
+  <h3>كراكوف</h3>
+  <p>المدينة القديمة وساحة السوق الرئيسية، قلعة فافل، منجم ملح فيليتشكا تحت الأرض، وحي كازيميرز. مثالية لثلاثة أيام. راجع <a href="/السياحة-في-كراكوف-رحلة-بين-الطبيعة-وال/">السياحة في كراكوف</a>.</p>
+  <h3>زاكوباني وجبال تاترا</h3>
+  <p>ساعتان من كراكوف: تلفريك غوبالوفكا، بحيرة مورسكي أوكو، الحمامات الحرارية، وأكواخ خشبية للعائلات. راجع <a href="/السياحة-في-بولندا/سياحة-الأكواخ-في-زاكوباني/">سياحة الأكواخ في زاكوباني</a> و<a href="/السياحة-في-زاكوباني-دليل-شامل-للرحلة-م/">دليل زاكوباني</a>.</p>
+  <h3>وارسو</h3>
+  <p>العاصمة المعاد بناؤها بالكامل: المدينة القديمة، حدائق لازينكي، قصر الثقافة، ومراكز التسوق الكبرى. راجع <a href="/warsaw-poland-tourism/">السياحة في وارسو</a>.</p>
+  <h3>غدانسك وفروتسواف</h3>
+  <p>غدانسك على البلطيق بشواطئها الرملية، وفروتسواف مدينة الجزر والجسور والأقزام. راجع <a href="/gdansk-poland-tourism/">السياحة في غدانسك</a> و<a href="/السياحة-في-بولندا/المدن-في-بولندا/">أفضل مدن بولندا للعوائل</a>.</p>
+
+  <h2>برامج أركاديا في بولندا والأسعار التقريبية</h2>
+  <p>أسعار تقديرية للشخص في غرفة مزدوجة، تشمل الإقامة والنقل الخاص والمرشد العربي والجولات، ولا تشمل الطيران:</p>
+  <table>
+    <tr><th>البرنامج</th><th>المدة</th><th>ما يشمله</th><th>السعر التقريبي</th></tr>
+    <tr><td>كراكوف وزاكوباني</td><td>6 أيام / 5 ليالٍ</td><td>المدينة القديمة، منجم الملح، تاترا، الحمامات الحرارية</td><td>من 800 دولار</td></tr>
+    <tr><td>بولندا الكلاسيكية</td><td>8 أيام / 7 ليالٍ</td><td>وارسو + كراكوف + زاكوباني بالقطار السريع</td><td>من 1,100 دولار</td></tr>
+    <tr><td>بولندا الشاملة</td><td>10 أيام / 9 ليالٍ</td><td>وارسو، كراكوف، زاكوباني، غدانسك</td><td>من 1,400 دولار</td></tr>
+    <tr><td>شتاء زاكوباني</td><td>5 أيام / 4 ليالٍ</td><td>تزلج، أسواق الكريسماس في كراكوف، أكواخ مدفأة</td><td>من 650 دولاراً</td></tr>
+  </table>
+  <div class="note">التكلفة اليومية بالتفصيل في <a href="/poland-family-trip-cost/">تكلفة رحلة بولندا للعائلات 2026</a>. ولعروض الموسم الحالية: <a href="/السياحة-في-بولندا/العروض-السياحيه-بولندا/">العروض السياحية في بولندا</a>.</div>
+
+  <h2>تأشيرة بولندا (شنغن) للخليجيين</h2>
+  <p>بولندا دولة شنغن. مواطنو الإمارات يدخلون بدون تأشيرة حتى 90 يوماً، أما مواطنو السعودية وقطر والكويت والبحرين وعُمان فيحتاجون تأشيرة شنغن تُقدَّم عبر مركز التأشيرات في بلدهم قبل الرحلة بثلاثة إلى أربعة أسابيع. نوفّر لكم حجوزات الفنادق وخطاب البرنامج المطلوبين للملف. الخطوات في <a href="/السياحة-في-بولندا/الفيزا-او-التاشيره-الى-بولندا/">فيزا بولندا للعرب</a>.</p>
+
+  <h2>الفنادق والطعام الحلال</h2>
+  <p>فنادق 4 نجوم في المدينة القديمة بكراكوف وقرب شارع نوفي شفيات في وارسو، وشقق عائلية بمطبخ، وأكواخ خاصة في زاكوباني. المطاعم الحلال كثيرة: تركية، لبنانية، هندية، وباكستانية في كل مدينة، وقائمة بأكثر من 26 مطعماً في <a href="/poland-guide/">دليل بولندا الشامل</a>. راجع أيضاً <a href="/أجمل-10-فنادق-وأكواخ-للإقامة-في-بولندا/">أفضل فنادق وأكواخ بولندا</a>.</p>
+
+  <h2>أنشطة لا تفوّتها</h2>
+  <ul>
+    <li>منجم ملح فيليتشكا: كنائس وبحيرات على عمق 135 متراً تحت الأرض.</li>
+    <li>تلفريك غوبالوفكا وبحيرة مورسكي أوكو في تاترا.</li>
+    <li>الحمامات الحرارية «تيرما بوكوفينا» للعائلات.</li>
+    <li>مدينة ألعاب «إنرجي لاند» قرب كراكوف.</li>
+    <li>نزهة القوارب في نهر فيستولا وحدائق لازينكي في وارسو.</li>
+  </ul>
+  <p>القائمة الكاملة في <a href="/أفضل-10-أنشطة-سياحية-للعائلات-في-بولندا/">أفضل 10 أنشطة للعائلات في بولندا</a> و<a href="/أهم-10-وجهات-سياحية-في-بولندا/">أفضل 10 وجهات في بولندا</a>.</p>
+
+  <h2>نصائح عملية قبل السفر إلى بولندا</h2>
+  <ul>
+    <li><strong>العملة:</strong> الزلوتي البولندي وليس اليورو؛ البطاقات مقبولة في كل مكان تقريباً، والصرف في المدينة أفضل من المطار.</li>
+    <li><strong>الاتصال:</strong> شرائح Play أو Orange من أي كشك، والإنترنت ممتاز، وشرائح الاتحاد الأوروبي تعمل بلا رسوم تجوال.</li>
+    <li><strong>التنقل بين المدن:</strong> قطارات PKP السريعة (وارسو – كراكوف ساعتان ونصف) تُحجز مسبقاً، أو سيارة خاصة مع سائق ضمن البرنامج.</li>
+    <li><strong>الملابس:</strong> مظلة وسترة خفيفة صيفاً، وملابس شتوية ثقيلة من ديسمبر إلى فبراير.</li>
+    <li><strong>الصلاة:</strong> مساجد ومراكز إسلامية في وارسو وكراكوف وغدانسك وفروتسواف.</li>
+    <li><strong>التسوق:</strong> الكهرمان البولندي من غدانسك، والفخار من بولسلافيتس، ومراكز التسوق الكبرى في وارسو بأسعار أقل من الخليج.</li>
+  </ul>
+  <p>الدليل الأكمل بالمطاعم والخرائط في <a href="/poland-guide/">دليل بولندا الشامل 2026</a>، و<a href="/السياحة-في-بولندا/بولندا/">بولندا السياحية للسياح العرب</a>.</p>
+
+  <h2>كيف تحجز رحلتك إلى بولندا مع أركاديا؟</h2>
+  <ul>
+    <li><strong>1. أرسل التاريخ وعدد الأفراد</strong> على واتساب، ويفضّل قبل الرحلة بشهر ونصف لإنهاء تأشيرة الشنغن.</li>
+    <li><strong>2. نرسل برنامجاً مفصلاً والسعر النهائي</strong> خلال 24 ساعة، مع مستندات التأشيرة.</li>
+    <li><strong>3. تأكيد بعربون</strong> ثم تأكيدات الفنادق.</li>
+    <li><strong>4. الاستقبال في مطار وارسو أو كراكوف</strong> ومتابعة يومية.</li>
+  </ul>
+  <p><a class="cta-inline" href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A3%D8%B1%D9%83%D8%A7%D8%AF%D9%8A%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%D8%A7%D9%8B%20%D9%84%D8%A8%D9%88%D9%84%D9%86%D8%AF%D8%A7" rel="noopener">اطلب برنامجك على واتساب +7 706 400 7561</a> &nbsp; <a href="/offers-bookings/">أو استعرض العروض الحالية</a></p>
+
+  <h2>أسئلة شائعة عن السياحة في بولندا</h2>
+  <details><summary>هل بولندا مناسبة للعائلات المحافظة؟</summary><p>نعم. المدن هادئة وآمنة، والمطاعم الحلال متوفرة، والمساجد موجودة في وارسو وكراكوف وغدانسك.</p></details>
+  <details><summary>كم تكلفة أسبوع لعائلة من 4 أفراد؟</summary><p>تقريباً من 3,000 إلى 4,500 دولار بدون الطيران حسب الفنادق والموسم. التفصيل في دليل التكلفة.</p></details>
+  <details><summary>هل أحتاج تأشيرة؟</summary><p>الإماراتيون لا. بقية الخليجيين يحتاجون تأشيرة شنغن، ونساعدكم في الحجوزات والمستندات.</p></details>
+  <details><summary>هل الشتاء مناسب للأطفال؟</summary><p>نعم، زاكوباني فيها منحدرات تزلج للمبتدئين، وأسواق الكريسماس في كراكوف تجربة محببة للأطفال.</p></details>
+  <details><summary>هل يمكن دمج بولندا مع دولة أخرى؟</summary><p>نعم، مع التشيك أو ألمانيا بتأشيرة الشنغن نفسها، أو مع روسيا بتأشيرتها الإلكترونية.</p></details>
+
+</section>
+<!-- ARCADIA SEO CONTENT 2026-10-01: END -->
+<section>
+    <h2>🇵🇱 جاهز لاكتشاف بولندا؟</h2>
+    <p>تواصل معنا الآن وسنصمم لك رحلة لا تنسى في قلب أوروبا</p>
+    <a href="https://wa.me/77064007561">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      واتساب: 77064007561
+    </a>
+</section>
