@@ -131,5 +131,80 @@
    267
   ],
   "featured_media": 4014
+ },
+ {
+  "file": "astana-family-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 5011,
+   "url": "/astana-family-guide-2026/"
+  },
+  "slug": "astana-family-guide",
+  "title": "Astana 2026: A Family Guide to Kazakhstan's Capital",
+  "yoast_title": "Astana Travel Guide 2026 for Families | Arcadia",
+  "yoast_desc": "What to see in Astana with the family: Baiterek, Khan Shatyr, the Grand Mosque and Nur Alem, the best time to visit, costs and combining it with Almaty.",
+  "focus_kw": "Astana travel guide",
+  "categories": [
+   263
+  ],
+  "featured_media": 4128
+ },
+ {
+  "file": "almaty-kids-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 5012,
+   "url": "/almaty-with-kids-family-activities/"
+  },
+  "slug": "almaty-with-kids",
+  "title": "Almaty with Kids: The 10 Best Family Activities",
+  "yoast_title": "Almaty with Kids: 10 Best Family Activities | Arcadia",
+  "yoast_desc": "Ten family activities in Almaty: the Shymbulak cable car, Medeu, Big Almaty Lake, Kok Tobe, the zoo and Charyn Canyon, with a 5-day plan and family tips.",
+  "focus_kw": "Almaty with kids",
+  "categories": [
+   263,
+   267
+  ],
+  "featured_media": 4399
+ },
+ {
+  "file": "tashkent-hotels-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 6410,
+   "url": "/best-hotels-tashkent-2026/"
+  },
+  "slug": "best-hotels-in-tashkent",
+  "title": "Best Hotels in Tashkent 2026: Where Families Should Stay in Uzbekistan's Capital",
+  "yoast_title": "Best Hotels in Tashkent 2026: Areas and Prices | Arcadia",
+  "yoast_desc": "Best hotels in Tashkent for families: Hyatt Regency, InterContinental, Hilton Tashkent City, Wyndham, apartments and boutique stays, with areas and prices.",
+  "focus_kw": "hotels in Tashkent",
+  "categories": [
+   247,
+   267
+  ],
+  "featured_media": 4138
+ },
+ {
+  "file": "uz-hotels-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 6370,
+   "url": "/best-hotels-samarkand-bukhara-2026/"
+  },
+  "slug": "best-hotels-in-samarkand-and-bukhara",
+  "title": "Best Hotels in Samarkand and Bukhara 2026: Silk Road Samarkand and Historic Boutique Hotels",
+  "yoast_title": "Best Hotels in Samarkand and Bukhara 2026 | Arcadia",
+  "yoast_desc": "Where to stay in Samarkand and Bukhara: the Silk Road Samarkand complex, boutique hotels near the Registan and Lyabi-Hauz, and modern hotels with pools.",
+  "focus_kw": "hotels in Samarkand",
+  "categories": [
+   247,
+   267
+  ],
+  "featured_media": 4041
  }
 ]
