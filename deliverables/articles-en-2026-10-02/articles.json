@@ -282,5 +282,43 @@
    267
   ],
   "featured_media": 4602
+ },
+ {
+  "file": "sochi-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 6236,
+   "url": "/sochi-russia-family-guide-2026/"
+  },
+  "slug": "sochi-family-guide",
+  "title": "Sochi 2026: A Family Guide to Russia's Sea and Mountains",
+  "yoast_title": "Sochi Travel Guide 2026 for Families | Arcadia",
+  "yoast_desc": "Sochi for Gulf families: getting there via Moscow, where to stay, Sochi Park, Rosa Khutor and Skypark, halal food, best time, costs and an 8-day plan.",
+  "focus_kw": "Sochi travel guide",
+  "categories": [
+   259,
+   267
+  ],
+  "featured_media": 4604
+ },
+ {
+  "file": "uz-religious-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 6238,
+   "url": "/uzbekistan-islamic-religious-tourism-guide/"
+  },
+  "slug": "uzbekistan-islamic-heritage-guide",
+  "title": "Islamic Heritage in Uzbekistan 2026: Imam al-Bukhari, the Uthman Quran and Bukhara",
+  "yoast_title": "Islamic Heritage Tour of Uzbekistan 2026 | Arcadia",
+  "yoast_desc": "Religious-heritage guide to Uzbekistan: the Imam al-Bukhari complex, the Uthman Quran in Tashkent, Naqshband and Po-i-Kalyan in Bukhara, 6-day plan.",
+  "focus_kw": "Islamic heritage Uzbekistan",
+  "categories": [
+   247,
+   267
+  ],
+  "featured_media": 4126
  }
 ]
