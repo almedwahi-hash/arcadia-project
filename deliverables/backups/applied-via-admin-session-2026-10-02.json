@@ -915,5 +915,23 @@
    "Saudi-Russian visa exemption in force since 11 May 2026, 90 days per calendar year (Saudi Gazette)"
   ],
   "still_to_fix": "Nine other pages still say Gulf citizens need a Russian e-visa: the Arabic and English Russia pillar pages, the English home page, the Gulf visa-free article itself, moscow-with-kids, russia-10-facts-before-travel, russia-family-trip-cost-2026, the Kazakhstan/Russia festivals post and the English best-things-to-do-in-Russia post. The status of the other Gulf states has not been verified."
+ },
+ "gulf_visa_corrections": {
+  "applied": "2026-10-02 ~23:05 UTC",
+  "verified": "Visa policy of Russia (Wikipedia, fetched 2 Oct 2026): visa-exempt 90 days for Qatar (23 Feb 2020), UAE (17 Feb 2019), Oman (18 Jul 2025), Saudi Arabia (11 May 2026); Kuwait and Bahrain eligible for the unified e-visa.",
+  "statement_used_ar": "مواطنو السعودية والإمارات وقطر وعُمان يدخلون روسيا بدون تأشيرة لمدة تصل إلى 90 يوماً، ومواطنو الكويت والبحرين يحصلون على التأشيرة الإلكترونية.",
+  "pages": {
+   "153 /السياحة-في-روسيا/ (Elementor)": "two sentences replaced in content and in _elementor_data; visible after Elementor Clear Files & Data",
+   "2473 /en/tourism-in-russia/": "intro sentence and the visa bullet",
+   "2468 /en/home/": "Russia bullet",
+   "2214 /دخول-روسيا-بدون-فيزا-لدول-الخليج-ما-تح/": "intro now says Saudi citizens as of 11 May 2026 (joining UAE, Qatar, Oman); list paragraph and the Kuwait/Bahrain/Saudi items; e-visa heading now for Kuwait and Bahrain; FAQ answer (HTML and JSON-LD)",
+   "2670 /en/entering-russia-without-a-visa-...": "same changes as 2214 in English",
+   "5017 /moscow-with-kids-family-activities/": "FAQ answer",
+   "524 /russia-10-facts-before-travel/": "section 1, e-visa heading and paragraph, intro sentence",
+   "4592 /russia-family-trip-cost-2026/": "e-visa cost line qualified",
+   "965 /أهم-المهرجانات-في-كازاخستان-وروسيا-2/": "FAQ answer",
+   "3889 /en/best-things-to-do-in-russia-2026/": "intro sentence and practical-notes bullet"
+  },
+  "note": "All replacements matched exactly once (the 2214 FAQ answer twice: HTML and JSON-LD). Verified on the live pages bypassing the cache except page 153, which waits for the Elementor regenerate."
  }
 }
