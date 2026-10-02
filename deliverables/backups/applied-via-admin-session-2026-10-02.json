@@ -583,22 +583,96 @@
   {
    "id": 6545,
    "translation_of": 6234,
-   "slug": "halal-restaurants-almaty-guide"
+   "slug": "halal-restaurants-almaty-guide",
+   "status": "published 2026-10-02 ~20:35 UTC"
   },
   {
    "id": 6547,
    "translation_of": 6309,
-   "slug": "halal-restaurants-moscow-guide"
+   "slug": "halal-restaurants-moscow-guide",
+   "status": "published 2026-10-02 ~20:35 UTC"
   },
   {
    "id": 6549,
    "translation_of": 6488,
-   "slug": "halal-restaurants-krakow-guide"
+   "slug": "halal-restaurants-krakow-guide",
+   "status": "published 2026-10-02 ~20:35 UTC"
   },
   {
    "id": 6551,
    "translation_of": 6310,
-   "slug": "kazakhstan-5-days-itinerary-en"
+   "slug": "kazakhstan-5-days-itinerary-en",
+   "status": "published 2026-10-02 ~20:35 UTC"
   }
+ ],
+ "english_posts_cross_links": [
+  {
+   "id": 6551,
+   "change": "day-1 sentence now links to /en/halal-restaurants-almaty-guide/ as well as the traditional dishes guide"
+  },
+  {
+   "id": 6545,
+   "change": "closing paragraph now also links to /en/kazakhstan-5-days-itinerary-en/"
+  }
+ ],
+ "inbound_links_added": {
+  "note": "One paragraph '<p><strong>Read also:</strong> …</p>' inserted before the last <h2> (at the end for 2677). Remove that paragraph to revert.",
+  "posts": {
+   "2530": [
+    "halal-restaurants-almaty-guide",
+    "kazakhstan-5-days-itinerary-en"
+   ],
+   "2678": [
+    "halal-restaurants-almaty-guide",
+    "kazakhstan-5-days-itinerary-en"
+   ],
+   "2494": [
+    "kazakhstan-5-days-itinerary-en",
+    "halal-restaurants-almaty-guide"
+   ],
+   "2501": [
+    "halal-restaurants-moscow-guide"
+   ],
+   "2677": [
+    "halal-restaurants-krakow-guide"
+   ],
+   "2504": [
+    "halal-restaurants-krakow-guide"
+   ]
+  }
+ },
+ "featured_images": {
+  "note": "featured_media set and Astra meta ast-featured-img='disabled' so the image is used for og:image only and is not displayed on the page. All 11 pages had featured_media=0 before. Yoast only picked the image up after a second save.",
+  "pages": {
+   "2473": 4016,
+   "2474": 4022,
+   "2475": 4126,
+   "146": 4055,
+   "2470": 4055,
+   "148": 4055,
+   "2471": 4055,
+   "569": 4012,
+   "568": 4128,
+   "2549": 4128,
+   "2554": 4014
+  },
+  "ast_featured_img_before": {
+   "146": "",
+   "148": "",
+   "568": "",
+   "569": "",
+   "2475": "",
+   "2554": "",
+   "2470": "disabled",
+   "2471": "disabled",
+   "2473": "disabled",
+   "2474": "disabled",
+   "2549": "disabled"
+  }
+ },
+ "not_applied": [
+  "Snippet #23 home title change and a new x-default hreflang snippet: editing PHP snippets on the live site was blocked by the session's safety layer",
+  "Cloudflare purge after this round: blocked by the session's safety layer; owner to run it",
+  "Moscow page (579) redirecting link: source not identified"
  ]
 }
