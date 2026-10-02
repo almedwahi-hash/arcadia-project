@@ -703,5 +703,61 @@
   },
   "known_issue": "The three new URLs were requested before publishing to confirm the slugs were free, and Cloudflare cached those 404 responses (origin sends max-age=14400). Visitors get the cached 404 until Cloudflare is purged or about 4 hours pass. Check free slugs with a cache-busting query string in future.",
   "held_back": "Moscow hotels guide not translated: the Arabic source names hotel brands that may have changed since international chains left Russia (e.g. Ritz-Carlton, Hilton, Crowne Plaza); needs the owner's confirmation of current names."
+ },
+ "english_batch_3": {
+  "published": "2026-10-02 ~21:35 UTC",
+  "posts": [
+   {
+    "id": 6572,
+    "translation_of": 6370,
+    "slug": "best-hotels-in-samarkand-and-bukhara"
+   },
+   {
+    "id": 6574,
+    "translation_of": 6410,
+    "slug": "best-hotels-in-tashkent"
+   },
+   {
+    "id": 6576,
+    "translation_of": 5011,
+    "slug": "astana-family-guide"
+   },
+   {
+    "id": 6578,
+    "translation_of": 5012,
+    "slug": "almaty-with-kids"
+   }
+  ],
+  "inbound_link_edits": {
+   "6563": "links to the Astana family guide and Almaty with kids (replacing the cities page and family-trips page)",
+   "6565": "links to the Astana family guide",
+   "6551": "small-children alternative links to Almaty with kids",
+   "6561": "closing paragraph also links to Almaty with kids",
+   "6572": "closing paragraph also links to the best hotels in Tashkent",
+   "2679": "Read also paragraph: Tashkent hotels, Samarkand and Bukhara hotels",
+   "2685": "Read also paragraph: Tashkent hotels, Samarkand and Bukhara hotels"
+  },
+  "english_text_differs_from_arabic_source": {
+   "astana-family-guide": [
+    "Baiterek given as 105 m with the deck at 97 m (source: 97 m high)",
+    "handprint sentence removed",
+    "Hazrat Sultan placed next to the Palace of Peace (source: on the left bank)",
+    "Grand Mosque capacity figure removed (source: 200,000)",
+    "aquarium no longer placed inside Khan Shatyr; zoo location removed"
+   ],
+   "almaty-with-kids": [
+    "First President's Park no longer described as next to the zoo",
+    "water park and aquarium left unnamed (source: Aquapark at a resort, aquarium at Esentai Mall)",
+    "Medeu stairs given as 842 steps (source: 800)"
+   ],
+   "best-hotels-in-tashkent": [
+    "'all international flights' changed to 'most'",
+    "unidentified street name dropped from the Mirabad bullet",
+    "pool descriptions reduced to 'a pool' for Hyatt Regency and Hilton",
+    "Lotte City Hotel Tashkent Palace no longer called a local 5-star hotel",
+    "station names removed from the Afrosiyob tip"
+   ]
+  },
+  "held_back": "Sochi translation (deliverables/articles-en-held/sochi-en.html): the source's visa rules for Saudi and Gulf citizens, seasonal direct flights, the unqualified 'Sochi is safe' answer and the mosque in Adler need confirmation."
  }
 }
