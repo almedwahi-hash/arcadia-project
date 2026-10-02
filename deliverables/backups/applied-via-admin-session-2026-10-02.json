@@ -759,5 +759,76 @@
    ]
   },
   "held_back": "Sochi translation (deliverables/articles-en-held/sochi-en.html): the source's visa rules for Saudi and Gulf citizens, seasonal direct flights, the unqualified 'Sochi is safe' answer and the mosque in Adler need confirmation."
+ },
+ "english_batch_4": {
+  "published": "2026-10-02 ~22:10 UTC",
+  "posts": [
+   {
+    "id": 6587,
+    "translation_of": 6237,
+    "slug": "kazakhstan-honeymoon"
+   },
+   {
+    "id": 6589,
+    "translation_of": 6408,
+    "slug": "turkistan-yasawi-guide"
+   },
+   {
+    "id": 6591,
+    "translation_of": 6409,
+    "slug": "burabay-guide"
+   },
+   {
+    "id": 6593,
+    "translation_of": 6312,
+    "slug": "uzbekistan-with-kids"
+   }
+  ],
+  "inbound_link_edits": {
+   "6576": "Burabay National Park now links to the Burabay guide",
+   "6563": "links added to the Burabay guide and the honeymoon guide",
+   "6551": "honeymoon alternative links to the honeymoon guide",
+   "6574": "closing paragraph also links to Uzbekistan with kids",
+   "2494": "Read also paragraph extended: Turkistan, Burabay",
+   "2679": "Read also paragraph extended: Uzbekistan with kids"
+  },
+  "english_text_differs_from_arabic_source": {
+   "kazakhstan-honeymoon": [
+    "flight time given as 4-6 hours from the Gulf (source: 4-5 hours from four named cities)",
+    "cost comparisons with Switzerland/Maldives no longer give percentages",
+    "day 3 no longer describes a mountain road from Big Almaty Lake to Assy",
+    "cabins 'near' Kolsai rather than on the shore",
+    "one five-star hotel in Esentai Tower (source: hotels)",
+    "balloon flight near Almaty (source: balloon or light aircraft over the mountains)",
+    "winter: Kaindy road closes (source: Kolsai trip cancelled)",
+    "Samarkand flight time removed"
+   ],
+   "turkistan-yasawi-guide": [
+    "dome/building height wording",
+    "Otrar distance given as about an hour's drive (source: 50 km)",
+    "Sozak mausoleum bullet removed",
+    "'daily' flights and 'fast Talgo' wording removed; overnight train given as 13 hours or more",
+    "Baidibek amusement park removed",
+    "photography, entry-fee and Friday-prayer statements replaced with general guidance",
+    "winter temperature figures removed",
+    "museum names generalised"
+   ],
+   "burabay-guide": [
+    "'only' nature destination changed to 'main'",
+    "train time 2.5-3 hours; 20-30 minutes to the lakes",
+    "Okzhetpes trail and cable car removed",
+    "Shchuchye no longer called the largest lake",
+    "'Valley of the Gods (Abai-Babai)' replaced with a generic description"
+   ],
+   "uzbekistan-with-kids": [
+    "Registan show described as seasonal; electric cars removed",
+    "puppet theatre 'near' Lyabi-Hauz; folklore show 'in season'",
+    "train 'up to 250 km/h', buffet car",
+    "zoo no longer placed next to the TV Tower",
+    "entry fees given as 'a few dollars'",
+    "'local food is halal' instead of 'all food'"
+   ]
+  },
+  "held_back": "Uzbekistan religious-tourism translation (deliverables/articles-en-held/uz-religious-en.html): a subagent's web check reported that the Uthman Quran was moved in November 2025 from the Muyi Muborak Library to the new Center for Islamic Civilization in Tashkent, and that the rebuilt Imam al-Bukhari complex opened in March 2026; the Arabic source describes the earlier situation in several places. Not verified first-hand."
  }
 }
