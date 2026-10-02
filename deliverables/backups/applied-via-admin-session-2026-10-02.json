@@ -980,5 +980,95 @@
    "LiteSpeed/Elementor settings untouched",
    "no theme or plugin changes"
   ]
+ },
+ "english_batch_6": {
+  "published": "2026-10-03 ~02:15 UTC",
+  "note": "The user calls this the fifth batch; it is the sixth English batch in this log (english_batch_5 holds the two deferred translations).",
+  "posts": [
+   {
+    "id": 6636,
+    "translation_of": 5019,
+    "slug": "tashkent-in-two-days",
+    "featured_media": 4138
+   },
+   {
+    "id": 6638,
+    "translation_of": 5013,
+    "slug": "kazakhstan-uzbekistan-10-days",
+    "featured_media": 4126
+   },
+   {
+    "id": 6640,
+    "translation_of": 5074,
+    "slug": "best-time-to-visit-kazakhstan",
+    "featured_media": 4610
+   },
+   {
+    "id": 6642,
+    "translation_of": 5075,
+    "slug": "best-time-to-visit-uzbekistan",
+    "featured_media": 4602
+   },
+   {
+    "id": 6644,
+    "translation_of": 6490,
+    "slug": "best-hotels-in-warsaw-and-krakow",
+    "featured_media": 4129
+   }
+  ],
+  "method": "Polylang new-translation link (from_post/new_lang=en) in the owner's wp-admin session; content from deliverables/articles-en-2026-10-02 via GitHub raw; Yoast title/description/focus keyword, categories, slug and featured image via REST; second save so Yoast picks up og:image.",
+  "verified": "All five return 200 from the origin with one H1, Yoast title and description, og:image, canonical and ar/en-US hreflang in both directions.",
+  "facts_corrected_in_english_only": {
+   "tashkent": [
+    "'oldest Quran in the world' -> one of the oldest; parchment instead of deerskin",
+    "Chorsu 'largest market in Central Asia' -> one of the largest",
+    "Chimgan one hour -> about an hour and a half",
+    "Plov Centre served before noon only -> from late morning until it runs out",
+    "Minor Mosque 'the largest' -> the best known",
+    "aquarium removed from the children FAQ",
+    "Afrosiyob two hours -> just over two hours",
+    "all food is halal -> local food is halal"
+   ],
+   "kz-uz-10days": [
+    "'40% cheaper than Europe' -> noticeably less",
+    "Samarkand-Bukhara 'three hours' -> one and a half to three hours by train depending on the service",
+    "Afrosiyob two hours -> just over two hours",
+    "departure from Bukhara qualified (when a suitable flight exists)",
+    "airlines on Almaty-Tashkent left unnamed",
+    "'more direct Gulf flights to Almaty' reasoning replaced",
+    "best-time link now points to the two new best-time guides"
+   ],
+   "best-time-kz": [
+    "1 December First President's Day removed (no longer a public holiday since 2022)",
+    "Medeu 'largest high-altitude rink in the world' -> one of the highest-altitude rinks"
+   ],
+   "best-time-uz": [
+    "July Bukhara/Khiva 38-42 -> 38-40, hotter in heatwaves; 'exceeds 40' -> approaches or exceeds",
+    "Silk and Spices Festival: late May or early June, dates vary",
+    "Sharq Taronalari: held in odd-numbered years, next 2027",
+    "festival link now points to the festival calendar page"
+   ],
+   "poland-hotels": [
+    "Hilton Warsaw City 'mall next door' removed",
+    "ibis no longer placed next to the Palace of Culture; Novotel family rooms 2+2",
+    "Bristol/Raffles heading: Royal Route instead of Old Town",
+    "Hilton Garden Inn across the river, about 20 minutes' walk",
+    "Hotel Stary: townhouses, not palaces",
+    "Wola 'a few minutes by metro'",
+    "cards 'accepted almost everywhere'",
+    "zloty/riyal rate: check before travel"
+   ]
+  },
+  "inbound_link_edits": {
+   "6551 kazakhstan-5-days-itinerary-en": "best time to visit Kazakhstan + Kazakhstan and Uzbekistan in 10 days",
+   "6563 almaty-or-astana": "best time to visit Kazakhstan",
+   "6576 astana-family-guide": "best time to visit Kazakhstan",
+   "6587 kazakhstan-honeymoon": "best time to visit Kazakhstan",
+   "6549 halal-restaurants-krakow-guide": "best hotels in Warsaw and Krakow",
+   "6593 uzbekistan-with-kids": "best time to visit Uzbekistan + Kazakhstan and Uzbekistan in 10 days",
+   "6574 best-hotels-in-tashkent": "Tashkent in two days",
+   "6572 best-hotels-in-samarkand-and-bukhara": "best time to visit Uzbekistan"
+  },
+  "cache": "not purged (one purge at the end of the session)"
  }
 }
