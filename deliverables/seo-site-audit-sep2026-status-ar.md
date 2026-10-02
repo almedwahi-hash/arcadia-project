@@ -464,3 +464,12 @@ if ( function_exists( 'pll_current_language' ) && 'ar' !== pll_current_language(
 | التحقق | 10 صفحات تحققت على الخادم؛ صفحة 153 صفحة Elementor وتظهر بعد Clear Files & Data |
 | الكاش | لم يُفرَّغ |
 
+## 31) نشر الترجمتين المؤجلتين — 2 أكتوبر 2026 (نحو 23:30 UTC)
+
+| البند | النتيجة |
+|-------|---------|
+| منشور | 6624 `/en/sochi-family-guide/` · 6626 `/en/uzbekistan-islamic-heritage-guide/` — للزوار: 200، H1 واحد، hreflang ar/en، og:image، في post-sitemap، وبالمعلومات المحدّثة (الإعفاء من التأشيرة، مصحف عثمان، مجمع الإمام البخاري) |
+| روابط واردة | 5 مقالات إنجليزية |
+| مجموع الإنجليزية الجديدة اليوم | 17 مقالاً |
+| باقٍ | ترجمة فنادق موسكو بانتظار تأكيد أسماء الفنادق؛ Elementor Clear Files & Data وCloudflare Purge في نهاية الجلسة |
+

@@ -933,5 +933,28 @@
    "3889 /en/best-things-to-do-in-russia-2026/": "intro sentence and practical-notes bullet"
   },
   "note": "All replacements matched exactly once (the 2214 FAQ answer twice: HTML and JSON-LD). Verified on the live pages bypassing the cache except page 153, which waits for the Elementor regenerate."
+ },
+ "english_batch_5": {
+  "published": "2026-10-02 ~23:30 UTC",
+  "posts": [
+   {
+    "id": 6624,
+    "translation_of": 6236,
+    "slug": "sochi-family-guide"
+   },
+   {
+    "id": 6626,
+    "translation_of": 6238,
+    "slug": "uzbekistan-islamic-heritage-guide"
+   }
+  ],
+  "inbound_link_edits": {
+   "6589": "closing links to Islamic heritage in Uzbekistan",
+   "6547": "closing links to the Sochi family guide",
+   "6572": "closing links to Islamic heritage",
+   "6593": "closing links to Islamic heritage",
+   "2679": "Read also paragraph extended"
+  },
+  "notes": "Both texts carry the verified visa, Uthman Quran and Imam al-Bukhari facts. Sochi safety FAQ now advises checking official travel advice; the unverified Adler mosque became 'prayer facilities in the city'."
  }
 }
