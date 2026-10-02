@@ -1070,5 +1070,47 @@
    "6572 best-hotels-in-samarkand-and-bukhara": "best time to visit Uzbekistan"
   },
   "cache": "not purged (one purge at the end of the session)"
+ },
+ "arabic_corrections_batch_5_sources": {
+  "applied": "2026-10-03 ~02:40 UTC",
+  "note": "Exact-phrase replacements in the five Arabic originals of the fifth English batch; all 31 phrases matched exactly once. Previous versions are in WordPress revisions. Verified on the live pages bypassing the cache.",
+  "posts": {
+   "5019 tashkent-2-days-itinerary": [
+    "one of the oldest Qurans (intro and Hazrati Imam), parchment instead of deerskin, moved in November 2025 to the Center for Islamic Civilization",
+    "Chorsu: one of the largest markets",
+    "Chimgan: about an hour and a half (intro and day 2)",
+    "Plov Centre: served from late morning until it runs out",
+    "aquarium removed from the children FAQ",
+    "Afrosiyob: a little over two hours (two places)"
+   ],
+   "5013 kazakhstan-uzbekistan-10-days-trip": [
+    "'40% cheaper than Europe' -> noticeably cheaper",
+    "Uthman Quran at the Center for Islamic Civilization",
+    "Afrosiyob a little over two hours",
+    "Samarkand-Bukhara: 1.5-3 hours by train depending on the service, or by car",
+    "departure from Bukhara only when a suitable flight exists",
+    "airline names removed from the Almaty-Tashkent tip",
+    "FAQ reasoning for starting in Kazakhstan replaced"
+   ],
+   "5074 best-time-visit-kazakhstan-2026": [
+    "1 December First President's Day removed (not a public holiday since 2022)",
+    "Medeu: one of the highest-altitude rinks"
+   ],
+   "5075 best-time-visit-uzbekistan-2026": [
+    "July Bukhara/Khiva 38-40 plus heatwaves; 'approaches or exceeds 40'",
+    "Silk and Spices Festival late May or early June, dates vary",
+    "Sharq Taronalari in odd-numbered years, next 2027"
+   ],
+   "6490 best-hotels-warsaw-krakow-families-2026": [
+    "Wola: a few minutes by metro",
+    "Bristol/Raffles heading: Royal Route",
+    "Hilton Warsaw City: mall removed",
+    "Novotel 2+2 family rooms, ibis further out",
+    "Hotel Stary: historic houses, not palaces",
+    "Holiday Inn minutes from the Old Town, Hilton Garden Inn across the river",
+    "family-rooms tip without ibis",
+    "cards accepted almost everywhere"
+   ]
+  }
  }
 }
