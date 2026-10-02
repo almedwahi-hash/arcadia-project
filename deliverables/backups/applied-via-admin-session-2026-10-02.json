@@ -956,5 +956,29 @@
    "2679": "Read also paragraph extended"
   },
   "notes": "Both texts carry the verified visa, Uthman Quran and Imam al-Bukhari facts. Sochi safety FAQ now advises checking official travel advice; the unverified Adler mosque became 'prayer facilities in the city'."
+ },
+ "performance_2026-10-02": {
+  "measurement": "PageSpeed Insights (mobile), home page, 3 Oct 2026 01:50 local: performance 89, FCP 1.1 s, LCP 2.4 s, TBT 380 ms, CLS 0, Speed Index 1.9 s. On 30 Sep it was 35. Field data (28 days): LCP 3.2 s, INP 171 ms, CLS 0, FCP 2.7 s, TTFB 2.3 s.",
+  "remaining_opportunities_from_lighthouse": [
+   "cache TTL for static assets (304 KiB)",
+   "render-blocking requests (110 ms)",
+   "unused JavaScript (263 KiB)",
+   "7 long main-thread tasks",
+   "legacy JavaScript (23 KiB)",
+   "image delivery (15 KiB)"
+  ],
+  "change_applied": {
+   "where": "Cloudflare > Caching > Cache Rules",
+   "rule": "Long browser TTL for static assets (placed last, active)",
+   "expression": "(http.host in {\"arcadia-tour.com\" \"www.arcadia-tour.com\"} and http.request.uri.path.extension in {\"css\" \"js\" \"jpg\" \"jpeg\" \"png\" \"gif\" \"webp\" \"svg\" \"ico\" \"woff\" \"woff2\" \"ttf\"})",
+   "settings": "Eligible for cache; Edge TTL: ignore cache-control, 1 month; Browser TTL: override origin, 1 month",
+   "verified": "static assets now return cache-control max-age=2678400; HTML pages still max-age=14400",
+   "rollback": "delete or disable the rule in Cache Rules"
+  },
+  "not_changed": [
+   "AdSense script (render-blocking on posts) is revenue-related, owner's decision",
+   "LiteSpeed/Elementor settings untouched",
+   "no theme or plugin changes"
+  ]
  }
 }
