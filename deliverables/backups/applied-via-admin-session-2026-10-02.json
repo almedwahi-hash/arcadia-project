@@ -830,5 +830,90 @@
    ]
   },
   "held_back": "Uzbekistan religious-tourism translation (deliverables/articles-en-held/uz-religious-en.html): a subagent's web check reported that the Uthman Quran was moved in November 2025 from the Muyi Muborak Library to the new Center for Islamic Civilization in Tashkent, and that the rebuilt Imam al-Bukhari complex opened in March 2026; the Arabic source describes the earlier situation in several places. Not verified first-hand."
+ },
+ "arabic_corrections": {
+  "applied": "2026-10-02 ~22:45 UTC",
+  "note": "Exact-phrase replacements in the live Arabic posts; every phrase matched exactly once. Previous versions are in WordPress revisions. Verified on the live pages bypassing the cache.",
+  "posts": {
+   "5011 astana-family-guide-2026": [
+    "Baiterek: 105 m tower with the deck at 97 m (was: 97 m high)",
+    "handprint sentence removed",
+    "Hazrat Sultan mosque next to the Palace of Peace (was: on the left bank)",
+    "Grand Mosque capacity figure removed",
+    "aquarium no longer placed inside Khan Shatyr; zoo location removed"
+   ],
+   "5012 almaty-with-kids-family-activities": [
+    "First President Park no longer described as next to the zoo",
+    "water park and aquarium left unnamed",
+    "Medeu stairs: 842 steps (was: 800)"
+   ],
+   "6410 best-hotels-tashkent-2026": [
+    "all international flights changed to most",
+    "unidentified street name removed",
+    "pool descriptions reduced to a single pool (Hyatt, Hilton)",
+    "Lotte heading no longer says Uzbek luxury hotels",
+    "station names removed"
+   ],
+   "6237 kazakhstan-honeymoon-guide-2026": [
+    "flight time 4-6 hours from the Gulf",
+    "cost comparisons without percentages",
+    "day 3 route corrected",
+    "cabins near (not on the shore of) Kolsai",
+    "Astana flight about 1h45",
+    "balloon near Almaty",
+    "winter: Kaindy road closes",
+    "Samarkand flight time removed",
+    "lavender season: early summer"
+   ],
+   "6408 turkistan-kazakhstan-yasawi-guide": [
+    "dome/building height wording",
+    "seven-metals claim attributed",
+    "Otrar about one hour by car, destroyed by the Mongols",
+    "daily flights and Talgo wording removed; overnight train 13 hours or more",
+    "Baidibek amusement park removed",
+    "photography, entry-fee and Friday-prayer bullets replaced with general guidance",
+    "winter temperature figures removed",
+    "Sozak mausoleum bullet removed"
+   ],
+   "6409 burabay-borovoe-kazakhstan-guide": [
+    "only nature destination changed to main",
+    "train 2.5-3 hours, 20-30 minutes to the lakes",
+    "Okzhetpes trail/cable car removed",
+    "Shchuchye no longer called the largest",
+    "Valley of the Gods (Abai-Babai) replaced with a generic description (two places)",
+    "winter: -20 or lower"
+   ],
+   "6312 uzbekistan-with-kids-family-guide": [
+    "Chimgan 1.5-2 hours",
+    "electric cars removed",
+    "train up to 250 km/h, buffet car",
+    "local food is halal (was: all food)",
+    "entry fees: a few dollars",
+    "Registan heading no longer promises a nightly show"
+   ],
+   "6238 uzbekistan-islamic-religious-tourism-guide": [
+    "Uthman Quran: moved in November 2025 to the Center for Islamic Civilization next to Hazrati Imam (list, day 1 and FAQ)",
+    "Imam al-Bukhari complex: rebuilt and opened in March 2026, mosque for more than ten thousand worshippers, visit at least two hours",
+    "Muayyad Khan madrasah changed to Muyi Muborak madrasah",
+    "Ismail Samani and Bibi-Khanym superlatives softened",
+    "entry fees: a few dollars",
+    "Marghinani: memorial complex rather than tomb in Margilan"
+   ],
+   "6236 sochi-russia-family-guide-2026": [
+    "Saudis enter Russia visa-free since 11 May 2026 (was: e-visa in 4 working days); other Gulf states referred to the exemption article"
+   ],
+   "6195 russia-for-saudis-2026": [
+    "e-visa step-by-step section replaced by a visa-free entry section (agreement in force 11 May 2026, 90 days per calendar year, purposes covered and excluded)",
+    "intro, FAQ and closing sentence updated",
+    "post title now says entry without a visa instead of the e-visa",
+    "Yoast title and description updated; slug unchanged"
+   ]
+  },
+  "verified_by_web_search": [
+   "Uthman Quran moved to the Center for Islamic Civilization in November 2025 (Wikipedia: Hazrati Imam Complex; Center for Islamic Civilization)",
+   "Imam al-Bukhari complex opened 19 March 2026 (Wikipedia: Memorial Complex of Imam al-Bukhari; Eurasia Review; The Friday Times)",
+   "Saudi-Russian visa exemption in force since 11 May 2026, 90 days per calendar year (Saudi Gazette)"
+  ],
+  "still_to_fix": "Nine other pages still say Gulf citizens need a Russian e-visa: the Arabic and English Russia pillar pages, the English home page, the Gulf visa-free article itself, moscow-with-kids, russia-10-facts-before-travel, russia-family-trip-cost-2026, the Kazakhstan/Russia festivals post and the English best-things-to-do-in-Russia post. The status of the other Gulf states has not been verified."
  }
 }
