@@ -1112,5 +1112,98 @@
     "cards accepted almost everywhere"
    ]
   }
+ },
+ "english_batch_7": {
+  "published": "2026-10-03 ~03:20 UTC",
+  "note": "The user calls this the sixth batch (seventh English batch in this log).",
+  "posts": [
+   {
+    "id": 6659,
+    "translation_of": 5087,
+    "slug": "best-time-to-visit-poland",
+    "featured_media": 4197
+   },
+   {
+    "id": 6661,
+    "translation_of": 5017,
+    "slug": "moscow-with-kids",
+    "featured_media": 4139
+   },
+   {
+    "id": 6663,
+    "translation_of": 5054,
+    "slug": "st-petersburg-with-kids",
+    "featured_media": 4131
+   },
+   {
+    "id": 6665,
+    "translation_of": 5018,
+    "slug": "kazan-travel-guide",
+    "featured_media": 796
+   },
+   {
+    "id": 6667,
+    "translation_of": 6411,
+    "slug": "best-hotels-in-st-petersburg",
+    "featured_media": 4131
+   }
+  ],
+  "sources": "Live rendered content of the Arabic posts (fetched 3 Oct, includes the earlier visa correction of 5017); inline figures omitted as in previous batches.",
+  "method": "Same as english_batch_6 (Polylang new-translation link in the owner's session, content from GitHub raw, Yoast meta/categories/slug/featured image via REST, second save for og:image).",
+  "verified": "All five return 200 from the origin with one H1, Yoast title and description, og:image, and ar/en-US hreflang in both directions.",
+  "facts_corrected_in_english_only": {
+   "best-time-pl": [
+    "summer 22-28 in the summary -> 18-25 to match the table",
+    "odd link from 'the Gulf states' to the Russia visa article removed",
+    "'boat trips on the lake near Zakopane' -> rafting on the Dunajec",
+    "'guaranteed snow' softened",
+    "visa FAQ: UAE citizens are Schengen-exempt; the other five GCC states need a visa"
+   ],
+   "moscow-kids": [
+    "Dream Island 'largest in Europe' -> one of the largest",
+    "halal restaurants at Dream Island unverified -> restaurants",
+    "Gorky Park 'largest rink' -> one of the largest; Museum of Cosmonautics at VDNKh, not a few stops away",
+    "circus 'daily' -> most days",
+    "Central Children's Store on Lubyanka Square, a short walk from the Kremlin",
+    "Panorama 360 ice-cream claim attributed",
+    "GUM winter market late November to February",
+    "'invitation letter for the visa' -> help with entry formalities (Gulf citizens mostly visa-free)",
+    "redirecting Moscow link replaced by its final URL"
+   ],
+   "spb-kids": [
+    "'largest aquarium in Russia' -> first public aquarium, one of the largest",
+    "'real space capsules' -> rocket engines and spacecraft exhibits",
+    "children's museum age limits generalised",
+    "Sapsan about 4 hours",
+    "visa tip rewritten (Saudi/UAE/Qatar/Oman visa-free; Kuwait/Bahrain e-visa)",
+    "payment tip: foreign Visa/Mastercard do not work"
+   ],
+   "kazan": [
+    "'half the population' -> about half",
+    "'30% cheaper than Moscow' -> noticeably less",
+    "winter -15 -> often -10 and below",
+    "Kul Sharif 'largest in Tatarstan, four minarets' -> one of the largest in Russia, four tall minarets",
+    "Family Centre 'free' viewing platform -> viewing platform",
+    "prayer 'open at all times' -> working mosque, main hall for worshippers at prayer times",
+    "visa tip rewritten to the verified rule"
+   ],
+   "spb-hotels": [
+    "Oceanarium removed from the Petrogradsky Side (it is at Ulitsa Marata, central)",
+    "'Crowne Plaza Leningradskaya (Petrogradsky Side)' does not exist -> Crown Hotel, formerly Crowne Plaza Ligovsky, next to Moskovsky station (heading, text and table)",
+    "Four Seasons Lion Palace marked as independently run; Grand Hotel Europe 'formerly Belmond'; Radisson Royal -> Cosmos Selection Nevsky Royal; Radisson Sonya -> Sonya Hotel; Solo Sokos Palace Bridge -> Palace Bridge Hotel",
+    "Lion Palace 'behind' St Isaac's -> beside",
+    "rouble rate: check before travel",
+    "payment: foreign Visa/Mastercard do not work"
+   ]
+  },
+  "hotel_name_sources": "Four Seasons suspended management July 2022, hotel keeps the name (rustourismnews, lionpalacehotel.com); Belmond ceased operating Grand Hotel Europe in 2023 (Wikipedia); Cosmos Hotel Group rebranded the former Radisson Blu/Park Inn hotels in Oct 2023 (TASS); Crown Hotel St Petersburg formerly Crowne Plaza Ligovsky (Tripadvisor). Corinthia, Lotte, Astoria/Angleterre left as written.",
+  "inbound_link_edits": {
+   "6547 halal-restaurants-moscow-guide": "Read also: Moscow with kids + Kazan travel guide",
+   "6549 halal-restaurants-krakow-guide": "Read also: best time to visit Poland",
+   "6624 sochi-family-guide": "intro: Moscow with kids + St Petersburg with kids",
+   "6644 best-hotels-in-warsaw-and-krakow": "price paragraph: best time to visit Poland",
+   "6661 moscow-with-kids": "extension paragraph: Kazan travel guide"
+  },
+  "cache": "not purged (one purge at the end of the session)"
  }
 }
