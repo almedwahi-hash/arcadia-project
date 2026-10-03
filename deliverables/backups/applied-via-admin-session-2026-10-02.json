@@ -1635,5 +1635,36 @@
   "found": "2026-10-03",
   "what": "Every Arabic post without an English translation emits <link rel=alternate hreflang=en-US> pointing to /en/home/. A page that is not a translation must not be declared as the alternate; Google ignores or flags such annotations (no return tag). 14 Arabic posts are still affected after this batch: 4827, 4824, 4816, 4814, 4809, 4595, 4593, 4592, 4586 plus the old Ukraine/Poland posts already paired. The behaviour comes from theme or snippet code (probably the same PHP snippet that handles hreflang), which I cannot edit.",
   "fix_for_owner": "In the hreflang snippet, output the alternate only when pll_get_post($post_id, 'en') returns a post; otherwise print nothing for that language."
+ },
+ "arabic_corrections_batch_9_sources": {
+  "applied": "2026-10-03 ~08:05 UTC",
+  "note": "Exact-phrase replacements in four Arabic originals of the ninth English batch; 9 phrases, each matched exactly once. Previous versions are in WordPress revisions. Verified on the live pages bypassing the cache.",
+  "posts": {
+   "4821 bukhara-historical-tourism-guide": [
+    "duplicate <h1> inside the content removed (the page now has a single H1 in the HTML)",
+    "'Makalan Mosque' -> Magoki-Attori Mosque (best reading of a garbled name; owner to confirm)",
+    "Ark Fortress: origins go back to the fifth century",
+    "visa: Gulf citizens visa-free for 30 days; exchange money on arrival rather than before"
+   ],
+   "4577 white-nights-russia": [
+    "travel documents paragraph states the Russian visa rule for Gulf citizens"
+   ],
+   "4574 hidden-nature-kazakhstan": [
+    "editorial remark about 'the old version of the article' removed",
+    "'five nights' heading -> five days",
+    "Kaindy track from Saty needs a 4x4"
+   ],
+   "4594 best-time-visit-moscow-2026": [
+    "winter daytime -10 to -3 -> -8 to -2",
+    "avoid 1-8 January (was 1-10)"
+   ]
+  },
+  "not_changed": "4587 best-time-visit-almaty-2026: the irrelevant link on the word 'الخليج' is not in the post content; it is injected at render by the Internal Link Juicer plugin (see internal_link_juicer_finding)."
+ },
+ "internal_link_juicer_finding": {
+  "found": "2026-10-03",
+  "what": "The Internal Link Juicer plugin auto-links keywords defined on a target post. Post 2214 (the Arabic 'entering Russia without a visa for Gulf countries' article) has the keywords: روسيا, روسيا بدون فيزا, الخليج, السياحه في روسيا, السفر الى روسيا. Because of the generic keywords 'الخليج' and 'روسيا', unrelated articles (best time to visit Almaty, best time to visit Poland, China trip cost, Kazakhstan for Saudis and others) link the word 'the Gulf' to the Russia visa article, and plain mentions of Russia link to the visa article instead of the Russia pillar page.",
+  "recommendation": "On post 2214 keep only 'روسيا بدون فيزا' (and similar visa phrases); remove 'الخليج' and 'روسيا'. Put 'السياحة في روسيا' / 'السياحه في روسيا' / 'السفر الى روسيا' on the Russia pillar page (153) instead. Then rebuild the ILJ index.",
+  "status": "Not changed: it is a standing auto-link rule, so it waits for the owner's approval."
  }
 }
