@@ -1422,5 +1422,88 @@
    ]
   },
   "open_for_owner": "Direct flights from Saudi Arabia to Almaty and Tashkent are described as seasonal in both languages because the current timetable could not be confirmed; the owner should supply the actual routes."
+ },
+ "english_batch_9": {
+  "published": "2026-10-03 ~06:10 UTC",
+  "note": "The user calls this the eighth batch (ninth English batch in this log). Four published, one held.",
+  "posts": [
+   {
+    "id": 6701,
+    "translation_of": 5053,
+    "slug": "beijing-with-kids",
+    "featured_media": 4606
+   },
+   {
+    "id": 6703,
+    "translation_of": 5076,
+    "slug": "best-time-to-visit-china",
+    "featured_media": 4606
+   },
+   {
+    "id": 6705,
+    "translation_of": 5055,
+    "slug": "china-10-days-itinerary",
+    "featured_media": 4826
+   },
+   {
+    "id": 6707,
+    "translation_of": 6489,
+    "slug": "best-hotels-in-beijing-and-shanghai",
+    "featured_media": 4136
+   }
+  ],
+  "held": {
+   "file": "deliverables/articles-en-2026-10-02/china-cost-en.html",
+   "translation_of": 4595,
+   "planned_slug": "china-family-trip-cost",
+   "reason": "The Arabic article's own price tables contradict each other: the 8-day Beijing+Shanghai local programme is given as $5,500-7,500 in the first table but the worked example for the same trip totals $3,200-4,500; flights are $500-900 per person in the text but $2,800-4,500 for four in the table; the 10-day programme with Xi'an is $5,000-7,000, below the top of the 8-day range. The worked example is also dated 'October 2026' although the article warns that Golden Week doubles prices. These are the company's own prices, so the owner must supply the right figures. Links to it in the four published articles point to /en/china-costs-en/ for now."
+  },
+  "categories": "China English category 332 (china-en-en) plus travel tips 267",
+  "verified": "All four return 200 from the origin with one H1, Yoast title and description, og:image, no Chinese or Arabic characters in the body, and ar/en-US hreflang in both directions.",
+  "verified_by_web_search": [
+   "Saudi, Omani, Kuwaiti and Bahraini citizens enter China visa-free for 30 days from 9 June 2025, extended to 31 December 2026; UAE and Qatar have standing mutual exemptions (Wego, EY, Fragomen, China Highlights)"
+  ],
+  "facts_corrected_in_english_only": {
+   "best-time-cn": [
+    "January 'usually Chinese New Year' -> in some years; New Year window late January to late February with the 2026 and 2027 dates",
+    "Ramadan falls in February-March in the coming years (was: easy in spring and autumn)",
+    "Canton Fair autumn session mid-October to early November (was late October)",
+    "'typhoons end' -> typhoon season winds down",
+    "cherry blossom late March to mid-April",
+    "visa FAQ: verified Gulf rule added"
+   ],
+   "beijing-kids": [
+    "Forbidden City entry through the Meridian Gate; Tiananmen Square needs its own reservation",
+    "kung fu show venue unnamed, a little over an hour",
+    "most metro stations have lifts",
+    "child tickets by age or height",
+    "Beijing-Shanghai about 4.5 hours on the fastest trains",
+    "visa, payment and internet tips carry the verified facts"
+   ],
+   "china-10days": [
+    "train times: Beijing-Xi'an about 4.5 h on the fastest trains, Xi'an-Shanghai 6-7 h, flight about 2.5 h",
+    "Maglev only from Longyang Road to Pudong Airport",
+    "Harbin needs two days and a flight, not a one-day swap",
+    "carry original passports (source said 'a copy ... because the original is required')",
+    "verified visa rule and blocked-apps note added"
+   ],
+   "china-hotels": [
+    "Wangfujing 15-20 minutes' walk from the Forbidden City",
+    "Sanlitun about half an hour by metro",
+    "Le Royal Meridien: by People's Square, one stop or 20 minutes' walk from the Bund (was a few minutes)",
+    "Disney hotels: park-entry benefits, check current terms (was early entry)"
+   ]
+  },
+  "inbound_link_edits": {
+   "3895 best-things-to-do-in-china-2026": "Read also paragraph with the four new posts",
+   "3658 shanghai-guide-arab-traders-2026-en": "Read also: hotels, 10 days, best time",
+   "3426 essential-china-apps-wechat-alipay-en": "Read also: 10 days, Beijing with kids, hotels"
+  },
+  "noticed_for_owner": [
+   "China 10-day itinerary (Arabic 5055 and English): the listed cost components add up to about $3,850-5,800 but the stated total is $5,000-7,000",
+   "English VPN guide (post 3419) still shows a WhatsApp number starting +380; the rest of the site uses +7 706 400 7561",
+   "English and Arabic China visa guides should state the 31 December 2026 end date of the visa-free policy for Saudi, Omani, Kuwaiti and Bahraini citizens"
+  ],
+  "cache": "not purged (one purge at the end of the session)"
  }
 }
