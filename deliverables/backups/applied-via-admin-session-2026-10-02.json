@@ -2303,5 +2303,16 @@
   "remaining_17_without_counterpart": "4 Arabic cost articles (held for prices), 3 Arabic duplicate-topic posts, 5 original English posts with no Arabic version, English Kazakhstan cost post 2515, English Odessa post 2539, Arabic duplicates 1441 and old-page-611, and the Arabic post version of 'winter in Krakow and Zakopane' (a duplicate of page 589). These need the hreflang snippet fix or owner decisions.",
   "leftover": "Three empty Arabic categories (291 china-en, 350, 352) with no posts; harmless, can be deleted by the owner.",
   "rollback": "Clear the translation field on categories 289, 340, 338, 342."
+ },
+ "long_english_posts_polish_2026-10-03": {
+  "posts": "2669, 2671, 2672, 2673, 2674, 2675, 2676, 2678, 2679, 2682, 2684, 2685",
+  "volume": "1,163 text nodes rewritten in place (same method and maps folder as the earlier batches). Running total for the day: 36 pages and posts polished in place plus 5 retranslated.",
+  "reviewer_notes": "Fact corrections made by the subagents under the verified-facts list (cards in Russia, Uthman Quran, Astana as current capital); garbled place names restored. Doubtful items appended to doubtful-facts-ar.md.",
+  "whatsapp_button_bug": {
+   "what": "Eleven English posts showed raw HTML attributes as visible text below the WhatsApp button ('?text=%D9... target=\"_blank\" rel=... style=... aria-label=...'), followed by a second copy of the button text. It was the tail of an older button left behind when a new block was pasted into the middle of the old link. The leftover fragment (about 2,070 characters) was removed from 2667, 2669, 2672, 2673, 2674, 2675, 2676, 2678, 2679, 2682, 2684. The Arabic post 512 had the tail of the same accident ('\" target=... >موقع الشركة</a>'); removed and the sentence around it repaired.",
+   "prefill": "The Arabic prefilled WhatsApp message in those English posts' links was removed (plain wa.me link).",
+   "left": "The English Ukraine page /en/tourism-and-travel-to-ukraine/ shows the same kind of leak three times; Ukraine pages are untouchable."
+  },
+  "verified": "Origin: on the 12 posts every new text node is present and none of the old ones; a rescan of all 548 URLs finds leaked attribute text only on the Ukraine page, and one H1 everywhere."
  }
 }
