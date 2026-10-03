@@ -2409,5 +2409,10 @@
   "inbound_links_added": "A 'Budget' line linking to the new cost article appended to 12 English posts and pages (4 per country: Russia 6679, 2491, 6722, 6687; Uzbekistan 6683, 6642, 2576, 2679; China 6705, 6703, 6707, 6701).",
   "verified": "Origin: the eight articles return 200, one H1, the new prices and none of the old ones, og:image, and reciprocal ar/en-US hreflang; the four English posts are in the sitemap; the old Kazakhstan URL returns 301 at the origin (Cloudflare still serves its cached copy until the cache expires or is purged).",
   "notes_for_owner": "Arabic titles still say 'للعائلات' although the articles now also price couples; the Russia article describes Moscow and St Petersburg but the prices are for Moscow only; the family prices do not say whether they assume one family room or two."
+ },
+ "final_purge_and_check_2026-10-04": {
+  "owner_decisions": "Room basis of the family price stays general; article titles stay 'للعائلات'; prices are stated as approximate (already in every cost article).",
+  "purge": "The owner believed the cache had been cleared; the check showed the Arabic cost articles still served the old prices from Cloudflare, so Purge Everything was run again and confirmed by the dashboard.",
+  "check_as_visitors_see_it": "551 sitemap URLs: all 200, one H1 each, no leaked markup; the eight cost articles show the new prices; the old English Kazakhstan cost URL returns 301 to the new article."
  }
 }
