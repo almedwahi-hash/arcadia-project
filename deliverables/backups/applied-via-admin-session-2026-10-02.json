@@ -1205,5 +1205,52 @@
    "6661 moscow-with-kids": "extension paragraph: Kazan travel guide"
   },
   "cache": "not purged (one purge at the end of the session)"
+ },
+ "arabic_corrections_batch_6_sources": {
+  "applied": "2026-10-03 ~03:45 UTC",
+  "note": "Exact-phrase replacements in the five Arabic originals of the sixth English batch; all 42 phrases matched exactly once. Previous versions are in WordPress revisions. Verified on the live pages bypassing the cache.",
+  "posts": {
+   "6411 best-hotels-st-petersburg-families-2026": [
+    "Oceanarium removed from the Petrogradsky Side bullet",
+    "Four Seasons Lion Palace marked as independently run; 'behind' -> beside St Isaac's",
+    "Grand Hotel Europe: Belmond formerly",
+    "Radisson Royal -> Cosmos Selection Nevsky Royal; Radisson Sonya -> Sonya Hotel; 'on Nevsky and next to it'",
+    "Solo Sokos -> Palace Bridge Hotel (heading, table, FAQ)",
+    "non-existent 'Crowne Plaza Leningradskaya (Petrogradsky)' -> Crown Hotel, formerly Crowne Plaza Ligovsky, next to Moskovsky station (heading, text, table row)",
+    "Sapsan about 4 hours"
+   ],
+   "5087 best-time-visit-poland-2026": [
+    "summer 22-28 -> 18-25 to match the table",
+    "'boat trips on Zakopane lake' -> rafting on the Dunajec; Gubalowka funicular",
+    "'guaranteed snow' softened (text and FAQ question)",
+    "visa FAQ: Saudi/Qatar/Kuwait/Bahrain/Oman need Schengen visa; UAE citizens exempt"
+   ],
+   "5017 moscow-with-kids-family-activities": [
+    "Dream Island 'largest in Europe' -> one of the largest (two places)",
+    "'halal restaurants in the adjoining complex' -> restaurants",
+    "Gorky 'largest rink' -> one of the largest; Museum of Cosmonautics near VDNKh on the other side of the city",
+    "circus 'daily' -> most days",
+    "Central Children's Store on Lubyanka Square, minutes from the Kremlin",
+    "ice-cream factory claim attributed",
+    "GUM fair late November to February",
+    "'invitation letter for the visa' -> help with entry formalities"
+   ],
+   "5054 st-petersburg-with-kids-family-activities": [
+    "'largest aquarium in Russia' -> one of the largest / first public aquarium",
+    "'real space capsules' -> real rocket engines and spacecraft exhibits",
+    "visa tip rewritten to the verified rule (Saudi since 11 May 2026, UAE, Qatar, Oman visa-free; Kuwait, Bahrain e-visa)",
+    "museum age limits generalised",
+    "Sapsan about 4 hours"
+   ],
+   "5018 kazan-tourism-guide": [
+    "'half the population' -> about half",
+    "'30% cheaper' -> noticeably cheaper",
+    "winter -15 -> often -10 and below",
+    "Kul Sharif 'largest in Tatarstan' -> one of the largest in Russia",
+    "viewing platform no longer 'free'",
+    "visa tip rewritten to the verified rule",
+    "prayer 'open at all times' -> working mosque, main hall for worshippers at prayer times"
+   ]
+  }
  }
 }
