@@ -1990,5 +1990,44 @@
   "verified": "All 20 pages checked on the origin: new text present, old text gone, one H1.",
   "reviewed_and_left": "Russia visa-free article 2214 (correct), Kazakhstan visa pages 2550/2498/2529 (general e-visa information for nationalities that need one), page 785 feature list, FAQ questions whose answers were already right, China apps and booking-mistakes posts (false positives).",
   "previous_versions": "WordPress revisions of each post or page."
+ },
+ "internal_links_and_image_alt_sweep_2026-10-03": {
+  "internal_links": "All 497 distinct internal links found in the content of the 552 published posts and pages were requested: 488 return 200, none is broken. The only redirecting ones were links to /en/ (301 to /en/home/) in 13 English guide pages and /rss.xml on Ukraine pages. The /en/ link was changed to /en/home/ in pages 3372, 3373, 3374; the other ten are Elementor pages and were left (one harmless hop). Ukraine pages untouched.",
+  "image_alt": "129 images without alt text on 21 non-Ukraine pages and posts (82 distinct images) were given alt text. Every image was viewed on a contact sheet first, so each alt describes what the picture shows, in the page's language.",
+  "pages": {
+   "en": [
+    2586,
+    2556,
+    2560,
+    2576,
+    2559,
+    2558,
+    2557,
+    2626,
+    2624,
+    2566,
+    2563,
+    2569,
+    2550
+   ],
+   "ar": [
+    575,
+    579,
+    578,
+    577,
+    576,
+    961,
+    582,
+    588
+   ]
+  },
+  "method": "REST as the logged-in owner: alt attribute inserted into img tags that had none or an empty one; nothing else in the content changed (saved length equals original length plus the inserted attributes on all 21). None of the 21 is an Elementor page.",
+  "text_fixes": {
+   "2560": "heading and caption 'So we got drunk' (machine mistranslation of VDNKh) -> 'VDNKh' (2 places)",
+   "2586": "'Lake Acholia' / 'Black Acholia Beach' -> Lake Alakol (3 places)"
+  },
+  "verified": "Origin check of the 21 URLs: zero images without alt inside the main content, one H1 each. Note: the URL of 2560 redirects to the English Moscow guide (existing behaviour, already on the owner's list), so its changes are not publicly visible.",
+  "left": "Ukraine pages and posts (about 210 images without alt) are untouchable by the owner's standing instruction.",
+  "previous_versions": "WordPress revisions of each page."
  }
 }
