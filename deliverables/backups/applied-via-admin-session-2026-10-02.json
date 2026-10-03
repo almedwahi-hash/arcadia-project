@@ -1928,5 +1928,35 @@
    "old_arabic_url_404": "/الدراسه-في-كازاخستان/ (draft page 574)",
    "changed": "nothing"
   }
+ },
+ "english_orphans_redirects_2026-10-03": {
+  "applied": "2026-10-03, with the owner's approval",
+  "what": "Completes the late-August consolidation on the English side: 16 leftover English pages now 301 to the English counterpart of the page their Arabic original was merged into, and were set to draft (not deleted). One broken Arabic URL from the same clean-up was also redirected.",
+  "redirection_plugin": "17 rules added in group 1 (Redirections) through the plugin's REST API as the logged-in owner; 301, exact URL match, query string ignored. The plugin had 16 rules before and has 33 now (rule IDs 19 to 35).",
+  "rules": {
+   "/en/offers-and-reservations/ (page 2478)": "/en/offers-and-reservations-en/",
+   "/en/tourism-in-almaty-arab-travelers/ (2512)": "/en/almaty-guide-en/",
+   "/en/5-reasons-why-traveling-to-almaty-is-a-great-choice/ (2513)": "/en/almaty-guide-en/",
+   "/en/the-best-tourist-destinations-in-kazakhstan/ (2490)": "English 'cities in Kazakhstan' page",
+   "/en/tourism-in-kazakhstan-discover-the-secrets-of-the-seven-cities/ (2523)": "English 'cities in Kazakhstan' page",
+   "/en/the-10-most-important-tourist-attractions-in-kazakhstan/ (2526)": "English 'cities in Kazakhstan' page",
+   "/en/tourist-activities-in-kazakhstan/ (page 2551)": "English 'cities in Kazakhstan' page",
+   "/en/arcadia-tourism-company-is-the-ideal-choice-... (2524)": "/en/discover-the-best-kazakhstan-tourism-company-.../",
+   "/en/the-best-family-tourist-trips-in-kazakhstan-... (2625)": "/en/a-one-week-tourist-program-in-kazakhstan-.../",
+   "/en/uzbekistan-the-jewel-of-central-asia-... (2627)": "/en/uzbekistan-2026-the-jewel-of-central-asia-silk-road-and-.../",
+   "/en/uzbekistan-festivals-2026-the-most-prominent-... (2628)": "/en/uzbekistan-festivals-2026-with-arcadia-tourism-nowruz-.../",
+   "/en/tourism-in-uzbekistan-with-arcadia-tourism-company-... (2629)": "/en/distinctive-tourist-trips-to-uzbekistan-2026-arcadia-tourist/",
+   "/en/tourism-in-poland-arab-travelers/ (2509)": "/en/poland-guide-en/",
+   "/en/an-enjoyable-tour-of-the-most-famous-tourist-places-in-poland/ (2510)": "/en/discover-the-top-10-tourist-destinations-in-poland/",
+   "/en/the-cost-of-tourism-in-russia-with-arcadia-company-surprising-prices/ (2503)": "/en/a-practical-guide-to-the-cost-of-tourism-in-russia-.../",
+   "/en/study-in-kazakhstan/ (page 2555)": "/en/study-in-kazakhstan-your-comprehensive-guide-.../",
+   "/الدراسه-في-كازاخستان/ (Arabic draft page 574, was 404)": "/الدراسة-في-كازاخستان-دليلك-الشامل-لأف/"
+  },
+  "unpublished": "Posts 2490, 2503, 2509, 2510, 2512, 2513, 2523, 2524, 2526, 2625, 2627, 2628, 2629 and pages 2478, 2551, 2555 set to draft.",
+  "internal_links": "37 links in 28 English posts and 17 links in 12 English content pages (none built with Elementor) now point to the direct destinations; the repo copies of 14 translations were updated to match.",
+  "ukraine_page_touched": "Page 2615 (/en/.../activities-in-ukraine) is a Ukraine page; one link in it pointed to an old URL and was changed to the direct destination as part of the bulk update. Nothing else on the page changed; the previous version is in its revisions.",
+  "verified": "All 17 old URLs return a single 301 to a 200 page (checked from outside, with and without a query string); none of the 16 remains in the sitemaps (548 URLs); sample pages carry no links to the old URLs.",
+  "not_done": "2515 (/en/the-cost-of-tourism-in-kazakhstan/) waits for the Kazakhstan cost translation; 2539 (Odessa) is a Ukraine page and is left to the owner.",
+  "rollback": "Disable or delete rules 19 to 35 in Tools > Redirection and set the 16 items back to Published."
  }
 }
