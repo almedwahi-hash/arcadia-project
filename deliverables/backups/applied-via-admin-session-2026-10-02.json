@@ -1543,5 +1543,97 @@
    ]
   },
   "not_changed": "The cost total in 5055 ($5,000-7,000) and all figures in 4595 (china-family-trip-cost-2026) are left as they are until the owner supplies the correct prices."
+ },
+ "english_batch_10": {
+  "published": "2026-10-03 ~07:40 UTC",
+  "note": "The user calls this the ninth batch (tenth English batch in this log).",
+  "posts": [
+   {
+    "id": 6716,
+    "translation_of": 4821,
+    "slug": "bukhara-travel-guide",
+    "featured_media": 4820
+   },
+   {
+    "id": 6718,
+    "translation_of": 4577,
+    "slug": "white-nights-in-st-petersburg",
+    "featured_media": 4608
+   },
+   {
+    "id": 6720,
+    "translation_of": 4587,
+    "slug": "best-time-to-visit-almaty",
+    "featured_media": 4598
+   },
+   {
+    "id": 6722,
+    "translation_of": 4594,
+    "slug": "best-time-to-visit-moscow",
+    "featured_media": 4604
+   },
+   {
+    "id": 6724,
+    "translation_of": 4574,
+    "slug": "hidden-nature-of-kazakhstan",
+    "featured_media": 4610
+   }
+  ],
+  "verified": "All five return 200 from the origin with one H1, Yoast title and description within limits, og:image, and ar/en-US hreflang in both directions.",
+  "facts_corrected_in_english_only": {
+   "bukhara": [
+    "'Makalan Mosque' (no such mosque) -> Magoki-Attori Mosque",
+    "Ark Fortress: origins go back to the fifth century",
+    "visa: Gulf citizens visa-free for 30 days (source said a visa may be needed in advance)",
+    "repeated h1 dropped"
+   ],
+   "white-nights": [
+    "Travel documents section now states the Russian visa rule for Gulf citizens",
+    "wa.me link without the prefilled Arabic text"
+   ],
+   "best-time-almaty": [
+    "misplaced link from 'the Gulf' to the Russia visa article removed",
+    "anchors for the Almaty guide and cost pages describe the real targets"
+   ],
+   "best-time-moscow": [
+    "winter daytime -10 to -3 -> -8 to -2",
+    "avoid 1-8 January (source: 1-10)"
+   ],
+   "hidden-nature-kz": [
+    "editorial remark about 'the old version of this article' removed",
+    "Kaindy track from Saty needs a 4x4",
+    "'five-night itinerary' with five days -> five-day itinerary"
+   ]
+  },
+  "inbound_link_edits": {
+   "6663 st-petersburg-with-kids": "white nights link restored",
+   "6667 best-hotels-in-st-petersburg": "stand-in replaced by the White Nights guide",
+   "6661 moscow-with-kids": "stand-in replaced by best time to visit Moscow",
+   "6687 best-hotels-in-moscow": "stand-in replaced by best time to visit Moscow",
+   "6679 russia-for-saudi-travellers": "stand-in replaced by best time to visit Moscow + White Nights",
+   "6640 best-time-to-visit-kazakhstan": "best time to visit Almaty + natural places guide added",
+   "6683 uzbekistan-for-saudi-travellers": "stand-in replaced by the Bukhara travel guide"
+  },
+  "cache": "not purged (one purge at the end of the session)"
+ },
+ "polylang_pairings_2026-10-03": {
+  "applied": "2026-10-03 ~07:10 UTC",
+  "what": "Seven Arabic travel-tips posts had finished English versions that were not linked to them in Polylang, so both sides emitted hreflang to the other language's home page. Each pair was linked through the Languages box of the Arabic post in wp-admin (hidden field post_tr_lang[en], then a normal save); post content was not changed.",
+  "pairs": {
+   "3805": 3948,
+   "3919": 3949,
+   "3922": 3950,
+   "3925": 3951,
+   "3927": 3952,
+   "3929": 3953,
+   "3931": 3954
+  },
+  "verified": "Each Arabic page now emits en-US hreflang to its own English post, and the English side points back (checked on the origin).",
+  "rollback": "Open the Arabic post, clear the English translation in the Languages box and update."
+ },
+ "hreflang_fallback_finding": {
+  "found": "2026-10-03",
+  "what": "Every Arabic post without an English translation emits <link rel=alternate hreflang=en-US> pointing to /en/home/. A page that is not a translation must not be declared as the alternate; Google ignores or flags such annotations (no return tag). 14 Arabic posts are still affected after this batch: 4827, 4824, 4816, 4814, 4809, 4595, 4593, 4592, 4586 plus the old Ukraine/Poland posts already paired. The behaviour comes from theme or snippet code (probably the same PHP snippet that handles hreflang), which I cannot edit.",
+  "fix_for_owner": "In the hreflang snippet, output the alternate only when pll_get_post($post_id, 'en') returns a post; otherwise print nothing for that language."
  }
 }
