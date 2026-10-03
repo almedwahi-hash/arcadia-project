@@ -2088,5 +2088,12 @@
   "headings": "The same spellings were corrected inside h1-h4 headings of the non-Elementor pages 575, 578, 580, 583, 586, 588, 590, 593, 1441 (text nodes only; links and attributes untouched).",
   "elementor": "Pages 153, 157 and 161 are Elementor pages: only the WordPress title was changed, Elementor data untouched.",
   "verified": "Origin check of the 14 URLs: 200, one H1, no misspelt heading left."
+ },
+ "arabic_body_spelling_2026-10-03": {
+  "what": "Body text of the Arabic non-Ukraine pages scanned for a fixed list of 36 unambiguous misspellings (ta marbuta written as ha in words such as السياحيه, رحله, الروسيه; missing hamza in الى, او, افضل, اكثر, اخرى; فى; الماتي). Ambiguous words (كافيه, عمله, بلده, قيمه, حاجه) were excluded.",
+  "applied": "76 corrections in 19 pages and posts: 3654, 512, 1441, 1071, 593, 592, 590, 587, 584, 583, 582 (17), 580, 579, 578 (20), 577, 576, 575, 572, 169. Text nodes only; tags, attributes, links, scripts and styles untouched; content length identical before and after on every page.",
+  "skipped": "Elementor pages 1444 and 755 (8 and 6 occurrences).",
+  "note": "The site's Arabic body text was already largely clean: about 117 occurrences in 23 of 206 pages.",
+  "verified": "Sample of six pages on the origin: 200 and none of the listed misspellings left in the article body."
  }
 }
