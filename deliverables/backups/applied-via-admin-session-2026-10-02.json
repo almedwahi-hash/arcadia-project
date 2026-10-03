@@ -1505,5 +1505,43 @@
    "English and Arabic China visa guides should state the 31 December 2026 end date of the visa-free policy for Saudi, Omani, Kuwaiti and Bahraini citizens"
   ],
   "cache": "not purged (one purge at the end of the session)"
+ },
+ "arabic_corrections_batch_8_sources": {
+  "applied": "2026-10-03 ~06:30 UTC",
+  "note": "Exact-phrase replacements in the four Arabic originals of the eighth English batch (China); 24 phrases, each matched exactly once. Previous versions are in WordPress revisions. Verified on the live pages bypassing the cache.",
+  "visa_statement_added": "Saudi, Omani, Kuwaiti and Bahraini citizens enter China visa-free for up to 30 days under a policy running until 31 December 2026; UAE and Qatar citizens are exempt for 30 days under a standing agreement (added to 5076, 5053 and 5055).",
+  "posts": {
+   "5076 best-time-visit-china-2026": [
+    "January row: Chinese New Year in some years",
+    "New Year window late January to late February, with the 2026 and 2027 dates",
+    "typhoon season winds down",
+    "Canton Fair autumn session mid-October to early November",
+    "cherry blossom late March to mid-April",
+    "Ramadan in February-March in the coming years",
+    "visa FAQ carries the verified Gulf rule"
+   ],
+   "5053 beijing-with-kids-family-guide": [
+    "Forbidden City entry through the Meridian Gate; Tiananmen Square needs its own reservation",
+    "kung fu show venue unnamed, about an hour and a quarter",
+    "most metro stations have lifts",
+    "child tickets by age or height",
+    "Beijing-Shanghai about 4.5 hours on the fastest trains",
+    "visa tip carries the verified Gulf rule"
+   ],
+   "5055 china-family-10-days-itinerary": [
+    "train and flight times between the cities",
+    "Maglev from Longyang Road station to Pudong Airport",
+    "Harbin as a two-day add-on by air",
+    "original passports plus a copy",
+    "visa bullet carries the verified Gulf rule"
+   ],
+   "6489 best-hotels-beijing-shanghai-families-2026": [
+    "Wangfujing 15-20 minutes' walk from the Forbidden City",
+    "Sanlitun about half an hour by metro",
+    "Le Royal Meridien by People's Square, one stop or 20 minutes' walk from the Bund (text and table)",
+    "Disney hotels: guest entry benefits, check current terms (text and table)"
+   ]
+  },
+  "not_changed": "The cost total in 5055 ($5,000-7,000) and all figures in 4595 (china-family-trip-cost-2026) are left as they are until the owner supplies the correct prices."
  }
 }
