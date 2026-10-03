@@ -2121,5 +2121,20 @@
    "'direct flights from Riyadh, Jeddah, Dubai and Doha' written as 'flights from the Gulf, about four hours' until the owner confirms the routes"
   ],
   "verified": "Origin: new wording present and old wording gone on all seven pages; 2576 returns one H1, its title and description, hreflang, and no image without alt."
+ },
+ "old_english_posts_rewrite_batch_2_2026-10-03": {
+  "posts": "2670 (Russia visa-free), 2683 (Kazakhstan summer destination), 2626 (cost of travel in Russia), 2511 (Kazakhstan guide), 2624 (Poland for families), 2505 (Zakopane), 2491 (St Petersburg), 2489 (comprehensive Poland guide)",
+  "volume": "333 text nodes rewritten in place; same method as the first batch (maps in deliverables/en-rewrites-2026-10-03/map_<ID>.json; tag sequence identical before and after). For posts, raw text nodes that hold several lines were matched line by line.",
+  "reviewer_fact_fixes": [
+   "2505: Kasprowy Wierch is not the highest peak in Poland; Zakopane tourism dates from the late nineteenth century",
+   "2670: wording that treated 11 May 2026 as upcoming put in the past tense; post title rewritten",
+   "2683: Gulf citizens enter Kazakhstan visa-free for 30 days; Wizz Air Abu Dhabi removed from the airline list"
+  ],
+  "other_small_fixes": {
+   "595 (AR, cities of Uzbekistan)": "the Uthman Quran is now described as displayed in the Centre of Islamic Civilisation next to the Hazrati Imam complex",
+   "2571 (EN, group trips to Poland)": "stray Arabic letter before 'Programme 1' removed"
+  },
+  "verified": "Origin check of the eight posts: every new text node present, none of the old ones left, one H1, HTTP 200.",
+  "doubtful_facts": "Appended to deliverables/en-rewrites-2026-10-03/doubtful-facts-ar.md."
  }
 }
