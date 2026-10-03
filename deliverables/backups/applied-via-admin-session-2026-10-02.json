@@ -1665,6 +1665,15 @@
   "found": "2026-10-03",
   "what": "The Internal Link Juicer plugin auto-links keywords defined on a target post. Post 2214 (the Arabic 'entering Russia without a visa for Gulf countries' article) has the keywords: روسيا, روسيا بدون فيزا, الخليج, السياحه في روسيا, السفر الى روسيا. Because of the generic keywords 'الخليج' and 'روسيا', unrelated articles (best time to visit Almaty, best time to visit Poland, China trip cost, Kazakhstan for Saudis and others) link the word 'the Gulf' to the Russia visa article, and plain mentions of Russia link to the visa article instead of the Russia pillar page.",
   "recommendation": "On post 2214 keep only 'روسيا بدون فيزا' (and similar visa phrases); remove 'الخليج' and 'روسيا'. Put 'السياحة في روسيا' / 'السياحه في روسيا' / 'السفر الى روسيا' on the Russia pillar page (153) instead. Then rebuild the ILJ index.",
-  "status": "Not changed: it is a standing auto-link rule, so it waits for the owner's approval."
+  "status": "Applied 2026-10-03 ~08:30 UTC with the owner's approval.",
+  "applied": {
+   "post": 2214,
+   "keywords_before": "روسيا,روسيا بدون فيزا,الخليج,السياحه في روسيا,السفر الى روسيا",
+   "keywords_after": "روسيا بدون فيزا",
+   "pillar_page_153": "unchanged; it already had روسيا, السياحه في روسيا, السفر الى روسيا, so those words now link only to the Russia pillar page",
+   "how": "Internal Links keyword box on the post edit screen, saved with the post (content unchanged), then 'Rebuild index' on the plugin dashboard",
+   "verified": "On the origin: best-time Almaty, best-time Poland, China trip cost, Kazakhstan for Saudis and Sochi no longer link 'الخليج' to the visa article; the deliberate links in the Russia-for-Saudis guide remain; 'روسيا' links to the pillar page.",
+   "rollback": "Put the old keyword list back in the Internal Links box of post 2214 and rebuild the index."
+  }
  }
 }
