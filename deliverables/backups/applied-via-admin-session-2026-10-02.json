@@ -2159,5 +2159,17 @@
   },
   "checked_and_fine": "All other sentences combining Russia, the Gulf and visa wording, in both languages, either name the four exempt nationalities or were corrected in earlier rounds (3948, 2587, 2683, 153 and the five Arabic posts).",
   "verified": "Origin: new wording present, old wording gone on 3954, 523, 2673, 2675."
+ },
+ "schengen_statement_sweep_2026-10-03": {
+  "why": "UAE citizens are exempt from the Schengen visa for short stays; several pages said all GCC citizens need one.",
+  "fixed": {
+   "3887 (EN, Poland guide)": "'GCC citizens need a Schengen visa' -> 'GCC citizens other than Emiratis need'",
+   "2474 (EN, Poland hub page)": "same",
+   "2518 (EN, tips for first-time travellers to Poland)": "the list of nationalities required to apply no longer includes the UAE; exemption stated",
+   "3954 (EN)": "done in the previous round",
+   "534 (AR, Poland first-visit post)": "Schengen child fee age band '6-12' -> '6-11'"
+  },
+  "checked_and_fine": "Other Schengen sentences either address Saudi travellers specifically, already say 'the rest of the Gulf', or are price tables.",
+  "verified": "Origin: new wording present and old wording gone on 3887, 2474, 2518, 534."
  }
 }
