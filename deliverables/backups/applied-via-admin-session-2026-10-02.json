@@ -2213,5 +2213,31 @@
    2556
   ],
   "left": "The Ukraine visa page (untouchable). These changes were made after the purge and reach visitors within four hours."
+ },
+ "utility_pages_titles_and_descriptions_2026-10-03": {
+  "what": "Fourteen utility pages used the default title template ('Page name - Arcadia Tourism') and a description that was just the first words of the page, with emoji and repeated headings. Each now has a written Yoast title (60 characters or fewer) and description (155 or fewer).",
+  "pages": {
+   "en": {
+    "2588": "find-your-trip",
+    "2479": "distinctive-tourist-offers",
+    "2480": "our-partners",
+    "2476": "recommendations",
+    "2469": "who-are-we",
+    "2471": "our-services",
+    "2668": "privacy policy"
+   },
+   "ar": {
+    "159": "التزكيات",
+    "167": "شركائنا",
+    "148": "خدماتنا",
+    "161": "الباصات السياحية",
+    "165": "العروض السياحية المميزة",
+    "1444": "لماذا تختار السياحة في أوزبكستان",
+    "2027": "privacy"
+   }
+  },
+  "also": "Page 1441: spelling 'الى' corrected in its description.",
+  "note": "Meta only; page content and Elementor data untouched. Made after the purge; visible to visitors within four hours.",
+  "verified": "Origin sample of six pages shows the new titles and descriptions."
  }
 }
