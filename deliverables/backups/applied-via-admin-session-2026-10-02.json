@@ -2107,5 +2107,19 @@
   "doubtful_facts": "Listed for the owner in deliverables/en-rewrites-2026-10-03/doubtful-facts-ar.md; not changed.",
   "verified": "Origin check of the 16 pages: every new text node present, no old one left, image counts unchanged, one H1, HTTP 200.",
   "rollback": "WordPress revisions of each page."
+ },
+ "service_pages_fact_fixes_and_uzbekistan_cities_2026-10-03": {
+  "fact_fixes": {
+   "2566 (EN, cities in Poland)": "Palace of Culture and Science: 231 m / 30 floors / in the old city / tallest in Warsaw -> 237 m, 42 floors, city centre, for decades the tallest. The Arabic page 585 has newer content without this passage.",
+   "2570 (EN) and 589 (AR), winter in Krakow and Zakopane": "Wieliczka: 'salt rocks up to 300 years old, longest active salt mine, oldest commercial enterprise of its kind' -> dates from the 13th century, produced salt until 1996, one of the oldest salt mines in the world, UNESCO World Heritage Site",
+   "2562 (EN, winter in Moscow and St Petersburg)": "Northern Lights are seen around Murmansk and the Kola Peninsula, not from Moscow or St Petersburg; skating advice now points to supervised rinks and warns against frozen rivers and canals. The Arabic page 581 already says both.",
+   "2574 (EN) and 593 (AR), Poland programme": "'Zakopane, about 110 km from Zakopane' -> from Krakow"
+  },
+  "uzbekistan_cities_page_2576": "The English page was a generic introduction that did not match its title. Replaced with a translation of the current Arabic original (page 595): seven cities, nights-per-city table, transport, best time, FAQ; all 15 internal links point to English pages (checked 200); two of the page's existing photos kept with alt text. Source file: deliverables/en-rewrites-2026-10-03/page_2576.html. Title 'The Main Tourist Cities of Uzbekistan'; Yoast title kept, description rewritten (141 characters).",
+  "english_only_adjustments_2576": [
+   "Uthman Quran: described as displayed in the Centre of Islamic Civilisation next to the Hazrati Imam complex (moved November 2025); the Arabic still says the complex keeps it",
+   "'direct flights from Riyadh, Jeddah, Dubai and Doha' written as 'flights from the Gulf, about four hours' until the owner confirms the routes"
+  ],
+  "verified": "Origin: new wording present and old wording gone on all seven pages; 2576 returns one H1, its title and description, hreflang, and no image without alt."
  }
 }
