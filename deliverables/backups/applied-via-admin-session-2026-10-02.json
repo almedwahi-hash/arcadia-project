@@ -2275,5 +2275,19 @@
   },
   "not_changed": "Items that need the owner's knowledge or a rewrite stay in the doubtful-facts file: the Almaty winter page, early-booking claims, Poland programme e-mails, prices and durations.",
   "verified": "Origin: new wording present and old wording gone on all ten pages. Made after the purge."
+ },
+ "almaty_winter_page_corrections_2026-10-03": {
+  "pages": "572 (Arabic) and 2553 (English), winter tourism in Almaty",
+  "fixed": [
+   "Temperatures contradicted each other (November -5, the colder December and January -3): now frosts in November and nights of -5 to -10 in December and January",
+   "Skiing 'in Pavlodar' (a steppe city about 1,400 km away) -> the Ak Bulak and Tabagan resorts near Almaty",
+   "Snowmobiles 'at Altaiskiye Alpy' (East Kazakhstan) and 'Ski complex' -> resorts near Almaty such as Tabagan",
+   "Burabay (northern Kazakhstan) as a riding area -> Ile-Alatau National Park",
+   "'Almaty Tower' viewpoint -> Kok-Tobe hill by cable car",
+   "Voice of Asia described as a festival the rink has hosted in summer",
+   "English only: hot springs 'in the Tien Shan' -> Chundzha, about four hours east; 'National Museum of Kazakhstan' -> Central State Museum of Kazakhstan (the Arabic wording differs there)"
+  ],
+  "source": "General knowledge of Almaty; no owner input. Sentence-level replacements, HTML tags unchanged.",
+  "verified": "Origin: the new place names are present and the old ones gone in both languages."
  }
 }
