@@ -2186,5 +2186,32 @@
   },
   "left": "Page 755 (Elementor) says 'أستانا (نور سلطان)'; page 571 explains the 2019-2022 name correctly; 'Nursultan Nazarbayev International Airport' and the 'Nursultan Mosque' are proper names; page 800 is a script list.",
   "verified": "Origin: no mention of the old name left on the six pages."
+ },
+ "purge_and_check_2026-10-03_evening": {
+  "purge": "Cloudflare Purge Everything run from the dashboard at the owner's request; the dashboard confirmed the request.",
+  "check": "All 548 sitemap URLs requested without cache-busting: 200 and one H1 on each; 539 MISS and 9 HIT. Ten key pages changed today serve the new text to visitors (Arabic Russia hub, Moscow guide, English Poland hub, English contact page, Uzbekistan cities, Russia visa-free post, National Museum post, Kazakhstan guide, cities in Poland, Warsaw halal restaurants)."
+ },
+ "meta_descriptions_trimmed_2026-10-03": {
+  "what": "17 meta descriptions of 160 to 165 characters shortened to 116-145 so they are not cut in search results; one of them (Arabic Poland page 584) also lost a keyword-stuffing tail listing spelling variants.",
+  "ids": [
+   3423,
+   2527,
+   2517,
+   6311,
+   3415,
+   3659,
+   3426,
+   3658,
+   3948,
+   2677,
+   2670,
+   2591,
+   3371,
+   2575,
+   2554,
+   584,
+   2556
+  ],
+  "left": "The Ukraine visa page (untouchable). These changes were made after the purge and reach visitors within four hours."
  }
 }
