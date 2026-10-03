@@ -2333,5 +2333,15 @@
   "sweep": "All pages about Russia were rechecked for sentences saying cards or ATMs work: none left.",
   "left_for_owner": "The Arabic post 2244 still calls Red Square 'الحي الأحمر' throughout (title and body); changing it is the owner's decision already listed.",
   "verified": "Origin: new wording present and old wording gone on all 14 posts."
+ },
+ "arabic_service_pages_fact_parity_2026-10-03": {
+  "why": "Facts corrected earlier today on the English service pages were still wrong on their Arabic originals.",
+  "fixed": {
+   "575 (Russia info)": "'no need to learn any foreign words, you will be understood everywhere' -> English is limited outside tourist areas; an Arabic-speaking guide helps",
+   "576 (cities in Russia)": "'all transactions in Kazan by Sberbank card or app only' -> foreign Visa and Mastercard cards do not work; carry cash in roubles",
+   "577 (Russia guide)": "'travel to Russia is completely safe' -> the main tourist cities are generally safe; invented UNESCO 'top 100 attractions' claim removed",
+   "584 (Poland)": "Woodstock Poland -> Pol'and'Rock (formerly Woodstock Poland)"
+  },
+  "verified": "Origin: new wording present, old wording gone on the four pages."
  }
 }
