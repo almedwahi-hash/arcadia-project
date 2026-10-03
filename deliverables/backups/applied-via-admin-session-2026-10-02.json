@@ -2289,5 +2289,19 @@
   ],
   "source": "General knowledge of Almaty; no owner input. Sentence-level replacements, HTML tags unchanged.",
   "verified": "Origin: the new place names are present and the old ones gone in both languages."
+ },
+ "polylang_china_category_pairings_2026-10-03": {
+  "why": "The crawl showed 25 URLs whose English hreflang pointed to the English home page because they had no linked translation. Eight of them were the China category archives, which do have counterparts.",
+  "pairs": {
+   "289 /category/china/": "332 /en/category/china-en-en/",
+   "340 china-tourism-ar": "346 china-tourism",
+   "338 china-trade-ar": "344 china-trade",
+   "342 china-travel-tips-ar": "348 china-travel-tips"
+  },
+  "how": "Polylang translation field (term_tr_lang[en]) on each Arabic category's edit screen, saved through the normal form. No other field changed.",
+  "verified": "All eight archive pages return 200 and carry reciprocal ar and en-US hreflang to each other.",
+  "remaining_17_without_counterpart": "4 Arabic cost articles (held for prices), 3 Arabic duplicate-topic posts, 5 original English posts with no Arabic version, English Kazakhstan cost post 2515, English Odessa post 2539, Arabic duplicates 1441 and old-page-611, and the Arabic post version of 'winter in Krakow and Zakopane' (a duplicate of page 589). These need the hreflang snippet fix or owner decisions.",
+  "leftover": "Three empty Arabic categories (291 china-en, 350, 352) with no posts; harmless, can be deleted by the owner.",
+  "rollback": "Clear the translation field on categories 289, 340, 338, 342."
  }
 }
