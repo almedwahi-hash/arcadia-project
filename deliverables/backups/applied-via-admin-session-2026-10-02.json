@@ -2171,5 +2171,20 @@
   },
   "checked_and_fine": "Other Schengen sentences either address Saudi travellers specifically, already say 'the rest of the Gulf', or are price tables.",
   "verified": "Origin: new wording present and old wording gone on 3887, 2474, 2518, 534."
+ },
+ "nur_sultan_to_astana_2026-10-03": {
+  "why": "Kazakhstan's capital has been called Astana again since September 2022.",
+  "arabic": {
+   "2235": "title 'متحف كازاخستان القومي نور سلطان' -> 'متحف كازاخستان القومي في أستانا'; 19 mentions in the text (slug unchanged)",
+   "2242": "4 mentions, including 'renamed temporarily to Nur-Sultan'",
+   "2254": "1 mention"
+  },
+  "english": {
+   "2550": "1",
+   "2530": "1",
+   "earlier today": "2672, 2674, 2678, 2683, 2511"
+  },
+  "left": "Page 755 (Elementor) says 'أستانا (نور سلطان)'; page 571 explains the 2019-2022 name correctly; 'Nursultan Nazarbayev International Airport' and the 'Nursultan Mosque' are proper names; page 800 is a script list.",
+  "verified": "Origin: no mention of the old name left on the six pages."
  }
 }
