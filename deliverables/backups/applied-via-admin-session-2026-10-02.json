@@ -1362,5 +1362,65 @@
    "6640 best-time-to-visit-kazakhstan": "visa FAQ: Kazakhstan for Saudi travellers"
   },
   "cache": "not purged (one purge at the end of the session)"
+ },
+ "arabic_corrections_batch_7_sources": {
+  "applied": "2026-10-03 ~05:05 UTC",
+  "note": "Exact-phrase replacements in the five Arabic originals of the seventh English batch; 69 phrases, each matched exactly once (the 1,500 SAR visa cell twice, as expected). Previous versions are in WordPress revisions. Verified on the live pages bypassing the cache.",
+  "posts": {
+   "6195 russia-for-saudis-2026": [
+    "flight table: Riyadh-Moscow Saudia and flynas, Jeddah-Moscow flynas, Aeroflot removed, durations about 5 h 30 and 6 h",
+    "Moscow on Saudi time all year; timetable note",
+    "cost table: e-visa row (780 SAR) replaced by 'not required since 11 May 2026', total 16,900-26,600 SAR",
+    "Eid al-Adha in late spring",
+    "15-20 million Muslims in Russia (sentence fixed)",
+    "Uryuk instead of Urbek",
+    "SIM registration takes longer",
+    "children under 7 free on the metro",
+    "safety FAQ: check official travel advice"
+   ],
+   "6368 best-hotels-moscow-families-2026": [
+    "Kievskaya bullet: Kievsky station and Aeroexpress to Vnukovo; new Komsomolskaya bullet for Leningradsky station and the Sapsan",
+    "Four Seasons Moscow independently run",
+    "The Carlton Moscow (formerly Ritz-Carlton)",
+    "Plaza Garden Moscow WTC (formerly Crowne Plaza)",
+    "Lotte pool no longer 'large' (text and table)",
+    "Hilton Leningradskaya beside Leningradsky station",
+    "Novotel next to (not above) Kievsky station; St Petersburg trains leave from Leningradsky",
+    "White Nights removed from the season bullet",
+    "Arbat 15-25 minutes' walk"
+   ],
+   "6194 kazakhstan-for-saudis-2026": [
+    "intro: one of the fastest-growing destinations, about five hours' flight, mild mountain weather, prices well below Europe",
+    "flight table: Riyadh-Almaty flynas direct in season or via Dubai/Doha/Jeddah; Jeddah-Almaty flynas and Air Astana in season; Saudia removed; Astana via Almaty or Gulf hubs",
+    "mada-only cards do not work abroad; carry cash for bazaars and lakes",
+    "meat mostly halal",
+    "Fajr around 3 am in June",
+    "honorary consulate removed",
+    "'thousands of families' -> many"
+   ],
+   "6206 uzbekistan-for-saudis-2026": [
+    "four to five hours' flight; local food halal",
+    "flight table: Riyadh-Tashkent flynas direct in season; Jeddah-Tashkent Uzbekistan Airways, about 5 h; Afrosiyob 2 h 10 + 1 h 40",
+    "mada-only cards do not work abroad",
+    "Imam al-Bukhari complex: about 35 minutes, rebuilt and opened March 2026",
+    "Uthman Quran moved to the Center for Islamic Civilization (Nov 2025)",
+    "mausoleum of Imam al-Maturidi",
+    "'30-40% cheaper than Turkey' -> mostly cheaper"
+   ],
+   "6207 poland-for-saudis-2026": [
+    "prices well below western Europe",
+    "visa centre unnamed, embassy website referenced",
+    "fees: 90 EUR about 390-400 SAR, children 6-11, service fee amount removed",
+    "processing up to 45 days; five-year multiple-entry visas for Saudis since April 2024",
+    "LOT three flights a week in season, about 5 h 45; Saudia removed",
+    "Eid al-Adha in late spring; Islamic centre in Krakow",
+    "snow 'almost certain' instead of guaranteed",
+    "visa cost cells about 1,500-1,700 SAR",
+    "1 SAR about 1 zloty; mada-only cards do not work abroad",
+    "SIM from operators' shops with passport registration",
+    "FAQ: processing up to 45 days"
+   ]
+  },
+  "open_for_owner": "Direct flights from Saudi Arabia to Almaty and Tashkent are described as seasonal in both languages because the current timetable could not be confirmed; the owner should supply the actual routes."
  }
 }
