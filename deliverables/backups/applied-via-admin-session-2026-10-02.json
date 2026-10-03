@@ -2095,5 +2095,17 @@
   "skipped": "Elementor pages 1444 and 755 (8 and 6 occurrences).",
   "note": "The site's Arabic body text was already largely clean: about 117 occurrences in 23 of 206 pages.",
   "verified": "Sample of six pages on the origin: 200 and none of the listed misspellings left in the article body."
+ },
+ "old_english_pages_rewrite_2026-10-03": {
+  "what": "Body text of 16 old machine-translated English service pages rewritten in place into fluent English: Russia 2556, 2557, 2558, 2559, 2562, 2563, 2564; Poland 2565, 2566, 2570, 2571, 2574; Kazakhstan 2586, 2552, 2553; Uzbekistan 2576.",
+  "method": "The live text nodes of each page were exported; four subagents rewrote them node by node (faithful, no added facts, numbers and prices unchanged, Arabic originals as reference); the result is a map old text -> new text per page in deliverables/en-rewrites-2026-10-03/map_<ID>.json. The maps were applied to the raw content as the logged-in owner: only text nodes were replaced, the sequence of HTML tags was compared before and after and is identical on every page.",
+  "volume": "535 text nodes changed (about 54% of the 979 nodes on these pages).",
+  "facts_corrected_by_reviewer": [
+   "2566: amber is not extracted from sperm whales (that is ambergris) -> fossilised tree resin",
+   "2586: Lake Alakol is in south-eastern, not south-western, Kazakhstan; Karagiye Depression 'second-lowest point in the world' -> 'one of the lowest points'"
+  ],
+  "doubtful_facts": "Listed for the owner in deliverables/en-rewrites-2026-10-03/doubtful-facts-ar.md; not changed.",
+  "verified": "Origin check of the 16 pages: every new text node present, no old one left, image counts unchanged, one H1, HTTP 200.",
+  "rollback": "WordPress revisions of each page."
  }
 }
