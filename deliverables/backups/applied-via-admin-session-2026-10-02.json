@@ -1675,5 +1675,91 @@
    "verified": "On the origin: best-time Almaty, best-time Poland, China trip cost, Kazakhstan for Saudis and Sochi no longer link 'الخليج' to the visa article; the deliberate links in the Russia-for-Saudis guide remain; 'روسيا' links to the pillar page.",
    "rollback": "Put the old keyword list back in the Internal Links box of post 2214 and rebuild the index."
   }
+ },
+ "internal_link_juicer_cleanup_2026-10-03": {
+  "applied": "2026-10-03 ~14:13-14:25 server time, with the owner's approval of steps A, B and C",
+  "method": "Internal Links keyword box on each edit screen, saved with a metabox-only save (requestMetaBoxUpdates), then Rebuild index on the plugin dashboard. Post content was not re-saved.",
+  "changes": {
+   "2233 gdansk": [
+    "بولندا,السياحه بولندا,غدانسك,وارسو",
+    "غدانسك"
+   ],
+   "2254 almaty hotels": [
+    "الماتي,كازاخستان",
+    "فنادق ألماتي,أفضل فنادق ألماتي"
+   ],
+   "2242 winter tourism kazakhstan": [
+    "كازاخستان,السياحه الشتويه,الماتي,الماطي",
+    "السياحة الشتوية في كازاخستان"
+   ],
+   "2251 warsaw halal restaurants": [
+    "بولندا,وارسو,السياحه في بولندا,كراكرف",
+    "مطاعم وارسو الحلال,مطاعم حلال في وارسو"
+   ],
+   "2248 warsaw christmas markets": [
+    "بولندا,وارسو,اوروبا,السياحه بولندا",
+    "أسواق الكريسماس في وارسو"
+   ],
+   "18 home page": [
+    "كازاخستان,اوزبكستان,روسيا,بولندا",
+    ""
+   ],
+   "151 kazakhstan pillar": [
+    "كازاخستان,السياحه في كازاخستان,رحلات الى كازاخستان",
+    "كازاخستان,السياحة في كازاخستان,رحلات كازاخستان"
+   ],
+   "153 russia pillar": [
+    "روسيا,السياحه في روسيا,السفر الى روسيا",
+    "روسيا,السياحة في روسيا,السفر إلى روسيا"
+   ],
+   "155 poland pillar": [
+    "السياحه في بولندا,بولندا,رحلات بولندا,السفر الى بولندا",
+    "بولندا,السياحة في بولندا,رحلات بولندا,السفر إلى بولندا"
+   ],
+   "157 uzbekistan pillar": [
+    "السياحه في اوزبيكستان,اوزبيكستان,رحلات اوزباكستان,اوزباكستان",
+    "أوزبكستان,السياحة في أوزبكستان,رحلات أوزبكستان"
+   ],
+   "3321 almaty guide": [
+    "",
+    "ألماتي"
+   ],
+   "5011 astana guide": [
+    "",
+    "أستانا"
+   ],
+   "2401 samarkand": [
+    "",
+    "سمرقند"
+   ],
+   "4821 bukhara": [
+    "",
+    "بخارى"
+   ],
+   "5019 tashkent": [
+    "",
+    "طشقند"
+   ],
+   "520 krakow": [
+    "",
+    "كراكوف"
+   ],
+   "521 zakopane": [
+    "",
+    "زاكوباني"
+   ],
+   "6236 sochi": [
+    "",
+    "سوتشي"
+   ],
+   "5018 kazan": [
+    "",
+    "كازان"
+   ]
+  },
+  "elementor_safety": "Pages 18, 151, 153, 155, 157 and 3321 were hashed before and after (post content and _elementor_data): identical, status still publish. All six render on the origin with 12 Elementor widgets and one H1.",
+  "index": "Rebuilt: 568 links in the index, 46 configured keywords.",
+  "verified": "In 12 sample articles every keyword links to a single correct target (country names to pillar pages, city names to their guides); 3 to 8 auto-links per article.",
+  "rollback": "Each pair above is [before, after]; restore the 'before' list in the Internal Links box of that post and rebuild the index."
  }
 }
