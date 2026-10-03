@@ -1643,7 +1643,8 @@
  "hreflang_fallback_finding": {
   "found": "2026-10-03",
   "what": "Every Arabic post without an English translation emits <link rel=alternate hreflang=en-US> pointing to /en/home/. A page that is not a translation must not be declared as the alternate; Google ignores or flags such annotations (no return tag). 14 Arabic posts are still affected after this batch: 4827, 4824, 4816, 4814, 4809, 4595, 4593, 4592, 4586 plus the old Ukraine/Poland posts already paired. The behaviour comes from theme or snippet code (probably the same PHP snippet that handles hreflang), which I cannot edit.",
-  "fix_for_owner": "In the hreflang snippet, output the alternate only when pll_get_post($post_id, 'en') returns a post; otherwise print nothing for that language."
+  "fix_for_owner": "In the hreflang snippet, output the alternate only when pll_get_post($post_id, 'en') returns a post; otherwise print nothing for that language.",
+  "correction_2026-10-04": "This finding was wrong. Rechecked on 4 Oct 2026: pages without a translation emit no <link rel=alternate hreflang> tags at all, which is the correct behaviour. The 'en-US -> /en/home/' that the crawl picked up is the hreflang attribute on the language-switcher link (<a lang=en-US hreflang=en-US href=/en/home/>), which is normal Polylang switcher markup and is not an hreflang annotation for search engines. No snippet change is needed. The later counts of '25', '17' and '12 pages with wrong hreflang' in this log and in the Arabic checklist describe pages without a counterpart, not an error."
  },
  "arabic_corrections_batch_9_sources": {
   "applied": "2026-10-03 ~08:05 UTC",
@@ -2414,5 +2415,10 @@
   "owner_decisions": "Room basis of the family price stays general; article titles stay 'للعائلات'; prices are stated as approximate (already in every cost article).",
   "purge": "The owner believed the cache had been cleared; the check showed the Arabic cost articles still served the old prices from Cloudflare, so Purge Everything was run again and confirmed by the dashboard.",
   "check_as_visitors_see_it": "551 sitemap URLs: all 200, one H1 each, no leaked markup; the eight cost articles show the new prices; the old English Kazakhstan cost URL returns 301 to the new article."
+ },
+ "x_default_optional_snippet": {
+  "status": "optional, not applied (PHP snippets are edited by the owner)",
+  "code": "add_filter( 'pll_rel_hreflang_attributes', function ( $h ) { if ( isset( $h['ar'] ) ) { $h['x-default'] = $h['ar']; } return $h; } );",
+  "effect": "Adds hreflang=x-default pointing to the Arabic version on pages that have translations. Small benefit; safe to skip."
  }
 }
