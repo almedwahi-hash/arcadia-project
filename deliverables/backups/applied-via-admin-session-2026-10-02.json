@@ -1761,5 +1761,32 @@
   "index": "Rebuilt: 568 links in the index, 46 configured keywords.",
   "verified": "In 12 sample articles every keyword links to a single correct target (country names to pillar pages, city names to their guides); 3 to 8 auto-links per article.",
   "rollback": "Each pair above is [before, after]; restore the 'before' list in the Internal Links box of that post and rebuild the index."
+ },
+ "purge_and_final_crawl_2026-10-03": {
+  "purge": "Cloudflare Purge Everything run from the dashboard at the owner's request, 3 Oct 2026 (~14:35 server time); Cloudflare confirmed 'Purge request successfully received'.",
+  "spot_check": "Ten edited pages fetched without cache-busting: all cf-cache-status MISS, new text present, old text gone, hreflang pairs correct, no auto-link on the word 'الخليج'.",
+  "crawl": {
+   "urls_from_sitemaps": 562,
+   "english_urls": 296,
+   "status_200": 562,
+   "noindex_in_sitemap": 0,
+   "title_missing": 0,
+   "desc_missing": 0,
+   "h1_not_one": 0,
+   "duplicate_titles": 0,
+   "duplicate_descriptions": 0,
+   "schema_invalid": 0,
+   "old_phone_visible": 0,
+   "slow_ttfb_over_2s": 0,
+   "titles_over_60": "49: 45 Ukraine pages (left by decision) and 4 others: Arabic home, English home, the English Uzbekistan category, one English Ukraine article",
+   "descriptions_over_165": "17, all Ukraine pages",
+   "broken_internal_links": "0 real (the only 404 is Cloudflare's /cdn-cgi/l/email-protection artefact)",
+   "internal_links_that_redirect": [
+    "/en/ -> /en/home/ (13 sources, theme/menu)",
+    "/rss.xml -> /feed/ (3 sources)",
+    "the English alternate of the Arabic Moscow page 579 (/en/tourism-in-moscow-10-places-to-visit-in-moscow/) redirects to another English page"
+   ],
+   "external": "63 external links answer 202/403 to bots (Booking, Tripadvisor, a Ukrainian ministry site); not broken for visitors"
+  }
  }
 }
