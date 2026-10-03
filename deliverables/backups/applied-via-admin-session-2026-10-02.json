@@ -1850,5 +1850,43 @@
    "4809 winter-tourism-kazakhstan-2": "Duplicate of /winter-tourism-kazakhstan/ (2242), which has an English version. Recommended: 301-redirect to 2242."
   },
   "orphan_english_cost_pages": "English posts 2515 (/en/the-cost-of-tourism-in-kazakhstan/) and 2503 (/en/the-cost-of-tourism-in-russia-with-arcadia-company-surprising-prices/) have no Arabic counterpart and quote different, older figures. Once the Arabic cost articles are corrected and translated, redirect these two to the new translations."
+ },
+ "arabic_corrections_batch_10_sources": {
+  "applied": "2026-10-03 (after the purge)",
+  "note": "Exact-phrase replacements in the two Arabic originals of the tenth English batch; 15 phrases matched exactly once, plus three remaining 'شهر بشهر' mentions in the weather article. Verified on the live pages bypassing the cache; both pages now have a single H1 in the HTML.",
+  "posts": {
+   "4816 moscow-parks-tourism": [
+    "duplicate h1 removed",
+    "'water slides' in Gorky Park -> boat hire",
+    "park entry free, paid activities up to 500 roubles",
+    "visa: verified Gulf rule instead of 'get a Russian visa before travel'",
+    "foreign Visa/Mastercard do not work in Russia",
+    "'cold even in summer' -> cool in the evening",
+    "'famous Russian coffee' -> coffee or Russian tea"
+   ],
+   "4814 russia-weather-month-by-month": [
+    "duplicate h1 removed",
+    "all 'month by month' wording replaced by 'in winter and spring' (the article covers only those two seasons)",
+    "post title: الطقس في روسيا للسياح: دليل الشتاء والربيع (was: الطقس في روسيا شهر بشهر للسياح: دليل شامل ومفصل)",
+    "Yoast title and a written meta description (the old one was an auto excerpt)",
+    "slug unchanged to avoid a redirect",
+    "spring temperatures: from about zero in March to 15-20 in May",
+    "visa tip and FAQ: verified Gulf rule (the FAQ said 'No, most nationalities need a visa')",
+    "cards do not work in Russia",
+    "English limited outside hotels and main sights"
+   ]
+  },
+  "previous_values_4814": {
+   "title": "الطقس في روسيا شهر بشهر للسياح: دليل شامل ومفصل",
+   "yoast_title": "الطقس في روسيا شهراً بشهر: دليل شامل للسياح | أركاديا",
+   "yoast_desc": "(auto excerpt beginning: تعتبر روسيا واحدة من الوجهات السياحية الأكثر تنوعًا ...)"
+  }
+ },
+ "english_orphans_audit_2026-10-03": {
+  "file": "deliverables/english-orphans-audit-2026-10-03-ar.md",
+  "english_without_arabic_pair": 24,
+  "arabic_without_english_pair": 12,
+  "pairable_now": "2577 <-> 1444",
+  "changed": "nothing"
  }
 }
