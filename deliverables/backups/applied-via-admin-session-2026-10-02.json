@@ -2239,5 +2239,22 @@
   "also": "Page 1441: spelling 'الى' corrected in its description.",
   "note": "Meta only; page content and Elementor data untouched. Made after the purge; visible to visitors within four hours.",
   "verified": "Origin sample of six pages shows the new titles and descriptions."
+ },
+ "orphan_pages_internal_links_2026-10-03": {
+  "audit": "Inbound internal links were counted for all 548 sitemap URLs (links inside the page body, then the header and footer menus). 22 non-Ukraine pages had none at all and were reachable only through the sitemap.",
+  "fixed_by_adding_a_related_pages_line": {
+   "575 (AR, Russia info)": "links to the Russia travel guide and early booking pages",
+   "2556 (EN, Russia info)": "links to the English Russia travel guide and early booking pages",
+   "584 (AR, Poland)": "links to Poland offers, hotel bookings, group trips and study pages",
+   "595 (AR, cities of Uzbekistan)": "link to the Uzbekistan basic-information page",
+   "2471 (EN, Our services)": "links to Who we are, Customer reviews, Our partners, Special offers, Buses, Flight tickets and transfers, Privacy policy"
+  },
+  "how": "One paragraph with class arcadia-related appended at the end of the page content; nothing else changed. All linked URLs return 200.",
+  "still_orphaned": {
+   "Arabic company pages": "من نحن، التزكيات، شركائنا، العروض السياحية المميزة، الباصات السياحية، سياسة الخصوصية: the natural place is the Arabic services page 148, which is an Elementor page, or the footer menu. Left for the owner (footer menu is a site setting).",
+   "duplicates and Ukraine": "1441 (duplicate of 590), /خدماتنا/old-page-611, and three English Ukraine pages; owner decisions already listed."
+  },
+  "og_image": "Eleven non-Ukraine pages have no og:image (blog index pages, privacy, partners, recommendations, buses, Russia winter page); needs a featured image or a site-wide default in Yoast, left for the owner.",
+  "note": "Made after the purge; visible to visitors within four hours."
  }
 }
