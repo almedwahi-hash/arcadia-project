@@ -1896,6 +1896,37 @@
   "english_without_arabic_pair": 24,
   "arabic_without_english_pair": 12,
   "pairable_now": "2577 <-> 1444",
-  "changed": "nothing"
+  "changed": "nothing",
+  "polylang_field_check": {
+   "method": "Read-only: the Arabic-translation field on each orphan's edit screen, the status of the linked Arabic item, and where its old URL redirects today.",
+   "result": "18 of the 23 remaining English orphans are linked to Arabic originals that were set to draft between 23 Aug and 1 Sep 2026, with 301 redirects to consolidated Arabic pages; the English versions were left published. 5 have no link (English-only 2026 series). No further case can be solved by simple pairing.",
+   "en_to_ar_draft": {
+    "2478": 163,
+    "2490": 506,
+    "2503": 519,
+    "2509": 525,
+    "2510": 526,
+    "2512": 528,
+    "2513": 529,
+    "2515": 531,
+    "2523": 539,
+    "2524": 540,
+    "2526": 542,
+    "2539": 555,
+    "2551": 570,
+    "2555": 574,
+    "2625": 960,
+    "2627": 962,
+    "2628": 963,
+    "2629": 964
+   },
+   "ar_published_with_en_draft": {
+    "1439": 2663,
+    "1441": 2664,
+    "611": 2583
+   },
+   "old_arabic_url_404": "/الدراسه-في-كازاخستان/ (draft page 574)",
+   "changed": "nothing"
+  }
  }
 }

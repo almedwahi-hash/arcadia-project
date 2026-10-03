@@ -83,3 +83,58 @@
 2. إصلاح سنِبِت hreflang (PHP، من جهتكم): يعالج القسم (ب) كله ويزيل الإعلان الخاطئ من كل الصفحات اليتيمة في اللغتين.
 3. تحويلات القسم (ج) من إضافة Redirection، بعد نظرة على Search Console.
 4. القسم (د) بعد توفر بيانات Search Console.
+
+---
+
+## تحديث: فحص حقول الربط في Polylang للصفحات الـ23 الباقية (قراءة فقط) — 3 أكتوبر 2026
+
+قرأتُ حقل «الترجمة العربية» في شاشة تحرير كل صفحة إنجليزية يتيمة، ثم فحصتُ حالة العنصر العربي المربوط، وإلى أين يُحوَّل رابطه القديم اليوم.
+
+### النتيجة
+
+- **18 من 23 مربوطة فعلاً بأصل عربي، لكن الأصل «مسودة».** الأصول العربية الثمانية عشر أُلغي نشرها بين 23 أغسطس و1 سبتمبر 2026 ضمن تنظيف سابق، وحُوّلت روابطها 301 إلى صفحات عربية مدمجة. النسخ الإنجليزية المقابلة **بقيت منشورة ولم تُعالَج** — فهي بقايا ذلك التنظيف، لا صفحات مستقلة.
+- **5 بلا أي ربط** (حقل الترجمة = 0): سلسلة Best Things to Do 2026 المكتوبة بالإنجليزية أصلاً. تصنيفها في القسم (ب) صحيح.
+- لا توجد حالة أخرى تُحلّ بربط بسيط كما في 2577 ↔ 1444.
+
+هذا يغيّر التوصية: الفئتان (ج) و(د) أعلاه هما في الحقيقة فئة واحدة. القرار اتُّخذ فعلاً في النسخة العربية (دمج وتحويل)، والمطلوب تطبيق القرار نفسه على النسخة الإنجليزية. ولكل صفحة وجهة محددة: **المقابل الإنجليزي للصفحة العربية التي حُوّل إليها الأصل**.
+
+### الوجهة الدقيقة لكل صفحة
+
+| الإنجليزية اليتيمة | الأصل العربي (مسودة) | رابط الأصل يُحوَّل اليوم إلى | الوجهة الإنجليزية المقابلة |
+|---|---|---|---|
+| 2478 `/en/offers-and-reservations/` | 163 | `/offers-bookings/` | `/en/offers-and-reservations-en/` |
+| 2512 `/en/tourism-in-almaty-arab-travelers/` | 528 | `/almaty-guide/` | `/en/almaty-guide-en/` |
+| 2513 `/en/5-reasons-why-traveling-to-almaty-is-a-great-choice/` | 529 | `/almaty-guide/` | `/en/almaty-guide-en/` |
+| 2490 `/en/the-best-tourist-destinations-in-kazakhstan/` | 506 | صفحة «المدن في كازاخستان» | `/en/cities-in-kazakhstanlearn-about-the-9-most-important-tou…/` |
+| 2523 `/en/tourism-in-kazakhstan-discover-the-secrets-of-the-seven-cities/` | 539 | صفحة «المدن في كازاخستان» | نفسها |
+| 2526 `/en/the-10-most-important-tourist-attractions-in-kazakhstan/` | 542 | صفحة «المدن في كازاخستان» | نفسها |
+| 2551 `/en/tourist-activities-in-kazakhstan/` | 570 | صفحة «المدن في كازاخستان» | نفسها |
+| 2524 `/en/arcadia-tourism-company-is-the-ideal-choice-…/` | 540 | `/اكتشف-أفضل-شركة-سياحة-في-كازاخستان-راح/` | `/en/discover-the-best-kazakhstan-tourism-company-…/` |
+| 2625 `/en/the-best-family-tourist-trips-in-kazakhstan-…/` | 960 | `/برنامج-سياحي-لمدة-أسبوع-في-كازاخستان-ج/` | `/en/a-one-week-tourist-program-in-kazakhstan-…/` |
+| 2627 `/en/uzbekistan-the-jewel-of-central-asia-…/` | 962 | `/أوزبكستان-جوهرة-آسيا-الوسطى-التي-تجمع/` | `/en/uzbekistan-2026-the-jewel-of-central-asia-silk-road-and-…/` |
+| 2628 `/en/uzbekistan-festivals-2026-the-most-prominent-…/` | 963 | `/مهرجانات-أوزبكستان-2026-أبرز-الفعاليات-ا/` | `/en/uzbekistan-festivals-2026-with-arcadia-tourism-nowruz-…/` |
+| 2629 `/en/tourism-in-uzbekistan-with-arcadia-tourism-company-…/` | 964 | `/سياحة-في-أوزبكستان-مع-شركة-أركاديا-الس/` | `/en/distinctive-tourist-trips-to-uzbekistan-2026-arcadia-tou…/` |
+| 2509 `/en/tourism-in-poland-arab-travelers/` | 525 | `/poland-guide/` | `/en/poland-guide-en/` |
+| 2510 `/en/an-enjoyable-tour-of-the-most-famous-tourist-places-in-poland/` | 526 | `/أهم-10-وجهات-سياحية-في-بولندا/` | `/en/discover-the-top-10-tourist-destinations-in-poland/` |
+| 2503 `/en/the-cost-of-tourism-in-russia-with-arcadia-company-…/` | 519 | `/تكلفة-السياحة-في-روسيا-الميزانية-اليو/` | `/en/a-practical-guide-to-the-cost-of-tourism-in-russia-…/` |
+| 2515 `/en/the-cost-of-tourism-in-kazakhstan/` | 531 | `/kazakhstan-family-trip-cost-2026/` | لا مقابل إنجليزي بعد (الترجمة مؤجَّلة حتى تُعتمد الأسعار) |
+| 2555 `/en/study-in-kazakhstan/` | 574 | الرابط القديم يعطي 404 | `/en/study-in-kazakhstan-your-comprehensive-guide-to-the-best-universit…/` (أقرب صفحة) |
+| 2539 `/en/tourism-in-odessa-and-the-most-important-landmarks-…/` | 555 | صفحة أوديسا | `/en/tourism-in-odessa-and-its-most-important-beautiful-landmarks/` (أوكرانيا؛ قراركم) |
+
+### الحالة المعكوسة: ثلاث صفحات عربية منشورة ومقابلها الإنجليزي مسودة
+
+| العربية المنشورة | المقابل الإنجليزي (مسودة) |
+|---|---|
+| 1439 «السياحة بمذاق أوروبي في شتاء كراكوف وزاكوباني» (صفحة) | 2663 |
+| 1441 «تنظيم الرحلات الجماعية والقروبات إلى بولندا» | 2664 |
+| 611 «تذاكر الطيران وتأجير السيارات» (`old-page-611`) | 2583 |
+
+هنا أُلغي نشر الإنجليزية وبقيت العربية. إن كان الإلغاء مقصوداً فالصفحات العربية الثلاث مرشحة للمعاملة نفسها.
+
+### التوصية المحدَّثة
+
+1. **تطبيق ما طُبّق على العربية:** لكل صفحة من الـ16 الأولى في الجدول، تحويل 301 إلى وجهتها الإنجليزية ثم تحويل الصفحة إلى مسودة. هذا يُكمل تنظيف أغسطس ولا يحتاج قراراً جديداً في المحتوى.
+2. **2515** ينتظر نشر ترجمة مقال التكلفة؛ **2539** صفحة أوكرانيا (قراركم)؛ **2555** يُحوَّل إلى دليل الدراسة الإنجليزي، ورابط أصله العربي القديم `/الدراسه-في-كازاخستان/` يعطي 404 ويحتاج تحويلاً هو الآخر.
+3. **قبل التحويل:** خمس من هذه الصفحات مستخدمة روابطَ داخلية في الترجمات الجديدة (2526، 2515، 2628، 2513، 2625). الروابط ستبقى تعمل عبر 301، وأحدّثها إلى الوجهات المباشرة ضمن التنفيذ.
+4. **سنِبِت hreflang** يبقى مطلوباً للمقالات الخمس الأصلية.
+
