@@ -2149,5 +2149,15 @@
   "poland_guide_505_and_2489": "Poland 'bigger than Germany' -> slightly smaller; direct LOT flights 'Riyadh and Jeddah (seasonal)' -> Riyadh; visa FAQ now says UAE citizens are exempt for short stays.",
   "wizz_air": "Checked: Wizz Air Abu Dhabi ceased operations on 1 September 2025, so its removal from post 2683 stands.",
   "verified": "Origin: page 153 shows the new sentence and not the old one, one H1; the six Arabic posts show the corrected wording; the four English posts return 200 with one H1, new titles and descriptions, hreflang pairs and no Arabic text in the body."
+ },
+ "russia_visa_reverse_sweep_2026-10-03": {
+  "why": "The first visa sweep looked for pages saying Gulf citizens need a Russian visa. This one looked for the opposite generalisations: every Gulf nationality visa-free, or every Gulf nationality on the e-visa.",
+  "fixed": {
+   "3954 (EN, booking mistakes)": "'GCC citizens ... need an e-visa for Russia' -> Saudi, Emirati, Qatari and Omani citizens visa-free, Kuwaiti and Bahraini citizens on the e-visa; Schengen exception for UAE citizens added",
+   "523 (AR, Kremlin post)": "'GCC citizens served by the company travel without a visa' -> the four visa-free nationalities, Kuwait and Bahrain by e-visa",
+   "2673 and 2675 (EN)": "link labels 'Entering Russia without a visa to the Gulf countries' -> 'Visa-free entry to Russia for Gulf citizens' (two in each)"
+  },
+  "checked_and_fine": "All other sentences combining Russia, the Gulf and visa wording, in both languages, either name the four exempt nationalities or were corrected in earlier rounds (3948, 2587, 2683, 153 and the five Arabic posts).",
+  "verified": "Origin: new wording present, old wording gone on 3954, 523, 2673, 2675."
  }
 }
