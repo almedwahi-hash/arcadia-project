@@ -2046,5 +2046,27 @@
   "for_owner": "Confirm the Polish number. Confirm that Turan (Bialej Floty 2/U18, Warsaw) is still open; its Wolt page is gone. Confirm the wa.me/message short link on the Russia pages still opens the right account.",
   "meta_length_audit": "From the last crawl: no indexable page has a title under 25 or a description under 70 characters; the only titles over 65 characters are Ukraine real-estate pages (untouchable) and the home page (owner's snippet). Nothing changed.",
   "verified": "Origin check: post 512 has a working WhatsApp link and no malformed anchor; /en/contact-us/ shows the corrected number; the Wolt link is gone from both restaurant posts."
+ },
+ "old_english_pages_wording_2026-10-03": {
+  "why": "The older English pages were machine-translated in bulk; their titles and headings were reviewed (99 non-Ukraine pages and posts, IDs 2470-2700) for wording that is wrong or embarrassing.",
+  "titles_changed (H1 only; slugs and URLs unchanged)": {
+   "2675": "'Moscow's Red District for Arab tourists...' -> 'Moscow's Red Square for Arab Tourists: Your Gateway to the Heart of Russia' ('Red District' also replaced twice in the text)",
+   "2672": "'Kazakh National Museum Nur-Sultan...' -> 'National Museum of Kazakhstan in Astana...' (the capital has been called Astana again since 2022; 19 mentions in the text updated)",
+   "2569": "'Visa or visa to Poland' -> 'Poland Visa Guide'",
+   "2477": "'Tourist buses and buses' -> 'Tourist Buses and Private Transport' (plus a Yoast title and description, which the page lacked)",
+   "2554": "'Group trips and groups in Kazakhstan' -> 'Group Trips to Kazakhstan'",
+   "2668": "'Privacy Policy | privacy policy' -> 'Privacy Policy'",
+   "2507": "'Tourism Guide in Russia Arab Travelers...' -> 'Russia Travel Guide for Arab Travelers: Discover the Beauty of Russia'",
+   "2511": "'Tourism in Kazakhstan, Arab travelers, as you have never known it before!' -> 'Kazakhstan for Arab Travelers as You Have Never Known It Before'"
+  },
+  "text_changed": {
+   "2674, 2678, 2683, 2511": "Nur-Sultan -> Astana",
+   "2669, 2678, 2679": "'Introduction and introduction to' -> 'Introduction to'; 'Bukhara (Bukhara)' -> 'Bukhara'",
+   "2673": "'Saint Vasily's Cathedral' -> 'St Basil's Cathedral' (3)",
+   "2471": "'Tourist buses and buses' -> 'Tourist buses and private transport'"
+  },
+  "not_changed": "2588 (Find your trip) is an Elementor page whose script shows 'We found N software for you' ('software' should be 'programs'); left for the owner or a later Elementor edit. The Arabic original of 2675 is titled with the Arabic for 'the Red District in Moscow', which can read as 'red-light district'; changing an Arabic title is the owner's call.",
+  "verified": "Origin check of the 15 URLs: new H1 present, old wording gone.",
+  "previous_versions": "WordPress revisions."
  }
 }
