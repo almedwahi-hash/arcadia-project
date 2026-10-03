@@ -1252,5 +1252,115 @@
     "prayer 'open at all times' -> working mosque, main hall for worshippers at prayer times"
    ]
   }
+ },
+ "english_batch_8": {
+  "published": "2026-10-03 ~04:40 UTC",
+  "note": "The user calls this the seventh batch (eighth English batch in this log).",
+  "posts": [
+   {
+    "id": 6679,
+    "translation_of": 6195,
+    "slug": "russia-for-saudi-travellers",
+    "featured_media": 4600
+   },
+   {
+    "id": 6681,
+    "translation_of": 6194,
+    "slug": "kazakhstan-for-saudi-travellers",
+    "featured_media": 4596
+   },
+   {
+    "id": 6683,
+    "translation_of": 6206,
+    "slug": "uzbekistan-for-saudi-travellers",
+    "featured_media": 4602
+   },
+   {
+    "id": 6685,
+    "translation_of": 6207,
+    "slug": "poland-for-saudi-travellers",
+    "featured_media": 4197
+   },
+   {
+    "id": 6687,
+    "translation_of": 6368,
+    "slug": "best-hotels-in-moscow",
+    "featured_media": 4600
+   }
+  ],
+  "sources": "Live rendered content of the Arabic posts (fetched 3 Oct); inline figures omitted.",
+  "verified": "All five return 200 from the origin with one H1, Yoast title and description within limits, og:image, tables rendered, and ar/en-US hreflang in both directions.",
+  "verified_by_web_search": [
+   "flynas Riyadh-Moscow since 1 Aug 2025 (three a week, Vnukovo); Saudia Riyadh-Moscow since 10 Oct 2025 (Sheremetyevo); flynas Jeddah-Moscow since 23 Dec 2025 (Arab News, Simple Flying)",
+   "LOT Warsaw-Riyadh three times a week, about 5 h 45 min, resuming 2 July 2026 (LOT press release, rustourismnews)",
+   "Schengen fee 90 EUR adults, 45 EUR ages 6-11, free under 6; five-year multiple-entry visas for Saudi nationals since April 2024 (Arab News, EY, European Commission decision C(2024) 2689)",
+   "Ritz-Carlton Moscow renamed The Carlton, Moscow in July 2022 (The Moscow Times); Crowne Plaza Moscow WTC renamed Plaza Garden Moscow WTC on 15 Aug 2022 (WTC Moscow); Novotel Kievskaya and Radisson Collection unchanged",
+   "Saudi-Almaty and Riyadh-Tashkent direct flights: flynas and Air Astana have operated them seasonally; current schedules could not be confirmed, so the English tables say 'direct in season' and tell readers to check the timetable"
+  ],
+  "facts_corrected_in_english_only": {
+   "ru-saudi": [
+    "cost table still had 'E-visas (4) 780 SAR': row now says not required, total reduced to 16,900-26,600 SAR",
+    "carriers: Riyadh-Moscow Saudia and flynas; Jeddah-Moscow flynas; Aeroflot removed; durations 5.5 and 6 h",
+    "Moscow is on Saudi time all year (not only in summer)",
+    "Eid al-Adha falls in late spring in the coming years",
+    "'more than 20 million Muslims' -> an estimated 15-20 million; garbled sentence fixed",
+    "restaurant chain 'Urbek' -> Uryuk; ask about halal at each branch",
+    "SIM registration now takes longer for foreigners",
+    "children: under 7 free on the metro",
+    "safety FAQ: check official travel advice"
+   ],
+   "kz-saudi": [
+    "'number one destination' -> one of the fastest-growing",
+    "direct flights 4.5 h -> about 5 h; Riyadh-Almaty flynas in season; Jeddah-Almaty flynas and Air Astana in season; Saudia removed; Astana via Almaty or Gulf hubs",
+    "'mother travelling with children is not asked for a travel permit' removed",
+    "mada-only cards do not work abroad",
+    "Fajr around 3 am in June (was 4 am)",
+    "'honorary consulate in Almaty' removed",
+    "'thousands of families' -> many",
+    "meat 'generally' halal"
+   ],
+   "uz-saudi": [
+    "flight 4 h -> four to five hours; Riyadh-Tashkent flynas in season; Jeddah-Tashkent Uzbekistan Airways, about 5 h",
+    "Afrosiyob 2 h 10 + 1 h 40",
+    "mada-only cards do not work abroad",
+    "Khartank 25 minutes -> about 35 minutes",
+    "'Imam al-Maturidi library and museum' -> mausoleum",
+    "'30-40% cheaper than Turkey' -> generally cheaper",
+    "Uthman Quran location and the rebuilt Imam al-Bukhari complex (March 2026)",
+    "'all food is halal' -> local food"
+   ],
+   "pl-saudi": [
+    "visa centre no longer named (VFS and Al Khobar unverified); embassy website referenced",
+    "fee 90 EUR = about 390-400 SAR (was 370); children 6-11 (was 6-12); service fee amount removed",
+    "processing up to 45 days (was 30); five-year multiple-entry visas for Saudis since April 2024 (was: only on later visits)",
+    "LOT three flights a week in season, about 5 h 45 (was 6 h 30); Saudia removed",
+    "Eid al-Adha in late spring",
+    "'guaranteed snow' -> reliable",
+    "visa cost row 1,500 -> about 1,500-1,700 SAR",
+    "1 SAR roughly 1 zloty; mada-only cards do not work abroad",
+    "Krakow: Islamic centre with a prayer hall (not a mosque)",
+    "SIM from operators' shops with passport registration"
+   ],
+   "moscow-hotels": [
+    "intro notes the post-2022 renamings",
+    "Kievsky station is not the station for St Petersburg: Kievskaya = Aeroexpress to Vnukovo; new Komsomolskaya bullet for Leningradsky station and the Sapsan; Hilton Leningradskaya is the hotel beside the St Petersburg trains; Novotel 'next to' (not above) the station",
+    "Four Seasons Moscow marked as independently run",
+    "Ritz-Carlton -> The Carlton, Moscow (formerly Ritz-Carlton)",
+    "Crowne Plaza WTC -> Plaza Garden Moscow WTC",
+    "Lotte 'large' pool -> indoor pool",
+    "Arbat 15-25 minutes' walk",
+    "'White Nights' removed from the Moscow booking-season bullet"
+   ]
+  },
+  "inbound_link_edits": {
+   "6661 moscow-with-kids": "Read also: best hotels in Moscow + Russia for Saudi travellers",
+   "6667 best-hotels-in-st-petersburg": "best hotels in Moscow",
+   "6659 best-time-to-visit-poland": "Read also: Poland for Saudi travellers",
+   "6644 best-hotels-in-warsaw-and-krakow": "visa tip: Poland for Saudi travellers",
+   "6551 kazakhstan-5-days-itinerary-en": "tips: Kazakhstan for Saudi travellers",
+   "6626 uzbekistan-islamic-heritage-guide": "Read also: Uzbekistan for Saudi travellers",
+   "6640 best-time-to-visit-kazakhstan": "visa FAQ: Kazakhstan for Saudi travellers"
+  },
+  "cache": "not purged (one purge at the end of the session)"
  }
 }
