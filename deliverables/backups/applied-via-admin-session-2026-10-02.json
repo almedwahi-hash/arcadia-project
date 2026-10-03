@@ -2352,5 +2352,62 @@
   "4_kazan_cathedral": "Internal Link Juicer: keyword 'كازان' added to the per-post keyword blacklist of Arabic post 507 (St Petersburg in 3 days), then the index was rebuilt. 'Kazan Cathedral' is no longer linked to the Kazan city guide.",
   "5_purge": "Cloudflare Purge Everything run again; dashboard confirmed. Check without cache-busting: all 548 sitemap URLs return 200 with one H1 and no leaked attribute text anywhere; sample pages show tonight's changes.",
   "rollback": "WordPress revisions for 2244, 2239, 2214, 2548; clear the blacklist field on post 507 and rebuild the ILJ index."
+ },
+ "cost_articles_owner_prices_2026-10-04": {
+  "source_of_prices": "Sent by the owner on 4 Oct 2026 (from the company's own pricing data, USD, including the company's margin, excluding flights). 7 days / 6 nights, 4-star hotels. China: the owner asked for an approximate figure or the article's existing one.",
+  "prices": {
+   "Kazakhstan (Almaty)": {
+    "two": "1,500-1,800",
+    "family_2+2": "1,820-2,600"
+   },
+   "Russia (Moscow)": {
+    "two": "2,030-2,730",
+    "family_2+2": "3,070-3,500"
+   },
+   "Uzbekistan (Tashkent, Samarkand, Bukhara; 2+2+2 nights)": {
+    "two": "890-1,200",
+    "family_2+2": "1,450-2,050"
+   },
+   "China (8 days, Beijing and Shanghai) - approximate": {
+    "two": "2,200-3,000 (my estimate, about 68% of the family figure, in line with the ratios of the other three)",
+    "family_2+2": "3,200-4,500 (the article's worked example)"
+   }
+  },
+  "included": "4-star hotel with breakfast, airport pick-up and drop-off, private car with driver, programme organisation; Arabic-speaking guide in Kazakhstan and Russia; business-class train between cities in Uzbekistan.",
+  "excluded": "International flights, lunch and dinner, personal expenses, visa if any, attraction tickets unless added.",
+  "arabic_posts_corrected": {
+   "4586": "headline 2,800-4,500 and the three-tier table removed; one price table (couple / family), includes and excludes lists, FAQ reworded",
+   "4592": "4,200-5,800 and total 7,200-11,000 removed; prices are for Moscow; the two-city worked example (2,500-3,600) replaced by a short section on adding St Petersburg",
+   "4593": "3,200-4,500 and 5,600-8,800 removed; worked example (1,900-2,700) removed",
+   "4595": "5,500-7,500 and 9,000-13,200 removed; approximate prices; the worked example totalling 3,200-4,500 kept as the breakdown"
+  },
+  "descriptions": "Yoast descriptions of 4586, 4592, 4593 rewritten with the starting prices.",
+  "english_posts_published": [
+   {
+    "id": 7033,
+    "translation_of": 4586,
+    "slug": "kazakhstan-trip-cost-2026"
+   },
+   {
+    "id": 7035,
+    "translation_of": 4592,
+    "slug": "russia-trip-cost-2026"
+   },
+   {
+    "id": 7037,
+    "translation_of": 4593,
+    "slug": "uzbekistan-trip-cost-2026"
+   },
+   {
+    "id": 7039,
+    "translation_of": 4595,
+    "slug": "china-trip-cost-2026"
+   }
+  ],
+  "english_only": "Uzbekistan: 'direct flights from Riyadh, Jeddah, Dubai or Doha' written as 'flights from the Gulf' (routes not confirmed by the owner).",
+  "old_english_kazakhstan_cost_post": "2515 (/en/the-cost-of-tourism-in-kazakhstan/) set to draft; Redirection rule 36 sends it (301) to /en/kazakhstan-trip-cost-2026/; 22 internal links in 19 English posts and pages now point to the new URL.",
+  "inbound_links_added": "A 'Budget' line linking to the new cost article appended to 12 English posts and pages (4 per country: Russia 6679, 2491, 6722, 6687; Uzbekistan 6683, 6642, 2576, 2679; China 6705, 6703, 6707, 6701).",
+  "verified": "Origin: the eight articles return 200, one H1, the new prices and none of the old ones, og:image, and reciprocal ar/en-US hreflang; the four English posts are in the sitemap; the old Kazakhstan URL returns 301 at the origin (Cloudflare still serves its cached copy until the cache expires or is purged).",
+  "notes_for_owner": "Arabic titles still say 'للعائلات' although the articles now also price couples; the Russia article describes Moscow and St Petersburg but the prices are for Moscow only; the family prices do not say whether they assume one family room or two."
  }
 }
