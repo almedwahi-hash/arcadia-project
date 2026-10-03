@@ -1626,10 +1626,19 @@
    "3925": 3951,
    "3927": 3952,
    "3929": 3953,
-   "3931": 3954
+   "3931": 3954,
+   "1444": 2577
   },
   "verified": "Each Arabic page now emits en-US hreflang to its own English post, and the English side points back (checked on the origin).",
-  "rollback": "Open the Arabic post, clear the English translation in the Languages box and update."
+  "rollback": "Open the Arabic post, clear the English translation in the Languages box and update.",
+  "page_pair_1444_2577": {
+   "applied": "2026-10-03, with the owner's approval",
+   "found": "The two published pages were each linked to the other's retired draft copy: Arabic page 1444 (/why-travel-to-uzbekistan/) -> English draft 2665 (slug why-choose-tourism-in-uzbekistan-en); English page 2577 (/en/why-choose-tourism-in-uzbekistan/) -> Arabic draft 596 (old-page-596). Because the linked counterparts were drafts, both live pages fell back to the home page in hreflang.",
+   "change": "English translation of page 1444 set from 2665 to 2577 in the Languages box (metabox-only save). Drafts 2665 and 596 are now unlinked; they were not edited or deleted.",
+   "verified": "Both live pages emit ar -> /why-travel-to-uzbekistan/ and en-US -> /en/why-choose-tourism-in-uzbekistan/. Content and Elementor data of 1444 and 2577 hashed before and after: identical, both still published.",
+   "rollback": "In the Languages box of page 1444 set the English translation back to 2665, and on page 2577 set the Arabic translation back to 596.",
+   "note_for_owner": "Drafts 2665 and 596 are leftover duplicates of these two pages and can be deleted."
+  }
  },
  "hreflang_fallback_finding": {
   "found": "2026-10-03",
