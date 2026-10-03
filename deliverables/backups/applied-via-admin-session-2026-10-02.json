@@ -1958,5 +1958,37 @@
   "verified": "All 17 old URLs return a single 301 to a 200 page (checked from outside, with and without a query string); none of the 16 remains in the sitemaps (548 URLs); sample pages carry no links to the old URLs.",
   "not_done": "2515 (/en/the-cost-of-tourism-in-kazakhstan/) waits for the Kazakhstan cost translation; 2539 (Odessa) is a Ukraine page and is left to the owner.",
   "rollback": "Disable or delete rules 19 to 35 in Tools > Redirection and set the 16 items back to Published."
+ },
+ "sitewide_visa_statement_sweep_2026-10-03": {
+  "why": "Older pages kept surfacing statements that contradict the verified entry rules (Russia: Saudi, UAE, Qatar, Oman visa-free; Kuwait, Bahrain e-visa. China: Saudi, Oman, Kuwait, Bahrain visa-free 30 days to 31 Dec 2026; UAE, Qatar exempt. Kazakhstan and Uzbekistan: Gulf citizens visa-free 30 days).",
+  "method": "Rendered content of all 552 published posts and pages was scanned for visa and card-payment sentences about Russia, Kazakhstan, Uzbekistan and China (Ukraine pages excluded). 31 sentences on 26 pages were flagged; after review, 20 pages needed a change. Exact-phrase replacements, each matched once.",
+  "pages_changed": {
+   "en": {
+    "3373 /en/moscow-guide-en/": "'You need a visa in advance' -> Gulf rule, other nationalities need a visa",
+    "2592, 2593, 2594 Russia 7/10/12-day programme pages": "'Russian visa (we help you obtain it)' -> 'where one is required (Saudi, UAE, Qatari and Omani citizens enter visa-free)'",
+    "2587 /en/offers-and-reservations-en/": "FAQ answer about visa help no longer implies Gulf citizens need Russian and Chinese visas",
+    "3948 /en/best-family-travel-destinations-arabs-en/": "comparison table: Russia 'e-visa' and China 'Varies' cells corrected; sentence about the four-day e-visa corrected",
+    "3658 /en/shanghai-guide-arab-traders-2026-en/": "'Most Arab nationals require a visa' now preceded by the Gulf exemption",
+    "3411 /en/best-china-trade-fairs-2026-en/": "visa advice now says Gulf citizens can attend visa-free for 30 days",
+    "3425 /en/china-visa-guide-2026-en/": "end date of the unilateral policy (31 December 2026) added",
+    "2561 /en/visa-to-russia/": "2026 notice added at the top of the visa service page",
+    "2494 /en/a-one-week-tourist-program-in-kazakhstan-.../": "garbled FAQ answer replaced with the Gulf rule and a link to the visa guide"
+   },
+   "ar": {
+    "3322 /moscow-guide/ (Elementor)": "tip card 'تحتاج تأشيرة مسبقة من السفارة الروسية' -> Gulf rule; other nationalities need a visa",
+    "828, 838, 839 Russia 7/10/12-day programme pages": "'التأشيرة الروسية (نساعدك في استخراجها)' -> 'إن لزمت (مواطنو السعودية والإمارات وقطر وعُمان معفون منها)'",
+    "580 /السياحة-في-روسيا/تأشيرة-روسيا/": "2026 notice added at the top of the visa service page",
+    "755 /kazakhstan-tourism-overview/ (Elementor)": "FAQ answer 'يعتمد على جنسيتك' -> Gulf citizens visa-free for 30 days",
+    "3416 /best-chinese-cities-guide/": "'تتطلب الصين تأشيرة دخول لمعظم الجنسيات، بما في ذلك الدول العربية' -> Gulf exemption, other Arab nationalities need a visa",
+    "3424 /china-visa-guide-2026/": "end date 31 December 2026 added",
+    "3410 /best-china-trade-fairs-2026/": "Gulf citizens can attend visa-free for 30 days",
+    "4827 /best-china-cities-arab-tourists-2026/": "'تأكد من الحصول على التأشيرة الصينية قبل السفر' -> Gulf exemption",
+    "4809 /winter-tourism-kazakhstan-2/": "FAQ answer about visa on arrival -> Gulf citizens visa-free for 30 days"
+   }
+  },
+  "elementor": "Pages 3322 and 755: the phrase was replaced in post content and in _elementor_data (JSON validated, length difference checked), then each page was re-saved from the Elementor editor (document/save/update) because Elementor served its cached render; both render with 12 widgets and the new text.",
+  "verified": "All 20 pages checked on the origin: new text present, old text gone, one H1.",
+  "reviewed_and_left": "Russia visa-free article 2214 (correct), Kazakhstan visa pages 2550/2498/2529 (general e-visa information for nationalities that need one), page 785 feature list, FAQ questions whose answers were already right, China apps and booking-mistakes posts (false positives).",
+  "previous_versions": "WordPress revisions of each post or page."
  }
 }
