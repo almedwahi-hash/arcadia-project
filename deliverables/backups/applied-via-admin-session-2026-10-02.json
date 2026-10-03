@@ -2314,5 +2314,24 @@
    "left": "The English Ukraine page /en/tourism-and-travel-to-ukraine/ shows the same kind of leak three times; Ukraine pages are untouchable."
   },
   "verified": "Origin: on the 12 posts every new text node is present and none of the old ones; a rescan of all 548 URLs finds leaked attribute text only on the Ukraine page, and one H1 everywhere."
+ },
+ "arabic_originals_of_long_posts_fact_fixes_2026-10-03": {
+  "why": "The facts corrected in the English versions of the twelve long posts were still wrong in their Arabic originals.",
+  "arabic": {
+   "2239 (St Petersburg) and 2244 (Red Square)": "'major credit cards are accepted' and 'ATMs are widely available' -> foreign-issued Visa and Mastercard cards and foreign cards in ATMs do not work in Russia; carry cash",
+   "2082, 2257, 2266, 2272, 2401 (Uzbekistan)": "the Uthman Quran is now described as displayed in the Centre of Islamic Civilisation next to the Hazrati Imam complex",
+   "2082": "'the two official languages are Uzbek and Russian' -> Uzbek is the official language, Russian is widely spoken",
+   "2248 (Warsaw Christmas markets)": "'Uber and Careem' -> 'Uber and Bolt' (Careem does not operate in Poland)",
+   "2233 (Gdansk)": "Amber Museum 'in the former prison tower' -> moved to the Great Mill in 2021"
+  },
+  "english": {
+   "2676": "Uber and Bolt",
+   "2669 and 2685": "official language",
+   "2671": "Amber Museum",
+   "2675": "ATMs do not accept foreign-issued cards"
+  },
+  "sweep": "All pages about Russia were rechecked for sentences saying cards or ATMs work: none left.",
+  "left_for_owner": "The Arabic post 2244 still calls Red Square 'الحي الأحمر' throughout (title and body); changing it is the owner's decision already listed.",
+  "verified": "Origin: new wording present and old wording gone on all 14 posts."
  }
 }
