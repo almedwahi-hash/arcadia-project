@@ -2068,5 +2068,25 @@
   "not_changed": "2588 (Find your trip) is an Elementor page whose script shows 'We found N software for you' ('software' should be 'programs'); left for the owner or a later Elementor edit. The Arabic original of 2675 is titled with the Arabic for 'the Red District in Moscow', which can read as 'red-light district'; changing an Arabic title is the owner's call.",
   "verified": "Origin check of the 15 URLs: new H1 present, old wording gone.",
   "previous_versions": "WordPress revisions."
+ },
+ "arabic_titles_spelling_2026-10-03": {
+  "what": "Titles and headings (h1-h3) of the 206 Arabic non-Ukraine posts and pages were scanned for common misspellings (ta marbuta written as ha, missing hamza). 14 pages needed a fix.",
+  "titles (H1; slugs and URLs unchanged)": {
+   "153": "السياحه في روسيا -> السياحة في روسيا",
+   "157": "السياحه في اوزبيكستان -> السياحة في أوزبكستان",
+   "161": "الباصات السياحيه والحافلات -> الباصات السياحية والحافلات",
+   "165": "العروض السياحيه المييزه -> العروض السياحية المميزة",
+   "512": "افضل -> أفضل (title and Yoast title)",
+   "578": "العروض السياحيه روسيا -> العروض السياحية روسيا",
+   "580": "الفيزا الى روسيا -> الفيزا إلى روسيا",
+   "583": "للعروض السياحيه -> للعروض السياحية",
+   "586": "العروض السياحيه بولندا -> العروض السياحية بولندا",
+   "588": "الفيزا او التاشيره الى بولندا -> الفيزا أو التأشيرة إلى بولندا",
+   "590 and 1441": "القروبات السياحيه الى بولندا -> القروبات السياحية إلى بولندا",
+   "593": "برامج سياحيه في بولندا -> برامج سياحية في بولندا"
+  },
+  "headings": "The same spellings were corrected inside h1-h4 headings of the non-Elementor pages 575, 578, 580, 583, 586, 588, 590, 593, 1441 (text nodes only; links and attributes untouched).",
+  "elementor": "Pages 153, 157 and 161 are Elementor pages: only the WordPress title was changed, Elementor data untouched.",
+  "verified": "Origin check of the 14 URLs: 200, one H1, no misspelt heading left."
  }
 }
