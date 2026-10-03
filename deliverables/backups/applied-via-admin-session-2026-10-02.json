@@ -2343,5 +2343,14 @@
    "584 (Poland)": "Woodstock Poland -> Pol'and'Rock (formerly Woodstock Poland)"
   },
   "verified": "Origin: new wording present, old wording gone on the four pages."
+ },
+ "owner_approved_items_2026-10-03_night": {
+  "approval": "The owner answered 'yes' to the list of five items that only needed a yes.",
+  "1_red_square": "Arabic post 2244: 'الحي الأحمر' (a mistranslation of Red Square that reads as 'red-light district') replaced by 'الساحة الحمراء' in the title and seven places in the text; link labels in posts 2239 and 2214 updated. New title: 'الساحة الحمراء في موسكو للسياح العرب: بوابتكم إلى قلب روسيا النابض'. Slug (/red-square-arab-tourists/) unchanged.",
+  "2_ukraine_page_leak": "English post 2548 (/en/tourism-and-travel-to-ukraine/): an image alt attribute contained a whole link tag, so attribute text showed on the page. The alt is now 'Ukraine'. Nothing else on the page was touched.",
+  "3_footer_links": "NOT done as described: the site has no footer menu (only the Arabic main menu 17 and the English Main Menu 270; the Astra footer holds a copyright line and social icons), and the two natural Arabic host pages (services 148, contact 146) are Elementor pages. Linking the six Arabic company pages needs a footer menu created in the theme customiser or an Elementor edit; left for the owner or a later decision.",
+  "4_kazan_cathedral": "Internal Link Juicer: keyword 'كازان' added to the per-post keyword blacklist of Arabic post 507 (St Petersburg in 3 days), then the index was rebuilt. 'Kazan Cathedral' is no longer linked to the Kazan city guide.",
+  "5_purge": "Cloudflare Purge Everything run again; dashboard confirmed. Check without cache-busting: all 548 sitemap URLs return 200 with one H1 and no leaked attribute text anywhere; sample pages show tonight's changes.",
+  "rollback": "WordPress revisions for 2244, 2239, 2214, 2548; clear the blacklist field on post 507 and rebuild the ILJ index."
  }
 }
