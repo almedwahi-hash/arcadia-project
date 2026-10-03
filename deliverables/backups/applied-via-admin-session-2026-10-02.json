@@ -2136,5 +2136,18 @@
   },
   "verified": "Origin check of the eight posts: every new text node present, none of the old ones left, one H1, HTTP 200.",
   "doubtful_facts": "Appended to deliverables/en-rewrites-2026-10-03/doubtful-facts-ar.md."
+ },
+ "english_retranslations_and_gulf_visa_fix_2026-10-03": {
+  "retranslated_posts": {
+   "2624": "from Arabic 959 (Poland for families)",
+   "2505": "from Arabic 521 (Zakopane)",
+   "2491": "from Arabic 507 (St Petersburg in 3 days)",
+   "2489": "from Arabic 505 (Poland travel guide)"
+  },
+  "why": "The Arabic originals had been rewritten and the English versions no longer matched them. Content, title, Yoast title and description of the existing English posts were replaced; slugs and URLs unchanged. Source files: deliverables/en-rewrites-2026-10-03/post_<ID>.html and post_meta.json. All internal links point to English pages and return 200. WhatsApp links carry no Arabic prefilled text.",
+  "russia_visa_statement": "Arabic posts 507, 517, 518, 2239, 2244 carried an entry note saying citizens of all six Gulf states enter Russia visa-free; the Arabic Russia hub page 153 (Elementor) said the same in its FAQ. Corrected to: Saudi Arabia, UAE, Qatar and Oman visa-free; Kuwait and Bahrain by e-visa. Rechecked on 3 Oct 2026: Russian sources still describe the Kuwait and Bahrain agreements as under negotiation. Page 153: phrase replaced in content and in _elementor_data (unicode-escaped, JSON validated), then saved from the Elementor editor.",
+  "poland_guide_505_and_2489": "Poland 'bigger than Germany' -> slightly smaller; direct LOT flights 'Riyadh and Jeddah (seasonal)' -> Riyadh; visa FAQ now says UAE citizens are exempt for short stays.",
+  "wizz_air": "Checked: Wizz Air Abu Dhabi ceased operations on 1 September 2025, so its removal from post 2683 stands.",
+  "verified": "Origin: page 153 shows the new sentence and not the old one, one H1; the six Arabic posts show the corrected wording; the four English posts return 200 with one H1, new titles and descriptions, hreflang pairs and no Arabic text in the body."
  }
 }
