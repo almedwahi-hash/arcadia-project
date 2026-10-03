@@ -777,5 +777,43 @@
    267
   ],
   "featured_media": 4610
+ },
+ {
+  "file": "moscow-parks-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 4816,
+   "url": "/moscow-parks-tourism/"
+  },
+  "slug": "moscow-parks-guide",
+  "title": "Moscow Parks Guide: Gorky Park and Zaryadye Park for Families",
+  "yoast_title": "Moscow Parks Guide: Gorky Park & Zaryadye | Arcadia",
+  "yoast_desc": "A family guide to Moscow's two best-known parks: what to do in Gorky Park and Zaryadye Park, how to get there, costs in roubles and a one-day plan.",
+  "focus_kw": "Moscow parks",
+  "categories": [
+   259,
+   267
+  ],
+  "featured_media": 4817
+ },
+ {
+  "file": "russia-weather-en.html",
+  "lang": "en",
+  "translation_of": {
+   "type": "posts",
+   "id": 4814,
+   "url": "/russia-weather-month-by-month/"
+  },
+  "slug": "russia-weather-guide",
+  "title": "Weather in Russia for Travellers: A Winter and Spring Guide",
+  "yoast_title": "Weather in Russia: Winter and Spring Guide | Arcadia",
+  "yoast_desc": "What to expect from the weather in Russia in winter and spring: temperatures, what to wear, what to see in each season, costs and practical tips.",
+  "focus_kw": "weather in Russia",
+  "categories": [
+   259,
+   267
+  ],
+  "featured_media": 4813
  }
 ]
