@@ -1788,5 +1788,67 @@
    ],
    "external": "63 external links answer 202/403 to bots (Booking, Tripadvisor, a Ukrainian ministry site); not broken for visitors"
   }
+ },
+ "english_batch_11": {
+  "published": "2026-10-03 (after the purge)",
+  "note": "The user calls this the tenth batch (eleventh English batch in this log). Two published, one held.",
+  "posts": [
+   {
+    "id": 6737,
+    "translation_of": 4816,
+    "slug": "moscow-parks-guide",
+    "featured_media": 4817
+   },
+   {
+    "id": 6739,
+    "translation_of": 4814,
+    "slug": "russia-weather-guide",
+    "featured_media": 4813
+   }
+  ],
+  "verified": "Both return 200 from the origin with one H1, Yoast title and description within limits, og:image, and ar/en-US hreflang in both directions.",
+  "facts_corrected_in_english_only": {
+   "moscow-parks": [
+    "visa: verified Gulf rule instead of 'obtain a visa before travel'",
+    "cards: foreign Visa/Mastercard do not work",
+    "park entry is free; paid activities up to 500 roubles",
+    "'water slides' in Gorky Park -> boat hire",
+    "'famous Russian coffee' -> coffee or Russian tea",
+    "repeated h1 dropped",
+    "title names the two parks the article actually covers"
+   ],
+   "russia-weather": [
+    "the Arabic title promises 'month by month' but the article covers only winter and spring; the English title, slug and headings say winter and spring",
+    "visa FAQ and tip rewritten to the verified Gulf rule (source: 'most nationalities need a visa')",
+    "spring 5-15 degrees -> from around freezing in March to 15-20 in May",
+    "cards do not work (source: some shops may not accept them)",
+    "English is limited outside hotels and main sights",
+    "repeated h1 dropped"
+   ]
+  },
+  "held": {
+   "file": "deliverables/articles-en-2026-10-02/kz-cost-en.html",
+   "translation_of": 4586,
+   "reason": "The text and first FAQ quote $2,800-4,500 for the local programme for a family of four for seven nights; the table's columns add up correctly but give $1,700-2,500 (economy), $2,500-3,800 (mid-range) and $3,900-6,200 (luxury), so no column matches the headline. The table includes food while the notes treat food as extra, and the article says seven nights for a seven-day itinerary (six nights)."
+  },
+  "inbound_link_edits": {
+   "6661 moscow-with-kids": "Moscow parks guide added to the extension paragraph",
+   "6722 best-time-to-visit-moscow": "two stand-in links replaced by the Russia weather guide"
+  }
+ },
+ "untranslated_arabic_posts_final": {
+  "as_of": "2026-10-03",
+  "held_for_owner_prices": {
+   "4595 china-family-trip-cost-2026": "8-day local programme $5,500-7,500 in the first table vs $3,200-4,500 in the worked example",
+   "4592 russia-family-trip-cost-2026": "7-day local programme $4,200-5,800 in the budget table vs $2,500-3,600 in the worked example",
+   "4593 uzbekistan-family-trip-cost-2026": "7-day local programme $3,200-4,500 in the budget table vs $1,900-2,700 in the worked example",
+   "4586 kazakhstan-family-trip-cost-2026": "headline $2,800-4,500 vs table $2,500-3,800 (mid-range)"
+  },
+  "not_translated_duplicate_topics": {
+   "4827 best-china-cities-arab-tourists-2026": "Arabic already has /china-cities/ and /best-chinese-cities-guide/, both with English versions; a third English 'best cities in China' page would compete with them. Recommended: merge into one of the two and 301-redirect.",
+   "4824 vpn-china-best-options-2026": "Arabic already has /vpn-china-guide-2026/ with an English version. Recommended: merge and 301-redirect.",
+   "4809 winter-tourism-kazakhstan-2": "Duplicate of /winter-tourism-kazakhstan/ (2242), which has an English version. Recommended: 301-redirect to 2242."
+  },
+  "orphan_english_cost_pages": "English posts 2515 (/en/the-cost-of-tourism-in-kazakhstan/) and 2503 (/en/the-cost-of-tourism-in-russia-with-arcadia-company-surprising-prices/) have no Arabic counterpart and quote different, older figures. Once the Arabic cost articles are corrected and translated, redirect these two to the new translations."
  }
 }
