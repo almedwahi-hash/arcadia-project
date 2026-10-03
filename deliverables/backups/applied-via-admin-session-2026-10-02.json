@@ -2029,5 +2029,22 @@
   "verified": "Origin check of the 21 URLs: zero images without alt inside the main content, one H1 each. Note: the URL of 2560 redirects to the English Moscow guide (existing behaviour, already on the owner's list), so its changes are not publicly visible.",
   "left": "Ukraine pages and posts (about 210 images without alt) are untouchable by the owner's standing instruction.",
   "previous_versions": "WordPress revisions of each page."
+ },
+ "external_links_and_contact_numbers_2026-10-03": {
+  "scope": "All 632 distinct external links in the content of the 552 published posts and pages. 272 are Google Maps searches and about 640 link occurrences are WhatsApp links; the other 179 were requested.",
+  "result": "Outside Ukraine pages only one link is really dead. 403 answers (TripAdvisor, government sites) are bot blocks, and Russian sites (visit-petersburg.ru, kreml.ru, mos.ru, tretyakovgallery.ru, arabic.rt.com, pineriver.ru) could not be reached from this network at all, so their state is unknown, not broken.",
+  "fixed": {
+   "512 (Arabic post, 6 criteria for choosing a travel company)": "a malformed anchor (href with an empty WhatsApp phone and no closing quote, swallowing the start of the CTA block) replaced by a working link to the main WhatsApp number",
+   "2470 /en/contact-us/": "Polish number shown as '+48 576 677 6035' with wa.me/485766776035 (ten digits, not a valid Polish number) corrected to +48 576 776 035 / wa.me/48576776035, the number used on the Poland programme pages 593 and 2574 and the Poland guides. Owner to confirm.",
+   "2251 and 2677 (Warsaw halal restaurants, AR and EN)": "dead Wolt link for Turan restaurant (404) removed; the text about the restaurant is kept"
+  },
+  "whatsapp_numbers_in_content": {
+   "77064007561": "main number, about 509 occurrences",
+   "8618923166757": "China, about 122",
+   "wa.me/message/WQRGE44EP4FNH1": "8 Russia service pages (short link, not checked for which number it opens)"
+  },
+  "for_owner": "Confirm the Polish number. Confirm that Turan (Bialej Floty 2/U18, Warsaw) is still open; its Wolt page is gone. Confirm the wa.me/message short link on the Russia pages still opens the right account.",
+  "meta_length_audit": "From the last crawl: no indexable page has a title under 25 or a description under 70 characters; the only titles over 65 characters are Ukraine real-estate pages (untouchable) and the home page (owner's snippet). Nothing changed.",
+  "verified": "Origin check: post 512 has a working WhatsApp link and no malformed anchor; /en/contact-us/ shows the corrected number; the Wolt link is gone from both restaurant posts."
  }
 }
