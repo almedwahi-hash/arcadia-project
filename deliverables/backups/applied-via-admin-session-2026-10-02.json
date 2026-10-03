@@ -2256,5 +2256,24 @@
   },
   "og_image": "Eleven non-Ukraine pages have no og:image (blog index pages, privacy, partners, recommendations, buses, Russia winter page); needs a featured image or a site-wide default in Yoast, left for the owner.",
   "note": "Made after the purge; visible to visitors within four hours."
+ },
+ "doubtful_facts_corrected_2026-10-03": {
+  "scope": "The clearest items from deliverables/en-rewrites-2026-10-03/doubtful-facts-ar.md, corrected from general knowledge (not from the owner).",
+  "english": {
+   "2557": "Hermitage 'largest and oldest museum in the world' -> 'one of the largest and oldest'; 'all transactions in Kazan by Sberbank card only' -> foreign cards do not work, carry cash",
+   "2558": "'23 UNESCO sites' -> 'more than 30'; 'completely safe' -> 'main tourist cities are generally safe'; invented UNESCO 'top 100' claim about Nizhny Novgorod removed",
+   "2559": "'18 UNESCO sites' -> 'more than 30'",
+   "2556": "'no need to learn foreign words, you will be understood everywhere' -> English is limited outside tourist areas; an Arabic-speaking guide helps",
+   "2586": "Russian 'second official language' -> 'official status alongside Kazakh'; Almaty 'surrounded by mountains on all sides' -> mountains to the south; Ritz-Carlton and Porsche no longer listed as brands to buy",
+   "2552": "Baiterek 97 m -> 105 m with the deck at 97 m; Almaty 'more than 1.8 million, one of the largest' -> 'more than 2 million, the largest city'",
+   "2565": "'more than 90% Christian' -> about 71% Catholic in the 2021 census; 'most Poles are fluent in English' softened; Woodstock Poland -> Pol'and'Rock",
+   "2566": "St Mary's completed 1502 (was 1500); 'Polonia Park' (does not exist) -> Planty Park"
+  },
+  "arabic": {
+   "584": "religion figure, as in 2565",
+   "571": "Almaty population and Baiterek height, as in 2552"
+  },
+  "not_changed": "Items that need the owner's knowledge or a rewrite stay in the doubtful-facts file: the Almaty winter page, early-booking claims, Poland programme e-mails, prices and durations.",
+  "verified": "Origin: new wording present and old wording gone on all ten pages. Made after the purge."
  }
 }
