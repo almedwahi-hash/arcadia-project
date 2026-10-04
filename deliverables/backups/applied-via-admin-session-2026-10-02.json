@@ -2497,5 +2497,11 @@
   "purge": "Cloudflare Purge Everything run after the change.",
   "verified": "As visitors see it: 551 sitemap URLs, all 200 with one H1; no sentence left that ties Kuwait or Bahrain to the Russian e-visa; 40 pages carry the new wording.",
   "rollback": "WordPress revisions of each page. If the exemption for Kuwait and Bahrain turns out not to be in force, restore the previous wording (four exempt nationalities, e-visa for Kuwait and Bahrain)."
+ },
+ "home_og_title_2026-10-04": {
+  "what": "The home page share title (og:title) came from the Yoast title stored on the front page (page 18), not from the snippet. Set to the same text as the new <title>: 'أركاديا السياحية | رحلات كازاخستان وروسيا وبولندا | مرشد عربي'.",
+  "previous": "أركاديا السياحية | رحلات كازاخستان روسيا بولندا | مرشد عربي",
+  "verified": "Origin: <title> and og:title are identical; one H1; no PHP error.",
+  "cache": "Not purged after this change; visitors get it when the cached home page expires (up to four hours) or after a purge."
  }
 }
