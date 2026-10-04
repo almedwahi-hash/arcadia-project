@@ -1,0 +1,19 @@
+﻿الرابط,الحالة الآن,الحكم,التحويل المقترح
+https://www.arcadia-tour.com/*,301 → https://arcadia-tour.com/*,يعمل ✅,
+https://arcadia-tour.com/t-en/,404 ❌,مطلوب,/en/home/
+https://arcadia-tour.com/t-en/<slug-عربي>,404 ❌,مطلوب,/<slug-عربي> ثم تلتقطه قاعدة SITE123 العربية الحالية
+https://arcadia-tour.com/t-fr-fr,404 ❌,مطلوب,/
+https://arcadia-tour.com/t-fr-fr/<slug-عربي>?c=...,404 ❌,مطلوب,/<slug-عربي> (تجاهل ?c=)
+"https://arcadia-tour.com/t-ar/ , /t-ru/",404 ❌,مطلوب,/
+https://arcadia-tour.com/t-*/العروض-والحجوزات/<عقار-أو-فندق-قديم>,404 ❌,اختياري,410 Gone (إعلانات عقارات/فنادق قديمة لا نريد فهرستها)
+https://arcadia-tour.com/المدونة/<slug>,301 ✅,يعمل,
+https://arcadia-tour.com/العروض-والحجوزات,301 → /offers-bookings/ ✅,يعمل,
+https://arcadia-tour.com/السياحة-في-روسيا (بدون /),301 ✅,يعمل,
+https://arcadia-tour.com/اخبار-ومقالات,301×2 → /المدونة/ (سلسلة تحويلين),تحسين,اجعلها تحويلاً واحداً
+https://arcadia-tour.com/أخبار-أوكرانيا,404 ❌,مطلوب,/category/ukraine/ أو /tourism-in-ukraine/
+https://arcadia-tour.com/السياحه-في-اوكرانيا (إملاء قديم),404 ❌ (مرتبط من 9 صفحات داخلية),مطلوب,/السياحة-في-أوكرانيا-وأفضل-مدن-تستحق-ال/
+https://arcadia-tour.com/?p=528,404 ❌ (31 صفحة),مطلوب,/almaty-guide/ أو المقال المقابل
+https://arcadia-tour.com/?page_id=596,404 ❌ (13 صفحة),مطلوب,/why-travel-to-uzbekistan/
+https://arcadia-tour.com/kazakhstan-family-children-trip/,404 ❌ (9 صفحات),مطلوب,/kazakhstan-family-trip-cost-2026/
+https://arcadia-tour.com/kolsai-lake-day-trip/,404 ❌ (5 صفحات),مطلوب,/almaty-guide/
+https://arcadia-tour.com/mountain-resorts-south-poland/,404 ❌ (5 صفحات),مطلوب,/poland-guide/ أو /en/cottage-tourism-in-zakopane/
