@@ -2441,5 +2441,61 @@
   "verified": "Origin: all 11 pages print og:image; the image is not displayed inside any of them; one H1 each. The China page shows the new title.",
   "left": "Home title (PHP snippet 23, owner). Category archive pages have no share image (normal for archives). Russia visa wording for Kuwait and Bahrain waits for the owner's source or explicit decision.",
   "rollback": "Remove the featured image from the 11 pages; restore the previous Yoast title on 3477 ('Tourism in China 2026: Tours, Hotels, Arab Guides | Arcadia')."
+ },
+ "russia_visa_all_gulf_visa_free_owner_decision_2026-10-04": {
+  "decision": "The owner, who operates Russia tours, stated that citizens of all six Gulf states now enter Russia visa-free and instructed the change 'on his responsibility'. Public sources found on 4 Oct 2026 (Interfax, Izvestia, Parlamentskaya Gazeta, May-June 2026; Wego 2026 guide) still describe the Kuwait and Bahrain agreements as being prepared, with the e-visa required. The site now follows the owner's statement.",
+  "changed": "44 pages and posts in both languages: every sentence saying that Kuwaiti and Bahraini citizens use the Russian e-visa was removed, and the lists 'Saudi Arabia, the UAE, Qatar and Oman' became 'the six Gulf states' / 'دول الخليج الست'. Main visa articles 2214 (AR) and 2670 (EN): Kuwait and Bahrain listed as visa-free, with a line advising travellers to confirm the rules for their nationality with the airline before booking. Posts 524 and 2214: the e-visa section retitled for non-exempt nationalities. Cost articles 4592 and 7035: the e-visa price line replaced. Comparison table in 3948: Russia 'None'.",
+  "ids": {
+   "posts": [
+    7035,
+    6739,
+    6737,
+    6718,
+    6665,
+    6663,
+    6661,
+    6624,
+    3954,
+    3948,
+    3889,
+    2670,
+    2491,
+    5054,
+    5018,
+    5017,
+    4814,
+    4816,
+    4592,
+    4577,
+    2244,
+    2239,
+    2214,
+    965,
+    524,
+    523,
+    518,
+    517,
+    507
+   ],
+   "pages": [
+    2561,
+    580,
+    2473,
+    2468,
+    828,
+    838,
+    839,
+    2592,
+    2593,
+    2594,
+    3373,
+    153,
+    3322
+   ]
+  },
+  "elementor": "Pages 153 and 3322: content and _elementor_data updated (JSON re-encoded and validated), then saved from the Elementor editor.",
+  "purge": "Cloudflare Purge Everything run after the change.",
+  "verified": "As visitors see it: 551 sitemap URLs, all 200 with one H1; no sentence left that ties Kuwait or Bahrain to the Russian e-visa; 40 pages carry the new wording.",
+  "rollback": "WordPress revisions of each page. If the exemption for Kuwait and Bahrain turns out not to be in force, restore the previous wording (four exempt nationalities, e-visa for Kuwait and Bahrain)."
  }
 }
