@@ -2420,5 +2420,18 @@
   "status": "optional, not applied (PHP snippets are edited by the owner)",
   "code": "add_filter( 'pll_rel_hreflang_attributes', function ( $h ) { if ( isset( $h['ar'] ) ) { $h['x-default'] = $h['ar']; } return $h; } );",
   "effect": "Adds hreflang=x-default pointing to the Arabic version on pages that have translations. Small benefit; safe to skip."
+ },
+ "share_images_and_titles_2026-10-04_incomplete": {
+  "requested": "Share image (og:image) for the 11 pages without one; shorten the home title and the English China page title; correct the Russia visa statement for Kuwait and Bahrain; confirm the China visa policy date.",
+  "share_images": {
+   "done": "Featured image 450 (the home page share image, 612x408) set on pages 169, 2481, 2477, 159, 161, 167, with the Astra option that hides the featured image on the page. The image is not shown on the pages; it appears in the Schema markup only.",
+   "problem": "Yoast still prints no og:image for these six pages, so this attachment is apparently not accepted as a share image. A different, recently uploaded image is needed.",
+   "not_done": "Pages 2027, 2476, 2480, 2668, 581; and switching the six pages to a working image.",
+   "why": "The WordPress admin session in the owner's Chrome expired (login page). The owner has to sign in again; I do not enter passwords."
+  },
+  "china_english_title": "The stored Yoast title is 59 characters ('... Arab Guides | Arcadia') but a snippet replaces 'Arab Guides' with 'English-speaking guides' on English pages, giving 71. Planned new title: 'Tourism in China 2026: Tours, Hotels and Guides | Arcadia' (55). Not applied yet (session expired).",
+  "home_title": "72 characters, set in PHP snippet 23, which I cannot edit. Suggested replacement line: return 'أركاديا السياحية | رحلات كازاخستان وروسيا وبولندا | مرشد عربي'; (58 characters; the phone number stays in the description).",
+  "china_visa_check": "Rechecked on 4 Oct 2026: China's unilateral visa-free entry (30 days) for Saudi Arabia, Oman, Kuwait and Bahrain is valid until 31 December 2026 (extension notice of November 2025 on Chinese embassy sites); no further extension announced. The site's wording is correct.",
+  "russia_visa_kuwait_bahrain": "The owner says all Gulf citizens now enter Russia visa-free. Rechecked on 4 Oct 2026 in Russian and Arabic sources: the Saudi agreement entered into force on 11 May 2026; for Kuwait and Bahrain the sources (Interfax, Izvestia, Parlamentskaya Gazeta, May-June 2026; Wego 2026 guide) describe the agreements as being prepared, with the e-visa still required. No source found saying they are in force. Not changed; the owner was asked for a source or an explicit decision."
  }
 }
