@@ -2433,5 +2433,13 @@
   "home_title": "72 characters, set in PHP snippet 23, which I cannot edit. Suggested replacement line: return 'أركاديا السياحية | رحلات كازاخستان وروسيا وبولندا | مرشد عربي'; (58 characters; the phone number stays in the description).",
   "china_visa_check": "Rechecked on 4 Oct 2026: China's unilateral visa-free entry (30 days) for Saudi Arabia, Oman, Kuwait and Bahrain is valid until 31 December 2026 (extension notice of November 2025 on Chinese embassy sites); no further extension announced. The site's wording is correct.",
   "russia_visa_kuwait_bahrain": "The owner says all Gulf citizens now enter Russia visa-free. Rechecked on 4 Oct 2026 in Russian and Arabic sources: the Saudi agreement entered into force on 11 May 2026; for Kuwait and Bahrain the sources (Interfax, Izvestia, Parlamentskaya Gazeta, May-June 2026; Wego 2026 guide) describe the agreements as being prepared, with the e-visa still required. No source found saying they are in force. Not changed; the owner was asked for a source or an explicit decision."
+ },
+ "share_images_and_titles_2026-10-04_completed": {
+  "after": "The owner signed in to wp-admin again.",
+  "share_images": "Featured image set on the 11 pages, with the Astra option that hides it on the page: attachment 5914 (autumn mountain lake in Kazakhstan, 870x486) on 169, 2481, 2477, 159, 161, 167, 2027, 2476, 2480, 2668; attachment 6018 (frost-covered trees, 1280x853) on the Russia winter page 581. The first choice (attachment 450) was not accepted by Yoast as a share image and was replaced.",
+  "china_english_title": "Yoast title of page 3477 -> 'Tourism in China 2026: Tours, Hotels and Guides | Arcadia' (55 characters, was 71 after the snippet's replacement).",
+  "verified": "Origin: all 11 pages print og:image; the image is not displayed inside any of them; one H1 each. The China page shows the new title.",
+  "left": "Home title (PHP snippet 23, owner). Category archive pages have no share image (normal for archives). Russia visa wording for Kuwait and Bahrain waits for the owner's source or explicit decision.",
+  "rollback": "Remove the featured image from the 11 pages; restore the previous Yoast title on 3477 ('Tourism in China 2026: Tours, Hotels, Arab Guides | Arcadia')."
  }
 }
