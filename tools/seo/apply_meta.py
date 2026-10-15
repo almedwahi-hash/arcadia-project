@@ -51,6 +51,8 @@ for it in plan:
         ok = all(got.get(k) == v for k, v in meta.items()) and (
             "featured_media" not in payload or j.get("featured_media") == payload["featured_media"])
         print("OK " if ok else "NOT-SAVED", it["type"], it["id"], j.get("link"))
+        # Yoast builds og:image before the thumbnail is stored; a second save refreshes it.
+        if "featured_media" in payload: S.post(url, json={"featured_media": payload["featured_media"]}, timeout=120)
     else:
         print("FAIL", it["type"], it["id"], r.status_code, r.text[:200])
     time.sleep(1)
