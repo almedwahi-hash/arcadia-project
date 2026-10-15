@@ -28,3 +28,9 @@
 
 ## 7. ملاحظة
 حملة منفصلة عن حملة السياحة العائلية؛ لا خلط للكلمات المفتاحية؛ ميزانية صغيرة في البداية ثم رفعها بحسب جودة الطلبات.
+
+## 8. مقالات داعمة (صفحات محتوى يمكن استخدامها في الإعلانات الموجّهة بموضوع محدد)
+- رحلة حوافز في ألماتي: `/almaty-incentive-trip-planning-guide/` · `/en/plan-incentive-trip-almaty/`
+- مؤتمر شركة في طشقند: `/tashkent-corporate-conference-guide/` · `/en/corporate-conference-tashkent/`
+- بناء الفريق في كازاخستان: `/kazakhstan-team-building-activities/` · `/en/team-building-kazakhstan/`
+- مهمة تجارية إلى معرض كانتون: `/canton-fair-business-mission-guide/` · `/en/canton-fair-business-mission/`
