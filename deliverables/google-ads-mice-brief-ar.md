@@ -34,3 +34,5 @@
 - مؤتمر شركة في طشقند: `/tashkent-corporate-conference-guide/` · `/en/corporate-conference-tashkent/`
 - بناء الفريق في كازاخستان: `/kazakhstan-team-building-activities/` · `/en/team-building-kazakhstan/`
 - مهمة تجارية إلى معرض كانتون: `/canton-fair-business-mission-guide/` · `/en/canton-fair-business-mission/`
+- مؤتمر شركة في موسكو: `/moscow-corporate-conference-guide/` · `/en/corporate-conference-moscow/`
+- رحلة حوافز في بولندا: `/poland-corporate-incentive-guide/` · `/en/corporate-incentive-poland/`
