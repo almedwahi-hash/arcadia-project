@@ -1,0 +1,50 @@
+{
+ "hub": {
+  "slug": "visa-free-travel",
+  "parent": 0,
+  "title": "Visa-Free Travel to Kazakhstan, Uzbekistan, Russia, Poland and China: Who Enters Without a Visa in 2026",
+  "yoast_title": "Visa-Free Travel to Kazakhstan, Uzbekistan & China 2026",
+  "yoast_desc": "Which passports enter Kazakhstan, Uzbekistan, China, Poland and Russia visa-free in 2026: Malaysia, Korea, Singapore, Australia, UK and more. Tours by Arcadia.",
+  "focuskw": "visa-free travel Kazakhstan"
+ },
+ "my": {
+  "slug": "malaysia",
+  "parent": "hub",
+  "title": "Visa-Free Holidays for Malaysian Travellers: Kazakhstan, Uzbekistan, China and Poland Without a Visa 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for Malaysians: Visa-Free 2026",
+  "yoast_desc": "Malaysian passport holders enter Kazakhstan, Uzbekistan, China and Poland visa-free. Direct AirAsia X flights, halal food, itineraries and hotels by Arcadia.",
+  "focuskw": "Kazakhstan visa-free for Malaysians"
+ },
+ "kr": {
+  "slug": "south-korea",
+  "parent": "hub",
+  "title": "Visa-Free Travel for South Korean Citizens: Kazakhstan, Uzbekistan, Russia, Poland and China Without a Visa 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for Koreans: Visa-Free 2026",
+  "yoast_desc": "Korean passport holders enter Kazakhstan, Uzbekistan, Russia, Poland and China visa-free. Nonstop flights from Seoul, Koryo-saram heritage and itineraries.",
+  "focuskw": "Kazakhstan visa-free for Koreans"
+ },
+ "sg": {
+  "slug": "singapore",
+  "parent": "hub",
+  "title": "Visa-Free Trips for Singaporeans: Kazakhstan, Uzbekistan, China and Poland Without a Visa 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for Singaporeans: Visa-Free",
+  "yoast_desc": "Singapore passport holders enter Kazakhstan, Uzbekistan, China and Poland visa-free. Flights via KL or Seoul, short breaks, halal options and hotels.",
+  "focuskw": "Kazakhstan visa-free for Singaporeans"
+ },
+ "au": {
+  "slug": "australia-new-zealand",
+  "parent": "hub",
+  "title": "Visa-Free Travel for Australians and New Zealanders: Kazakhstan, Uzbekistan, China and Poland Without a Visa 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for Australians: Visa-Free 2026",
+  "yoast_desc": "Australian and New Zealand passports enter Kazakhstan, Uzbekistan, China and Poland visa-free in 2026. Silk Road and mountain itineraries and hotels.",
+  "focuskw": "Kazakhstan visa-free for Australians"
+ },
+ "uk": {
+  "slug": "united-kingdom",
+  "parent": "hub",
+  "title": "Visa-Free Travel for UK Citizens: Kazakhstan, Uzbekistan and Poland Without a Visa, Plus China Transit 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for UK Travellers: Visa-Free",
+  "yoast_desc": "British passport holders enter Kazakhstan and Uzbekistan visa-free for 30 days, with direct London flights to Almaty and Tashkent. Itineraries and hotels.",
+  "focuskw": "Kazakhstan visa-free for UK citizens"
+ }
+}
