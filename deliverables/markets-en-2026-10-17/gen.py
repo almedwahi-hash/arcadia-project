@@ -25,6 +25,7 @@ L = {
  'my':'https://arcadia-tour.com/en/visa-free-travel/malaysia/','kr':'https://arcadia-tour.com/en/visa-free-travel/south-korea/','sg':'https://arcadia-tour.com/en/visa-free-travel/singapore/',
  'au':'https://arcadia-tour.com/en/visa-free-travel/australia-new-zealand/','uk':'https://arcadia-tour.com/en/visa-free-travel/united-kingdom/',
 }
+L['jp']='https://arcadia-tour.com/en/visa-free-travel/japan/'; L['id']='https://arcadia-tour.com/en/visa-free-travel/indonesia/'
 GREEN='#168b52'; NAVY='#17324d'
 def cta(title, text, wa_text, mail_subj, top=False):
     m = "margin:22px 0" if top else "margin:30px 0 10px"
@@ -56,12 +57,12 @@ hub_rows = [
  ("Malaysia", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days", "Russia: visa required (e-visa online). <a href='"+L['my']+"'>Guide for Malaysian travellers</a>"),
  ("South Korea", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days · Russia 60 days", "The only market on this list that is visa-free for all five destinations. <a href='"+L['kr']+"'>Guide for Korean travellers</a>"),
  ("Singapore", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days", "Russia: visa required (e-visa online). <a href='"+L['sg']+"'>Guide for Singaporean travellers</a>"),
- ("Japan", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days", "Russia: visa required (e-visa online)."),
+ ("Japan", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days", "Russia: visa required (e-visa online). <a href='"+L['jp']+"'>Guide for Japanese travellers</a>"),
  ("Australia and New Zealand", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days", "Russia: visa required. <a href='"+L['au']+"'>Guide for Australian and New Zealand travellers</a>"),
  ("United Kingdom", "Kazakhstan 30 days · Uzbekistan 30 days · Poland 90 days", "China: 240-hour visa-free transit only; Russia: visa required. <a href='"+L['uk']+"'>Guide for UK travellers</a>"),
  ("United States and Canada", "Kazakhstan 30 days · Poland 90 days", "Uzbekistan: visa-free only from age 55 (US), 30 days (Canada); China: 240-hour transit only; Russia: visa required."),
  ("Thailand", "Kazakhstan 30 days · China 30 days · Russia 30 days", "Uzbekistan and Poland: visa required."),
- ("Indonesia", "Kazakhstan 30 days · Uzbekistan 30 days", "China: 240-hour transit only; Poland and Russia: visa required."),
+ ("Indonesia", "Kazakhstan 30 days · Uzbekistan 30 days", "China: 240-hour transit only; Poland and Russia: visa required. <a href='"+L['id']+"'>Guide for Indonesian travellers</a>"),
  ("Philippines", "Kazakhstan 30 days", "Uzbekistan, China, Poland and Russia: visa required."),
  ("Vietnam", "Kazakhstan 30 days", "Uzbekistan: visa-free only from age 55; China, Poland and Russia: visa required (Russia e-visa online)."),
  ("UAE", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days · Russia 90 days", "Visa-free for all five destinations."),
@@ -96,6 +97,8 @@ pages['hub'] = dict(
  f'<a href="{L["sg"]}"><strong>Singapore</strong></a>: one-stop connections via Kuala Lumpur or Seoul, a strong passport for the whole region, and short-break itineraries.',
  f'<a href="{L["au"]}"><strong>Australia and New Zealand</strong></a>: Silk Road and mountain itineraries of two to three weeks for long-haul travellers.',
  f'<a href="{L["uk"]}"><strong>United Kingdom</strong></a>: direct London flights to Almaty and Tashkent, and 30-day visa-free entry to both.',
+ f'<a href="{L["jp"]}"><strong>Japan</strong></a>: nonstop Tokyo to Tashkent flights and visa-free access to Kazakhstan, Uzbekistan, China and Poland.',
+ f'<a href="{L["id"]}"><strong>Indonesia</strong></a>: visa-free Kazakhstan and Uzbekistan with halal food, Islamic heritage and a single connection via Kuala Lumpur.',
 ])}
   <h2>What stays the same wherever you come from</h2>
 {ul([
@@ -428,6 +431,120 @@ pages['uk'] = dict(
 {note()}
 {cta("Plan your trip from the UK", "Private tours, family holidays, walking and photography trips and corporate groups. Hotels, transport and guides under one contract; prices on request.", "Hello Arcadia, we are travelling from the UK and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20the%20UK")}
 </article>''')
+
+
+# ---------------- JAPAN ----------------
+pages['jp'] = dict(
+ slug='japan', parent='hub',
+ title='Visa-Free Travel for Japanese Citizens: Kazakhstan, Uzbekistan, China and Poland Without a Visa 2026',
+ yoast_title='Kazakhstan & Uzbekistan for Japanese: Visa-Free 2026',
+ yoast_desc='Japanese passport holders enter Kazakhstan, Uzbekistan, China and Poland visa-free in 2026. Flights, Silk Road and mountain itineraries and hotels by Arcadia.',
+ focuskw='Kazakhstan visa-free for Japanese',
+ body=f"""<article class="arcadia-market-jp-2026" lang="en" dir="ltr">
+  <p>Holders of a <strong>Japanese passport</strong> can visit most of Arcadia's destinations without a visa: <strong>30 days in Kazakhstan</strong>, <strong>30 days in Uzbekistan</strong>, <strong>30 days in China</strong> under the unilateral exemption restored in November 2024 and extended to the end of 2026, and <strong>90 days in Poland</strong> and the Schengen area. Only Russia asks Japanese citizens for an e-visa. Central Asia has long attracted travellers from Japan drawn to the Silk Road: the Registan in Samarkand, the mud-brick lanes of Bukhara and Khiva, and the Tian Shan mountains above Almaty. Arcadia, a destination management company based in Almaty, plans and runs private tours, small groups and corporate trips with licensed English-speaking guides, and can arrange Japanese-speaking guides in Uzbekistan on request.</p>
+  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> no visa for Kazakhstan, Uzbekistan, China or Poland. Nonstop Tokyo to Tashkent flights with Uzbekistan Airways; Almaty via Seoul, Beijing or Istanbul. Best months: April to June and September to October; December to March for skiing above Almaty.</aside>
+{cta("Get a proposal for your trip from Japan", "Send your dates, number of travellers and interests. We reply within 48 hours with a day-by-day programme and quote.", "Hello Arcadia, we are travelling from Japan and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Japan", top=True)}
+  <h2>Where Japanese citizens travel without a visa</h2>
+{table([
+ ("Kazakhstan","Yes, 30 days","Visa-free for tourism and business; maximum 90 days in any 180-day period."),
+ ("Uzbekistan","Yes, 30 days","Visa-free for stays of up to 30 days."),
+ ("China","Yes, 30 days","Unilateral visa-free policy for Japanese citizens, currently valid until 31 December 2026, for tourism, business, family visits, exchange and transit."),
+ ("Poland (Schengen)","Yes, 90 days","90 days in any 180-day period. ETIAS online authorisation expected from late 2026."),
+ ("Russia","No, e-visa","Japanese citizens apply online for a 16-day e-visa. We supply the hotel confirmation but do not apply on your behalf."),
+])}
+  <h2>Flights from Japan</h2>
+{ul([
+ '<strong>Tokyo to Tashkent:</strong> Uzbekistan Airways nonstop from Narita, about nine hours; also via Seoul or Istanbul.',
+ '<strong>Tokyo or Osaka to Almaty and Astana:</strong> one stop via Seoul (nonstop Korea to Kazakhstan flights), Beijing, Istanbul or Dubai; eleven to thirteen hours in total.',
+ '<strong>To China:</strong> many daily nonstop flights from Tokyo, Osaka, Nagoya and Fukuoka to Beijing, Shanghai and Guangzhou.',
+ '<strong>To Poland:</strong> LOT Polish Airlines nonstop from Tokyo Narita to Warsaw.',
+ '<strong>Between destinations:</strong> Almaty to Tashkent under two hours; Tashkent to Samarkand two hours by high-speed train.',
+])}
+  <h2>Suggested itineraries</h2>
+{ul([
+ f'<strong>Silk Road classic, 7 to 8 nights:</strong> Tashkent, Samarkand, Bukhara and Khiva by train, with Registan Square, Shah-i-Zinda, the Ark fortress and Itchan Kala; see <a href="{L["uz_things"]}">best things to do in Uzbekistan</a>.',
+ f'<strong>Almaty mountains, 4 to 5 nights:</strong> Medeu and Shymbulak, Big Almaty Lake, Charyn Canyon and the Kolsai Lakes; based on <a href="{L["almaty3"]}">Almaty in 3 days</a>.',
+ f'<strong>Kazakhstan and Uzbekistan, 10 to 12 nights:</strong> our <a href="{L["kzuz10"]}">combined itinerary</a> flying into Almaty and out of Tashkent.',
+ f'<strong>Astana and Burabay, 3 nights:</strong> <a href="{L["astana2"]}">Astana in 2 days</a> plus the lakes of <a href="{L["burabay"]}">Burabay</a>.',
+ f'<strong>Poland, 5 nights:</strong> <a href="{L["warsaw3"]}">Warsaw in 3 days</a> plus Kraków and Zakopane.',
+])}
+  {hotels_par}
+  <h2>Practical notes for Japanese travellers</h2>
+{ul([
+ '<strong>Time zone:</strong> Almaty and Tashkent are four hours behind Japan.',
+ '<strong>Money:</strong> cards work in cities; carry US dollars to exchange. Cash is useful at bazaars.',
+ '<strong>Language:</strong> Russian, Kazakh and Uzbek; English with our guides and in hotels; Japanese-speaking guides available in Samarkand and Bukhara on request.',
+ '<strong>Food:</strong> plov, grilled meat, noodles, dumplings and fresh bread; mild spices. Vegetarian meals on request.',
+ '<strong>Weather:</strong> dry continental climate; hot summers, cold winters. Spring and autumn are the most comfortable seasons.',
+])}
+  {mice_par(f'<a href="{L["mice_kz"]}">Kazakhstan</a>, <a href="{L["mice_uz"]}">Uzbekistan</a> and <a href="{L["mice_cn"]}">China</a>')}
+{faq([
+ ("Do Japanese citizens need a visa for Kazakhstan?", "No. Japanese passport holders enter visa-free for up to 30 days per visit, within 90 days in any 180-day period."),
+ ("Is Uzbekistan visa-free for Japanese?", "Yes, for stays of up to 30 days."),
+ ("Can Japanese visit China without a visa in 2026?", "Yes. China's unilateral visa-free policy for Japanese citizens allows stays of up to 30 days and is currently valid until 31 December 2026."),
+ ("What about Russia?", "Russia requires an e-visa for Japanese citizens, applied for online and valid for a 16-day stay. Arcadia does not process visas."),
+ ("Is Uzbekistan suitable for older travellers?", "Yes. High-speed trains, short transfers and comfortable hotels inside the old towns make it a relaxed trip; we adapt the walking pace to the group."),
+])}
+{readalso([("Visa-free travel hub",L['hub']),("Tourism in Kazakhstan",L['kz']),("Tourism in Uzbekistan",L['uz']),("Tourism in China",L['cn']),("Best time to visit Uzbekistan",L['uz_time']),("Bukhara travel guide",L['bukhara'])])}
+{note()}
+{cta("Plan your trip from Japan", "Private tours, small groups and corporate trips with hotels, transport and guides under one contract. Prices on request.", "Hello Arcadia, we are travelling from Japan and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Japan")}
+</article>""")
+
+# ---------------- INDONESIA ----------------
+pages['id'] = dict(
+ slug='indonesia', parent='hub',
+ title='Visa-Free Holidays for Indonesian Travellers: Kazakhstan and Uzbekistan Without a Visa 2026',
+ yoast_title='Kazakhstan & Uzbekistan for Indonesians: Visa-Free',
+ yoast_desc='Indonesian passport holders enter Kazakhstan and Uzbekistan visa-free for 30 days. Halal food, Islamic heritage, flights via KL and itineraries by Arcadia.',
+ focuskw='Kazakhstan visa-free for Indonesians',
+ body=f"""<article class="arcadia-market-id-2026" lang="en" dir="ltr">
+  <p>An <strong>Indonesian passport</strong> opens the two Muslim-majority countries at the heart of the Silk Road without a visa: <strong>30 days in Kazakhstan</strong> and <strong>30 days in Uzbekistan</strong>. For Indonesian families and pilgrimage-minded travellers, Uzbekistan is a special destination: the mausoleum of Imam al-Bukhari near Samarkand, the Uthman Quran in Tashkent and the madrasas of Bukhara, all with halal food as standard. Kazakhstan adds snow-capped mountains and alpine lakes 30 minutes from Almaty. With AirAsia X flying nonstop from Kuala Lumpur to Almaty and Tashkent, the journey from Jakarta is a single connection. Arcadia, a destination management company based in Almaty, plans and runs the trip with halal meals, prayer stops and English-speaking guides.</p>
+  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> no visa for Kazakhstan or Uzbekistan. China allows Indonesians a 240-hour visa-free transit only; Poland and Russia require a visa, so we build Indonesian programmes around Central Asia. Best months: April to June and September to October; December to March for snow.</aside>
+{cta("Get a proposal for your group from Indonesia", "Send your dates, number of travellers and the cities you have in mind. We reply within 48 hours with a day-by-day programme and quote.", "Hello Arcadia, we are travelling from Indonesia and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Indonesia", top=True)}
+  <h2>Where Indonesians travel without a visa</h2>
+{table([
+ ("Kazakhstan","Yes, 30 days","Visa-free for tourism and business; maximum 90 days in any 180-day period."),
+ ("Uzbekistan","Yes, 30 days","Visa-free for stays of up to 30 days."),
+ ("China","Transit only, 240 hours","Visa-free only when transiting to a third country within 240 hours; a dedicated China holiday requires a visa."),
+ ("Poland (Schengen)","No, visa required","Schengen visa required. We supply hotel confirmation and programme letters but do not apply on your behalf."),
+ ("Russia","No, visa required","Indonesia is not on Russia's e-visa list; a consular visa is required."),
+])}
+  <h2>Flights from Indonesia</h2>
+{ul([
+ '<strong>Jakarta to Almaty or Tashkent:</strong> one stop via Kuala Lumpur, where AirAsia X flies nonstop to both cities (Tashkent three times a week), or via Istanbul, Dubai or Doha; about eleven to thirteen hours in total.',
+ '<strong>Almaty to Tashkent:</strong> under two hours by air or overnight by sleeper train.',
+ '<strong>Tashkent to Samarkand and Bukhara:</strong> high-speed Afrosiyob train, two and four hours.',
+])}
+  <h2>Halal food, prayer and Islamic heritage</h2>
+  <p>Kazakhstan and Uzbekistan are Muslim-majority countries: restaurants serve halal food by default, mosques are in every town and Friday prayer is part of the programme. Our Uzbekistan itineraries include the <a href="{L['uz_islam']}">Islamic heritage sites</a>: Imam al-Bukhari's mausoleum, the Hazrati Imam complex with the Uthman Quran, the Bahauddin Naqshband shrine near Bukhara and the Registan madrasas. In Almaty, the Central Mosque and halal restaurants serving beshbarmak, plov and shashlik are a short walk from our partner hotels.</p>
+  <h2>Suggested itineraries</h2>
+{ul([
+ f'<strong>Uzbekistan heritage, 7 nights:</strong> Tashkent, Samarkand, Bukhara and Khiva with the Islamic heritage sites, bazaars and craft workshops; start with <a href="{L["tashkent2"]}">Tashkent in two days</a> and <a href="{L["bukhara"]}">Bukhara</a>.',
+ f'<strong>Almaty mountains and lakes, 4 to 5 nights:</strong> Medeu and Shymbulak, Big Almaty Lake, Charyn Canyon and the Kolsai Lakes; based on <a href="{L["almaty3"]}">Almaty in 3 days</a>.',
+ f'<strong>Kazakhstan and Uzbekistan, 10 nights:</strong> our <a href="{L["kzuz10"]}">combined family itinerary</a> flying into Almaty and out of Tashkent.',
+ f'<strong>Winter snow break, 4 nights:</strong> sledging and skiing on Shymbulak with instructors, the Medeu ice rink and hot springs, December to March; see <a href="{L["shymbulak"]}">Shymbulak and Medeu</a>.',
+])}
+  {hotels_par}
+  <h2>Practical notes for Indonesian travellers</h2>
+{ul([
+ '<strong>Time zone:</strong> Almaty and Tashkent are one to two hours behind Jakarta depending on the season.',
+ '<strong>Money:</strong> cards work in cities; carry US dollars to exchange. Prices are lower than in Japan or Europe; see <a href="'+L['uz_cost']+'">what an Uzbekistan trip costs</a>.',
+ '<strong>Language:</strong> Russian, Kazakh and Uzbek; English with our guides and in hotels. Many Uzbek words are familiar from Arabic and Persian.',
+ '<strong>Weather:</strong> dry continental climate; summers hot, winters cold. Pack layers, not tropical clothing.',
+ '<strong>Group size:</strong> no minimum. Families, mosque and community groups and corporate teams are all welcome.',
+])}
+  {mice_par(f'<a href="{L["mice_kz"]}">Kazakhstan</a> and <a href="{L["mice_uz"]}">Uzbekistan</a>')}
+{faq([
+ ("Do Indonesians need a visa for Kazakhstan?", "No. Indonesian passport holders enter visa-free for up to 30 days per visit, within 90 days in any 180-day period."),
+ ("Is Uzbekistan visa-free for Indonesians?", "Yes, for stays of up to 30 days."),
+ ("Can Indonesians visit China without a visa?", "Only in transit for up to 240 hours when travelling on to a third country. A full China holiday requires a visa, which we do not process."),
+ ("Is all food halal?", "In Kazakhstan and Uzbekistan mainstream restaurants serve halal food by default, and we confirm halal certification for every restaurant on the programme."),
+ ("Can you organise a group from a mosque or community?", "Yes. We organise groups of any size with prayer stops, Islamic heritage visits and a dedicated coordinator."),
+])}
+{readalso([("Visa-free travel hub",L['hub']),("Tourism in Kazakhstan",L['kz']),("Tourism in Uzbekistan",L['uz']),("Islamic heritage in Uzbekistan",L['uz_islam']),("Best things to do in Uzbekistan",L['uz_things']),("Cost of a Kazakhstan trip",L['kz_cost'])])}
+{note()}
+{cta("Plan your trip from Indonesia", "Family holidays, community groups and corporate trips with halal meals, prayer stops and English-speaking guides. Prices on request.", "Hello Arcadia, we are travelling from Indonesia and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Indonesia")}
+</article>""")
 
 for k,p in pages.items():
     assert len(p['yoast_title'])<=60, (k,len(p['yoast_title']))

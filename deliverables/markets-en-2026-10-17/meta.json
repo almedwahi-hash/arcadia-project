@@ -46,5 +46,21 @@
   "yoast_title": "Kazakhstan & Uzbekistan for UK Travellers: Visa-Free",
   "yoast_desc": "British passport holders enter Kazakhstan and Uzbekistan visa-free for 30 days, with direct London flights to Almaty and Tashkent. Itineraries and hotels.",
   "focuskw": "Kazakhstan visa-free for UK citizens"
+ },
+ "jp": {
+  "slug": "japan",
+  "parent": "hub",
+  "title": "Visa-Free Travel for Japanese Citizens: Kazakhstan, Uzbekistan, China and Poland Without a Visa 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for Japanese: Visa-Free 2026",
+  "yoast_desc": "Japanese passport holders enter Kazakhstan, Uzbekistan, China and Poland visa-free in 2026. Flights, Silk Road and mountain itineraries and hotels by Arcadia.",
+  "focuskw": "Kazakhstan visa-free for Japanese"
+ },
+ "id": {
+  "slug": "indonesia",
+  "parent": "hub",
+  "title": "Visa-Free Holidays for Indonesian Travellers: Kazakhstan and Uzbekistan Without a Visa 2026",
+  "yoast_title": "Kazakhstan & Uzbekistan for Indonesians: Visa-Free",
+  "yoast_desc": "Indonesian passport holders enter Kazakhstan and Uzbekistan visa-free for 30 days. Halal food, Islamic heritage, flights via KL and itineraries by Arcadia.",
+  "focuskw": "Kazakhstan visa-free for Indonesians"
  }
 }
