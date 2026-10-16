@@ -62,5 +62,29 @@
   "yoast_title": "Kazakhstan & Uzbekistan for Indonesians: Visa-Free",
   "yoast_desc": "Indonesian passport holders enter Kazakhstan and Uzbekistan visa-free for 30 days. Halal food, Islamic heritage, flights via KL and itineraries by Arcadia.",
   "focuskw": "Kazakhstan visa-free for Indonesians"
+ },
+ "th": {
+  "slug": "thailand",
+  "parent": "hub",
+  "title": "Visa-Free Travel for Thai Citizens: Kazakhstan, China and Russia Without a Visa 2026",
+  "yoast_title": "Kazakhstan for Thai Travellers: Visa-Free 2026",
+  "yoast_desc": "Thai passport holders enter Kazakhstan, China and Russia visa-free for 30 days. Nonstop Bangkok and Phuket flights to Almaty, snow and mountain trips.",
+  "focuskw": "Kazakhstan visa-free for Thai"
+ },
+ "ph": {
+  "slug": "philippines",
+  "parent": "hub",
+  "title": "Visa-Free Travel for Filipino Citizens: Kazakhstan Without a Visa 2026",
+  "yoast_title": "Kazakhstan for Filipino Travellers: Visa-Free 2026",
+  "yoast_desc": "Filipino passport holders enter Kazakhstan visa-free for 30 days. Flights via Seoul, Bangkok or Dubai, snow and mountain itineraries and hotels by Arcadia.",
+  "focuskw": "Kazakhstan visa-free for Filipinos"
+ },
+ "in": {
+  "slug": "india",
+  "parent": "hub",
+  "title": "Visa-Free Travel for Indian Citizens: Kazakhstan Without a Visa for 14 Days 2026",
+  "yoast_title": "Kazakhstan for Indian Travellers: Visa-Free 14 Days",
+  "yoast_desc": "Indian passport holders enter Kazakhstan visa-free for 14 days. Nonstop Delhi and Mumbai flights to Almaty, vegetarian and Jain meals, itineraries and hotels.",
+  "focuskw": "Kazakhstan visa-free for Indians"
  }
 }

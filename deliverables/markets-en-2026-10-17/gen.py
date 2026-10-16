@@ -26,6 +26,7 @@ L = {
  'au':'https://arcadia-tour.com/en/visa-free-travel/australia-new-zealand/','uk':'https://arcadia-tour.com/en/visa-free-travel/united-kingdom/',
 }
 L['jp']='https://arcadia-tour.com/en/visa-free-travel/japan/'; L['id']='https://arcadia-tour.com/en/visa-free-travel/indonesia/'
+L['th']='https://arcadia-tour.com/en/visa-free-travel/thailand/'; L['ph']='https://arcadia-tour.com/en/visa-free-travel/philippines/'; L['in']='https://arcadia-tour.com/en/visa-free-travel/india/'
 GREEN='#168b52'; NAVY='#17324d'
 def cta(title, text, wa_text, mail_subj, top=False):
     m = "margin:22px 0" if top else "margin:30px 0 10px"
@@ -61,9 +62,10 @@ hub_rows = [
  ("Australia and New Zealand", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days", "Russia: visa required. <a href='"+L['au']+"'>Guide for Australian and New Zealand travellers</a>"),
  ("United Kingdom", "Kazakhstan 30 days · Uzbekistan 30 days · Poland 90 days", "China: 240-hour visa-free transit only; Russia: visa required. <a href='"+L['uk']+"'>Guide for UK travellers</a>"),
  ("United States and Canada", "Kazakhstan 30 days · Poland 90 days", "Uzbekistan: visa-free only from age 55 (US), 30 days (Canada); China: 240-hour transit only; Russia: visa required."),
- ("Thailand", "Kazakhstan 30 days · China 30 days · Russia 30 days", "Uzbekistan and Poland: visa required."),
+ ("Thailand", "Kazakhstan 30 days · China 30 days · Russia 30 days", "Uzbekistan and Poland: visa required. <a href='"+L['th']+"'>Guide for Thai travellers</a>"),
  ("Indonesia", "Kazakhstan 30 days · Uzbekistan 30 days", "China: 240-hour transit only; Poland and Russia: visa required. <a href='"+L['id']+"'>Guide for Indonesian travellers</a>"),
- ("Philippines", "Kazakhstan 30 days", "Uzbekistan, China, Poland and Russia: visa required."),
+ ("Philippines", "Kazakhstan 30 days", "Uzbekistan, China, Poland and Russia: visa required. <a href='"+L['ph']+"'>Guide for Filipino travellers</a>"),
+ ("India", "Kazakhstan 14 days", "Up to 14 days per visit and 42 days in 180. Uzbekistan and Russia: e-visa; China and Poland: visa required. <a href='"+L['in']+"'>Guide for Indian travellers</a>"),
  ("Vietnam", "Kazakhstan 30 days", "Uzbekistan: visa-free only from age 55; China, Poland and Russia: visa required (Russia e-visa online)."),
  ("UAE", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days · Poland 90 days · Russia 90 days", "Visa-free for all five destinations."),
  ("Saudi Arabia", "Kazakhstan 30 days · Uzbekistan 30 days · China 30 days", "Poland: Schengen visa required; Russia: e-visa online."),
@@ -85,7 +87,7 @@ pages['hub'] = dict(
  focuskw='visa-free travel Kazakhstan',
  body=f'''<article class="arcadia-market-hub-2026" lang="en" dir="ltr">
   <p><strong>Arcadia</strong> is a destination management company based in Almaty that organises private tours, family holidays and <a href="{L['mice']}">corporate trips</a> in Kazakhstan, Uzbekistan, Russia, Poland and China. Many of our guests choose these destinations because they can simply board a plane: no consulate visit, no visa fee and no waiting. This page summarises which passports enter each of our five destinations <strong>visa-free</strong> in 2026, and links to detailed guides for the markets we serve most in English.</p>
-  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> Kazakhstan is the easiest entry point in the region, with 30-day visa-free access for Malaysia, Singapore, South Korea, Japan, Australia, New Zealand, the UK, the US, Canada, Thailand, Indonesia, the Philippines, Vietnam and all Gulf states. Uzbekistan matches most of that list. China offers 30 days to Malaysia, Singapore, Korea, Japan, Australia, New Zealand and the Gulf. Poland (Schengen) admits Malaysia, Singapore, Korea, Japan, Australia, New Zealand, the UK and the UAE for 90 days. Russia is visa-free for Korea, the UAE, Thailand and Türkiye.</aside>
+  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> Kazakhstan is the easiest entry point in the region, with 30-day visa-free access for Malaysia, Singapore, South Korea, Japan, Australia, New Zealand, the UK, the US, Canada, Thailand, Indonesia, the Philippines, Vietnam and all Gulf states, and 14 days for India. Uzbekistan matches most of that list. China offers 30 days to Malaysia, Singapore, Korea, Japan, Australia, New Zealand and the Gulf. Poland (Schengen) admits Malaysia, Singapore, Korea, Japan, Australia, New Zealand, the UK and the UAE for 90 days. Russia is visa-free for Korea, the UAE, Thailand and Türkiye.</aside>
 {cta("Plan a visa-free trip with a local team", "Tell us your passport, dates and group size. We confirm the entry rule for your route and send a full proposal within 48 hours.", "Hello Arcadia, we would like a proposal for a trip.{NL}Passport: {NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request", top=True)}
   <h2>Visa-free entry by passport (October 2026)</h2>
   <p>Ordinary passports, tourism and business visits. Durations are per visit unless stated; Kazakhstan also applies a general limit of 90 days in any 180-day period for visa-free visitors.</p>
@@ -99,6 +101,9 @@ pages['hub'] = dict(
  f'<a href="{L["uk"]}"><strong>United Kingdom</strong></a>: direct London flights to Almaty and Tashkent, and 30-day visa-free entry to both.',
  f'<a href="{L["jp"]}"><strong>Japan</strong></a>: nonstop Tokyo to Tashkent flights and visa-free access to Kazakhstan, Uzbekistan, China and Poland.',
  f'<a href="{L["id"]}"><strong>Indonesia</strong></a>: visa-free Kazakhstan and Uzbekistan with halal food, Islamic heritage and a single connection via Kuala Lumpur.',
+ f'<a href="{L["th"]}"><strong>Thailand</strong></a>: nonstop Bangkok and Phuket flights to Almaty, snow weeks, and visa-free Kazakhstan, China and Russia.',
+ f'<a href="{L["ph"]}"><strong>Philippines</strong></a>: 30 days visa-free in Kazakhstan, snow and mountains one connection from Manila.',
+ f'<a href="{L["in"]}"><strong>India</strong></a>: 14 days visa-free in Kazakhstan, nonstop Delhi and Mumbai flights, vegetarian and Jain meals.',
 ])}
   <h2>What stays the same wherever you come from</h2>
 {ul([
@@ -544,6 +549,175 @@ pages['id'] = dict(
 {readalso([("Visa-free travel hub",L['hub']),("Tourism in Kazakhstan",L['kz']),("Tourism in Uzbekistan",L['uz']),("Islamic heritage in Uzbekistan",L['uz_islam']),("Best things to do in Uzbekistan",L['uz_things']),("Cost of a Kazakhstan trip",L['kz_cost'])])}
 {note()}
 {cta("Plan your trip from Indonesia", "Family holidays, community groups and corporate trips with halal meals, prayer stops and English-speaking guides. Prices on request.", "Hello Arcadia, we are travelling from Indonesia and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Indonesia")}
+</article>""")
+
+
+# ---------------- THAILAND ----------------
+pages['th'] = dict(
+ slug='thailand', parent='hub',
+ title='Visa-Free Travel for Thai Citizens: Kazakhstan, China and Russia Without a Visa 2026',
+ yoast_title='Kazakhstan for Thai Travellers: Visa-Free 2026',
+ yoast_desc='Thai passport holders enter Kazakhstan, China and Russia visa-free for 30 days. Nonstop Bangkok and Phuket flights to Almaty, snow and mountain trips.',
+ focuskw='Kazakhstan visa-free for Thai',
+ body=f"""<article class="arcadia-market-th-2026" lang="en" dir="ltr">
+  <p>A <strong>Thai passport</strong> enters three of Arcadia's destinations without a visa: <strong>30 days in Kazakhstan</strong>, <strong>30 days in China</strong> under the permanent mutual exemption in force since March 2024, and <strong>30 days in Russia</strong>. Kazakhstan is the natural first choice: Air Astana flies nonstop from both Bangkok and Phuket to Almaty, Thai AirAsia X adds more Bangkok departures, and the flight takes about seven hours. For travellers from a tropical climate, Almaty offers what Thailand cannot: snow from December to March, ski slopes 30 minutes from the city, alpine lakes and canyons in summer. Arcadia, a destination management company based in Almaty, plans and runs private tours, group holidays and corporate trips with English-speaking guides.</p>
+  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> no visa for Kazakhstan, China or Russia. Uzbekistan and Poland require a visa, so Thai programmes are built around Kazakhstan, with China or Russia as a second country. Best months for snow: December to March; for lakes and mountains: May to October.</aside>
+{cta("Get a proposal for your group from Thailand", "Send your dates, number of travellers and the type of trip. We reply within 48 hours with a day-by-day programme and quote.", "Hello Arcadia, we are travelling from Thailand and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Thailand", top=True)}
+  <h2>Where Thai citizens travel without a visa</h2>
+{table([
+ ("Kazakhstan","Yes, 30 days","Visa-free for tourism and business; maximum 90 days in any 180-day period."),
+ ("China","Yes, 30 days","Permanent mutual visa exemption between Thailand and China since 1 March 2024, up to 30 days per visit and 90 days in 180."),
+ ("Russia","Yes, 30 days","Mutual visa-free agreement for tourism, up to 30 days per visit."),
+ ("Uzbekistan","No, visa required","Thai citizens apply for an Uzbekistan e-visa online. We supply hotel confirmation but do not apply on your behalf."),
+ ("Poland (Schengen)","No, visa required","Schengen visa required."),
+])}
+  <h2>Flights from Thailand</h2>
+{ul([
+ '<strong>Bangkok to Almaty:</strong> Air Astana nonstop about six times a week and Thai AirAsia X three times a week; around seven hours.',
+ '<strong>Phuket to Almaty:</strong> Air Astana nonstop daily in season.',
+ '<strong>Bangkok to Astana:</strong> Air Astana plans a twice-weekly nonstop from December 2026; otherwise via Almaty (two hours).',
+ '<strong>China and Russia:</strong> many daily flights from Bangkok to Guangzhou, Shanghai and Beijing; nonstop Bangkok and Phuket to Moscow with Aeroflot and others.',
+])}
+  <h2>Suggested itineraries</h2>
+{ul([
+ f'<strong>Snow week in Almaty, 5 nights:</strong> skiing and sledging on Shymbulak with instructors and rental gear, the Medeu ice rink, hot springs and a snowy drive to the Kolsai Lakes; see <a href="{L["shymbulak"]}">Shymbulak and Medeu</a>.',
+ f'<strong>Almaty mountains and lakes, 4 nights (summer):</strong> Big Almaty Lake, Charyn Canyon, Kolsai and Kaindy lakes; based on <a href="{L["almaty3"]}">Almaty in 3 days</a>.',
+ f'<strong>Almaty and Astana, 6 nights:</strong> the mountain city plus the futuristic capital and <a href="{L["burabay"]}">Burabay</a>; see <a href="{L["astana2"]}">Astana in 2 days</a>.',
+ f'<strong>Kazakhstan and China, 8 to 9 nights:</strong> Almaty, then nonstop to Urumqi or Guangzhou and <a href="{L["shanghai3"]}">Shanghai in 3 days</a>.',
+ f'<strong>Kazakhstan and Russia, 9 nights:</strong> Almaty followed by <a href="{L["moscow3"]}">Moscow in 3 days</a> and <a href="{L["spb3"]}">Saint Petersburg</a>.',
+])}
+  {hotels_par}
+  <h2>Practical notes for Thai travellers</h2>
+{ul([
+ '<strong>Time zone:</strong> Almaty is two hours behind Bangkok.',
+ '<strong>Winter clothing:</strong> temperatures in Almaty drop to -10°C in January; we advise on gear and arrange rentals for ski days.',
+ '<strong>Money:</strong> cards work in cities; carry US dollars to exchange.',
+ '<strong>Food:</strong> grilled meat, plov, noodles and dumplings; halal by default; Thai, Korean and Chinese restaurants in Almaty.',
+ '<strong>Language:</strong> Russian and Kazakh; English with our guides and in hotels.',
+])}
+  {mice_par(f'<a href="{L["mice_kz"]}">Kazakhstan</a> and <a href="{L["mice_cn"]}">China</a>')}
+{faq([
+ ("Do Thai citizens need a visa for Kazakhstan?", "No. Thai passport holders enter visa-free for up to 30 days per visit, within 90 days in any 180-day period."),
+ ("Is China visa-free for Thais?", "Yes. The permanent mutual exemption allows up to 30 days per visit and 90 days in any 180-day period."),
+ ("Is Russia visa-free for Thai citizens?", "Yes, for tourism stays of up to 30 days."),
+ ("Can I ski in Almaty without experience?", "Yes. Shymbulak has beginner slopes, English-speaking instructors and full rental equipment; non-skiers enjoy the cable car, sledging and the Medeu ice rink."),
+ ("What about Uzbekistan?", "Thai citizens need an e-visa for Uzbekistan, which we do not process; most Thai groups combine Kazakhstan with China or Russia instead."),
+])}
+{readalso([("Visa-free travel hub",L['hub']),("Tourism in Kazakhstan",L['kz']),("Tourism in China",L['cn']),("Tourism in Russia",L['ru']),("Best things to do in Kazakhstan",L['kz_things']),("Cost of a Kazakhstan trip",L['kz_cost'])])}
+{note()}
+{cta("Plan your trip from Thailand", "Snow weeks, mountain holidays, group trips and corporate programmes with hotels, transport and guides under one contract. Prices on request.", "Hello Arcadia, we are travelling from Thailand and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20Thailand")}
+</article>""")
+
+# ---------------- PHILIPPINES ----------------
+pages['ph'] = dict(
+ slug='philippines', parent='hub',
+ title='Visa-Free Travel for Filipino Citizens: Kazakhstan Without a Visa 2026',
+ yoast_title='Kazakhstan for Filipino Travellers: Visa-Free 2026',
+ yoast_desc='Filipino passport holders enter Kazakhstan visa-free for 30 days. Flights via Seoul, Bangkok or Dubai, snow and mountain itineraries and hotels by Arcadia.',
+ focuskw='Kazakhstan visa-free for Filipinos',
+ body=f"""<article class="arcadia-market-ph-2026" lang="en" dir="ltr">
+  <p>Filipino travellers rarely get a visa-free destination with snow, mountains and a modern city in one trip. <strong>Kazakhstan</strong> is one: holders of a <strong>Philippine passport</strong> enter visa-free for <strong>30 days</strong>, no appointment, no fee and no show money beyond a return ticket and hotel booking. Almaty sits at the foot of the Tian Shan range, with a ski resort 30 minutes from the centre, alpine lakes and canyons for summer, and English-speaking guides from Arcadia, a destination management company based in the city. Flights from Manila connect once, via Seoul, Bangkok, Hong Kong, Dubai or Doha.</p>
+  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> no visa for Kazakhstan. Uzbekistan, China, Poland and Russia require a visa for Filipinos, so we build Philippine programmes entirely in Kazakhstan: Almaty, Astana and the national parks. Best months: December to March for snow, May to October for lakes and mountains.</aside>
+{cta("Get a proposal for your group from the Philippines", "Send your dates, number of travellers and the type of trip. We reply within 48 hours with a day-by-day programme and quote.", "Hello Arcadia, we are travelling from the Philippines and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20the%20Philippines", top=True)}
+  <h2>Where Filipinos travel without a visa</h2>
+{table([
+ ("Kazakhstan","Yes, 30 days","Visa-free for tourism and business; maximum 90 days in any 180-day period. Hotels register you automatically."),
+ ("Uzbekistan","No, visa required","E-visa online; we supply hotel confirmation but do not apply on your behalf."),
+ ("China","No, visa required","Consular visa required for a tourist visit."),
+ ("Poland (Schengen)","No, visa required","Schengen visa required."),
+ ("Russia","No, visa required","E-visa online for Filipino citizens; we do not process it."),
+])}
+  <h2>Flights from the Philippines</h2>
+{ul([
+ '<strong>Manila to Almaty:</strong> no nonstop service; one stop via Seoul (nonstop Korea to Almaty flights), Bangkok (Air Astana nonstop to Almaty), Hong Kong, Dubai or Doha; around 13 to 16 hours in total.',
+ '<strong>Manila to Astana:</strong> via Seoul, Istanbul or Almaty.',
+ '<strong>Within Kazakhstan:</strong> Almaty to Astana is a two-hour flight; the mountain parks are two to four hours by road from Almaty.',
+])}
+  <h2>Suggested itineraries</h2>
+{ul([
+ f'<strong>Snow week, 5 nights:</strong> first skiing and sledging on Shymbulak with instructors and rental gear, the Medeu ice rink and hot springs; see <a href="{L["shymbulak"]}">Shymbulak and Medeu</a>.',
+ f'<strong>Almaty mountains and lakes, 4 to 5 nights (summer):</strong> Big Almaty Lake, Charyn Canyon, Kolsai and Kaindy lakes, the Green Bazaar and Kok-Tobe; based on <a href="{L["almaty3"]}">Almaty in 3 days</a>.',
+ f'<strong>Almaty and Astana, 6 to 7 nights:</strong> add the capital and the pine forests of <a href="{L["burabay"]}">Burabay</a>; see <a href="{L["astana2"]}">Astana in 2 days</a>.',
+ f'<strong>Company outing or incentive, 4 nights:</strong> meetings in the hotel, team building in the mountains and a gala dinner; see <a href="{L["teambuild"]}">team-building activities in Kazakhstan</a>.',
+])}
+  {hotels_par}
+  <h2>Practical notes for Filipino travellers</h2>
+{ul([
+ '<strong>Immigration on departure from Manila:</strong> carry your return ticket, hotel confirmation and our programme letter; we send all three with the booking.',
+ '<strong>Time zone:</strong> Almaty is three hours behind Manila.',
+ '<strong>Money:</strong> cards work in cities; carry US dollars to exchange.',
+ '<strong>Food:</strong> grilled meat, rice dishes, noodles, bread and dumplings; Filipino groups usually enjoy plov and shashlik. Catholic churches exist in Almaty and Astana.',
+ '<strong>Language:</strong> Russian and Kazakh; English with our guides and in hotels.',
+ '<strong>Winter clothing:</strong> January temperatures reach -10°C; we advise on gear and arrange rentals.',
+])}
+  {mice_par(f'<a href="{L["mice_kz"]}">Kazakhstan</a>')}
+{faq([
+ ("Do Filipinos need a visa for Kazakhstan?", "No. Philippine passport holders enter visa-free for up to 30 days per visit, within 90 days in any 180-day period."),
+ ("Is Kazakhstan safe for Filipino travellers?", "Yes. Almaty and Astana are calm, modern cities with low street crime. All our programmes use private vehicles and licensed guides."),
+ ("Can we see snow in Almaty?", "Yes, reliably from December to March on Shymbulak and often in the city itself."),
+ ("Can we add another country?", "Uzbekistan, China and Russia need a visa for Filipinos, which we do not process. Kazakhstan alone fills a week comfortably."),
+])}
+{readalso([("Visa-free travel hub",L['hub']),("Tourism in Kazakhstan",L['kz']),("Best things to do in Kazakhstan",L['kz_things']),("Cost of a Kazakhstan trip",L['kz_cost']),("Best hotels in Almaty",L['hotels_almaty'])])}
+{note()}
+{cta("Plan your trip from the Philippines", "Snow weeks, mountain holidays, barkada and family trips and company outings with hotels, transport and guides under one contract. Prices on request.", "Hello Arcadia, we are travelling from the Philippines and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20the%20Philippines")}
+</article>""")
+
+# ---------------- INDIA ----------------
+pages['in'] = dict(
+ slug='india', parent='hub',
+ title='Visa-Free Travel for Indian Citizens: Kazakhstan Without a Visa for 14 Days 2026',
+ yoast_title='Kazakhstan for Indian Travellers: Visa-Free 14 Days',
+ yoast_desc='Indian passport holders enter Kazakhstan visa-free for 14 days. Nonstop Delhi and Mumbai flights to Almaty, vegetarian and Jain meals, itineraries and hotels.',
+ focuskw='Kazakhstan visa-free for Indians',
+ body=f"""<article class="arcadia-market-in-2026" lang="en" dir="ltr">
+  <p>Kazakhstan has become one of the fastest-growing destinations for travellers from India, and the reason is simple: holders of an <strong>Indian passport</strong> enter <strong>visa-free for 14 days</strong>, nonstop flights from Delhi and Mumbai reach Almaty in about four hours, and the city sits at the foot of snow-capped mountains with a ski resort 30 minutes from the centre. Arcadia, a destination management company based in Almaty, runs private tours, family holidays, honeymoon trips and corporate offsites for Indian groups, with vegetarian and Jain meals arranged in advance and English-speaking guides throughout.</p>
+  <aside style="margin:20px 0;padding:18px;background:#f5f9fd;border-left:4px solid #0b6bcb;border-radius:12px"><strong>In short:</strong> no visa for Kazakhstan for stays up to 14 days (42 days in any 180-day period). Uzbekistan, China, Poland and Russia require a visa for Indians, so we build Indian programmes in Kazakhstan: Almaty, Astana and the national parks. Best months: March to May and September to November; December to February for snow.</aside>
+{cta("Get a proposal for your group from India", "Send your dates, number of travellers and the type of trip. We reply within 48 hours with a day-by-day programme and quote.", "Hello Arcadia, we are travelling from India and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20India", top=True)}
+  <h2>Where Indian citizens travel without a visa</h2>
+{table([
+ ("Kazakhstan","Yes, 14 days","Visa-free for tourism and business, up to 14 days per visit and 42 days in any 180-day period. Hotels register you automatically."),
+ ("Uzbekistan","No, e-visa","E-visa online; we supply hotel confirmation but do not apply on your behalf."),
+ ("China","No, visa required","Consular visa required for a tourist visit."),
+ ("Poland (Schengen)","No, visa required","Schengen visa required."),
+ ("Russia","No, e-visa","E-visa online for Indian citizens; we do not process it."),
+])}
+  <h2>Flights from India</h2>
+{ul([
+ '<strong>Delhi to Almaty:</strong> Air Astana nonstop, about four hours; IndiGo has also operated the route (check current schedules).',
+ '<strong>Mumbai to Almaty:</strong> IndiGo nonstop (launched September 2025), about five hours.',
+ '<strong>To Astana:</strong> via Almaty (two hours) or one stop via Dubai, Abu Dhabi or Istanbul.',
+ '<strong>Within Kazakhstan:</strong> the mountain parks are two to four hours by road from Almaty with our private vehicles.',
+])}
+  <h2>Food for Indian groups</h2>
+  <p>Almaty has several Indian restaurants, and our partner hotels prepare vegetarian, Jain and no-onion-no-garlic meals with advance notice. Kazakh and Uzbek cuisine also offers vegetarian options: plov without meat, samsa with pumpkin, salads, breads and dairy. We confirm every meal on the itinerary before arrival.</p>
+  <h2>Suggested itineraries</h2>
+{ul([
+ f'<strong>Almaty highlights, 4 nights:</strong> Medeu and Shymbulak by cable car, Big Almaty Lake, Kok-Tobe, the Green Bazaar and a Charyn Canyon day; based on <a href="{L["almaty3"]}">Almaty in 3 days</a>.',
+ f'<strong>Lakes and canyons, 5 to 6 nights:</strong> Charyn Canyon, Kolsai and Kaindy lakes with a night in the mountains, plus Turgen waterfalls and Altyn-Emel; see <a href="{L["kz_things"]}">best things to do in Kazakhstan</a>.',
+ f'<strong>Snow break, 4 nights:</strong> first skiing and sledging on Shymbulak with instructors and rental gear, the Medeu ice rink and hot springs; see <a href="{L["shymbulak"]}">Shymbulak and Medeu</a>.',
+ f'<strong>Almaty and Astana, 6 to 7 nights:</strong> add the capital and <a href="{L["burabay"]}">Burabay</a>; see <a href="{L["astana2"]}">Astana in 2 days</a>.',
+ f'<strong>Corporate offsite, 3 to 4 nights:</strong> meetings in a city hotel, team building in the mountains and a gala dinner; see <a href="{L["mice_kz"]}">corporate trips in Kazakhstan</a> and <a href="{L["teambuild"]}">team-building activities</a>.',
+])}
+  {hotels_par}
+  <h2>Practical notes for Indian travellers</h2>
+{ul([
+ '<strong>Stay limit:</strong> 14 days per visit; a 15-night trip would need a visa, so we plan Indian itineraries at up to 13 nights.',
+ '<strong>Time zone:</strong> Almaty is 30 minutes behind India.',
+ '<strong>Money:</strong> cards work in cities; carry US dollars to exchange. Prices are lower than Europe or Dubai; see <a href="'+L['kz_cost']+'">what a Kazakhstan trip costs</a>.',
+ '<strong>Language:</strong> Russian and Kazakh; English with our guides and in hotels. Hindi-speaking guides are available on request in Almaty.',
+ '<strong>Weather:</strong> dry continental climate; summers warm, winters cold. Pack layers.',
+])}
+  {mice_par(f'<a href="{L["mice_kz"]}">Kazakhstan</a>')}
+{faq([
+ ("Do Indians need a visa for Kazakhstan?", "No, for stays of up to 14 days per visit and 42 days in total within any 180-day period. Longer stays require a visa, which we do not process."),
+ ("Is Kazakhstan good for a honeymoon?", "Yes. Mountain hotels above Almaty, private cars, lake excursions and snow in winter make it a popular honeymoon destination from India."),
+ ("Can you arrange vegetarian and Jain food?", "Yes, with advance notice at every hotel and restaurant on the programme, plus Indian restaurants in Almaty."),
+ ("What about Uzbekistan?", "Indian citizens need an e-visa for Uzbekistan, which we do not process. Kazakhstan alone fills up to 13 nights comfortably."),
+ ("Is there a Hindi-speaking guide?", "On request in Almaty, subject to availability; our standard guides speak English and Russian."),
+])}
+{readalso([("Visa-free travel hub",L['hub']),("Tourism in Kazakhstan",L['kz']),("Best things to do in Kazakhstan",L['kz_things']),("Cost of a Kazakhstan trip",L['kz_cost']),("Best hotels in Almaty",L['hotels_almaty']),("Corporate trips in Kazakhstan",L['mice_kz'])])}
+{note()}
+{cta("Plan your trip from India", "Family holidays, honeymoons, group tours and corporate offsites with hotels, transport and guides under one contract. Prices on request.", "Hello Arcadia, we are travelling from India and would like a proposal.{NL}Destination: {NL}Dates: {NL}Travellers: ", "Trip%20proposal%20request%20from%20India")}
 </article>""")
 
 for k,p in pages.items():
