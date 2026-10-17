@@ -2503,5 +2503,52 @@
   "previous": "أركاديا السياحية | رحلات كازاخستان روسيا بولندا | مرشد عربي",
   "verified": "Origin: <title> and og:title are identical; one H1; no PHP error.",
   "cache": "Not purged after this change; visitors get it when the cached home page expires (up to four hours) or after a purge."
+ },
+ "phone_numbers_unify_layla_2026-10-17": {
+  "date": "2026-10-17",
+  "owner_instruction": "سجّلت الدخول، خلي كل شيء على رقم ليلى",
+  "main_number": "+7 706 400 7561 (wa.me/77064007561)",
+  "scan_before": "607 published posts/pages fetched as a visitor (crawl13/numbers.py): wa.me links on all pages point to 77064007561; other numbers only as text/tel: post 3419 (+380 93 658 2617), page 2470 EN contact (+48 576 776 035 / tel:+48576776035, +86 189 2316 6757 / tel:+8618923166757); Ukraine offer pages (380047001066, 380737001066) untouched; barcodes on import-from-china pages are not phone numbers",
+  "applied_via_rest": {
+   "post_3419": {
+    "replaced": {
+     "+380 93 658 2617": "+7 706 400 7561"
+    },
+    "status": 200
+   },
+   "page_2470": {
+    "replaced": {
+     "+48 576 776 035": "+7 706 400 7561",
+     "+86 189 2316 6757": "+7 706 400 7561",
+     "tel:+48576776035": "tel:+77064007561",
+     "tel:+8618923166757": "tel:+77064007561"
+    },
+    "status": 200
+   }
+  },
+  "verified_live_with_cache_bypass": {
+   "3419": [
+    "77064007561"
+   ],
+   "2470": [
+    "77064007561"
+   ]
+  },
+  "not_applied_needs_owner": {
+   "where": "WPCode Lite snippet 3802 \"Contact Branches — فروع التواصل AR\" (PHP, auto-insert everywhere, prints a wp_footer script only on AR contact page 146)",
+   "why_not_me": "PHP snippet edits are left to the owner (same rule as Code Snippets)",
+   "issue": "branch cards rendered by JS on the AR contact page: Poland card display '+48 576 776 035', tel '+485766776035', wa '485766776035' (the tel/wa value even has an extra digit, so it is a wrong number); China card display '+86 189 2316 6757', tel '+8618923166757', wa '8618923166757'. These wa: values become live WhatsApp buttons that crawlers do not see (client-side render).",
+   "exact_replacements_in_snippet_3802": {
+    "'+48 576 776 035'": "'+7 706 400 7561'",
+    "'+485766776035'": "'+77064007561'",
+    "'485766776035'": "'77064007561'",
+    "'+86 189 2316 6757'": "'+7 706 400 7561'",
+    "'+8618923166757'": "'+77064007561'",
+    "'8618923166757'": "'77064007561'"
+   }
+  },
+  "other_snippets_checked": "Code Snippets 5 and 14 already map the China number to 77064007561; no Code Snippets, theme functions.php, mu-plugin, Elementor template or other WPCode snippet contains the Poland/China/Ukraine numbers",
+  "not_from_site": "Messages arriving on the other number most likely come from Google Business Profile, social bios, old ads or saved contacts, not from site buttons (all 607 pages link to the main number)",
+  "cache": "Cloudflare not purged in this round (owner has not asked); pages verified with a cache-busting query"
  }
 }
