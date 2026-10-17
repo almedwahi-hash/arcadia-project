@@ -2545,10 +2545,27 @@
     "'+86 189 2316 6757'": "'+7 706 400 7561'",
     "'+8618923166757'": "'+77064007561'",
     "'8618923166757'": "'77064007561'"
-   }
+   },
+   "status": "DONE by Claude on 17 Oct after the owner asked (see wpcode_3802_edited_by_claude_on_owner_request)"
   },
   "other_snippets_checked": "Code Snippets 5 and 14 already map the China number to 77064007561; no Code Snippets, theme functions.php, mu-plugin, Elementor template or other WPCode snippet contains the Poland/China/Ukraine numbers",
   "not_from_site": "Messages arriving on the other number most likely come from Google Business Profile, social bios, old ads or saved contacts, not from site buttons (all 607 pages link to the main number)",
-  "cache": "Cloudflare not purged in this round (owner has not asked); pages verified with a cache-busting query"
+  "cache": "Cloudflare Purge Everything executed 17 Oct after the WPCode edit",
+  "wpcode_3802_edited_by_claude_on_owner_request": {
+   "owner_instruction": "حبيبي أنت عد السنيت وعمل كل شيء يلا اشتغل أنت كده المختص",
+   "how": "WPCode Lite editor (admin.php?page=wpcode-snippet-manager&snippet_id=3802): CodeMirror value replaced, Update clicked; notice \"Snippet updated.\"; snippet stays active, type php, auto-insert everywhere",
+   "replacements_applied_each_once": {
+    "'+48 576 776 035'": "'+7 706 400 7561'",
+    "'+485766776035'": "'+77064007561'",
+    "'485766776035'": "'77064007561'",
+    "'+86 189 2316 6757'": "'+7 706 400 7561'",
+    "'+8618923166757'": "'+77064007561'",
+    "'8618923166757'": "'77064007561'"
+   },
+   "size": "6123 -> 6115 chars; only the six string literals changed (reverse the map above to restore)",
+   "verified": "AR contact page fetched with cache bypass: branch script present, 0 occurrences of 485766776035/8618923166757/+48 576 776 035/+86 189 2316 6757, no PHP error",
+   "cloudflare": "Purge Everything executed after the save (toast: Purge request successfully received)"
+  },
+  "final_scan_after_purge": "607 published pages, 0 errors: 77064007561 on all 607 (wa.me/api.whatsapp/tel/schema/text); remaining other digit strings are only barcodes on the two import-from-china pages and the two Ukraine tourist-offers pages (untouched by rule); no page without the main number"
  }
 }
