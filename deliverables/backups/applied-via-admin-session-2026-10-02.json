@@ -2646,5 +2646,32 @@
   },
   "cache": "LiteSpeed Purge All from wp-admin, then Cloudflare Purge Everything after the owner logged in (toast: Purge request successfully received)",
   "rule_applied": "owner decision 4 Oct: all six Gulf states visa-free for Russia, no duration in general statements"
+ },
+ "hub_card_images_replaced_2026-10-24": {
+  "date": "2026-10-24",
+  "owner_instruction": "صور الكروت في أقسام روسيا/بولندا ضعيفة (مثل باصات الرحلات الجماعية) — استبدلها بصور جذابة؛ إن لم توجد في المكتبة فاعمل صوراً",
+  "how": "Elementor hub pages 153 (RU), 155 (PL), 151 (KZ): the card <img> URLs live in content.raw and in _elementor_data (plain and \\/-escaped forms); both replaced via REST, then Elementor editor save ($e.run document/save/update) for each page, LiteSpeed Purge All and Cloudflare Purge Everything",
+  "source": "all replacements are existing media-library images (no downloads, no generation needed); 1024px renditions used",
+  "replacements_old_path_to_new": {
+   "153 RU": {
+    "uploads/2026/03/ru-cities.jpg (card 2 المدن)": "uploads/2026/10/2000_6828d87253d4b-1024x701.jpg (media 6000, Moscow City)",
+    "uploads/2026/03/ru-guide.jpg 2nd occurrence (card 5 موسكو 10 أماكن, was a duplicate of card 3)": "uploads/2026/06/arcadia-russia-moscow-2-1024x683.jpg (media 4018, St Basil)",
+    "uploads/2026/03/ru-group.jpg (card 8 الرحلات الجماعية, rainy buses)": "uploads/2026/08/russia-family-cost-2026-1024x576.webp (media 4600, Gulf family in Red Square)"
+   },
+   "155 PL": {
+    "uploads/2026/03/pl-warsaw.jpg (hero background 0.2 opacity + card 1)": "uploads/2026/04/photo-1776028514514-1024x682.jpg (media 2247, Royal Castle square)",
+    "uploads/2026/03/pl-winter.jpg (card 6)": "uploads/2026/10/2000_68e7a9a6ad11a-1024x769.jpg (media 5537, Krakow Christmas market)",
+    "uploads/2026/03/pl-hotel.jpg (card 8, Forum building)": "uploads/2026/10/2000_685d2dd258c10-1024x682.jpg (media 5969, hotel terrace)",
+    "uploads/2026/03/featured-592.jpg?w=600 (card 9 الدراسة, bench)": "uploads/2026/03/university-1024x683.jpg (media 1953, lecture hall)",
+    "uploads/2026/03/pl-offers.jpg 2nd occurrence (card 10 برامج, duplicate of card 3)": "uploads/2026/04/Warsaw-at-night-free-license-CC0-14621-scaled-1024x631.jpg (media 2128)"
+   },
+   "151 KZ": {
+    "uploads/2026/03/kaz-cities.jpg (card 2, hazy skyline)": "uploads/2026/06/arcadia-kazakhstan-almaty-1-1024x644.jpg (media 4012, Almaty with mountains)",
+    "uploads/2026/03/kaz-group.jpg (card 7)": "uploads/2026/08/best-time-almaty-2026-1024x576.webp (media 4598, Gulf family in Almaty)"
+   }
+  },
+  "kept": "cards judged fine were left (RU 1,3,4,6,7; PL 2,3,4,5,7; KZ 1,3-6,8,9; UZ hub all 3)",
+  "verified": "live HTML with cache bypass shows the new URLs on all three hubs; all 10 image URLs return 200; Russia cards render in the browser; no PHP error, one H1",
+  "reverse": "swap each new path back to its old path in content and _elementor_data, then Elementor save"
  }
 }
