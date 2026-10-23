@@ -2567,5 +2567,54 @@
    "cloudflare": "Purge Everything executed after the save (toast: Purge request successfully received)"
   },
   "final_scan_after_purge": "607 published pages, 0 errors: 77064007561 on all 607 (wa.me/api.whatsapp/tel/schema/text); remaining other digit strings are only barcodes on the two import-from-china pages and the two Ukraine tourist-offers pages (untouched by rule); no page without the main number"
+ },
+ "site_review_and_search_console_2026-10-23": {
+  "date": "2026-10-23",
+  "owner_instruction": "راجع الموقع وارسل الفهرسه",
+  "crawl": "601 sitemap URLs (287 AR, 314 EN), all 200, 0 PHP errors, one H1 each, no duplicate titles/descriptions, 0 missing alt (non-Ukraine), 0 markup leaks, hreflang 585 paired / 0 problems, 0 broken internal links, WhatsApp 77064007561 on all 601 pages and no other number",
+  "findings_open": {
+   "no_og_image": [
+    "page 578 /السياحة-في-روسيا/عروض-السياحة-في-روسيا/ (featured image lost in the 15-16 Oct rewrite)",
+    "pages 7645-7650, 7657, 7658, 7660-7662: /en/visa-free-travel/ hub and its 10 country pages (published 16 Oct without a featured image)"
+   ],
+   "kuwait_bahrain_evisa_text": [
+    "page 578 (AR Russia offers): \"مواطنو الإمارات وقطر والكويت والبحرين وعُمان بدون تأشيرة، والسعوديون بالتأشيرة الإلكترونية\"",
+    "page 582 (AR Russia group trips): same sentence plus \"خلال 4 أيام عمل\"",
+    "page 7645 (/en/visa-free-travel/ hub): \"Russia: Oman is visa-free ...; ordinary Kuwaiti and Bahraini passports require a visa, with e-visas available\""
+   ],
+   "rule": "owner decision of 4 Oct: all six Gulf states visa-free for Russia, no duration in general statements",
+   "desc_161_chars": "/en/visa-and-visa-support/",
+   "blocked_by": "wp-admin session expired (wp-login reauth); fixes need the owner to log in"
+  },
+  "search_console": {
+   "indexed": 581,
+   "not_indexed": 986,
+   "report_last_update": "2026-10-16",
+   "pending_from_13_oct": {
+    "/en/poland-for-saudi-travellers/": "already indexed (URL is on Google)",
+    "/kazakhstan-family-trip-cost-2026/": "already indexed"
+   },
+   "inspected_indexed": [
+    "/corporate-mice-travel/",
+    "/en/corporate-incentive-travel/",
+    "/en/visa-free-travel/malaysia/",
+    "/en/visa-free-travel/india/",
+    "/moscow-3-days-itinerary/",
+    "/en/kazan-travel-guide/",
+    "/best-time-visit-uzbekistan-2026/"
+   ],
+   "indexing_requested_not_indexed": [
+    "/en/visa-free-travel/",
+    "/best-time-visit-poland-2026/",
+    "/en/best-time-to-visit-poland/"
+   ],
+   "indexing_requested_but_already_indexed": [
+    "/best-time-visit-kazakhstan-2026/",
+    "/en/saint-petersburg-in-3-days/",
+    "/en/white-nights-in-st-petersburg/"
+   ],
+   "uncertain": "/kazakhstan-5-days-itinerary/ (tab renderer froze during the request)",
+   "note": "Discovered/Crawled-not-indexed lists are from 16 Oct and mostly stale: most listed pages are indexed now"
+  }
  }
 }
