@@ -2616,5 +2616,35 @@
    "uncertain": "/kazakhstan-5-days-itinerary/ (tab renderer froze during the request)",
    "note": "Discovered/Crawled-not-indexed lists are from 16 Oct and mostly stale: most listed pages are indexed now"
   }
+ },
+ "og_image_and_gulf_visa_fixes_2026-10-23": {
+  "date": "2026-10-23",
+  "owner_instruction": "سجّلت الدخول، كمّل",
+  "featured_media_set": {
+   "578 (AR Russia offers)": 6010,
+   "7645 hub + 7646-7650, 7657, 7658, 7660-7662 (visa-free pages)": 1961,
+   "meta": "'ast-featured-img':'disabled' so the page layout does not change; a second POST was needed before Yoast emitted og:image"
+  },
+  "text_replacements_before_to_after": {
+   "578": {
+    "<li>مواطنو الإمارات وقطر والكويت والبحرين وعُمان بدون تأشيرة، والسعوديون بالتأشيرة الإلكترونية، كما في": "<li>مواطنو دول الخليج الست (السعودية والإمارات وقطر والكويت والبحرين وعُمان) يدخلون روسيا بدون تأشيرة، كما في",
+    "تأمين سفر، والمساعدة في التأشيرة الإلكترونية وترتيب الدفع داخل روسيا": "تأمين سفر، والمساعدة في إجراءات الدخول وترتيب الدفع داخل روسيا"
+   },
+   "582": {
+    "والدخول بالتأشيرة الإلكترونية، وما نحتاجه": "وشروط الدخول، وما نحتاجه",
+    "<strong>التأشيرة:</strong> مواطنو الإمارات وقطر والكويت والبحرين وعُمان يدخلون بدون تأشيرة، والسعوديون بالتأشيرة الإلكترونية خلال 4 أيام عمل؛ نزودكم بالحجوزات المطلوبة لكل فرد، كما في": "<strong>التأشيرة:</strong> مواطنو دول الخليج الست يدخلون روسيا بدون تأشيرة؛ نزودكم بالحجوزات المطلوبة لكل فرد، كما في"
+   },
+   "7645": {
+    "Russia up to 90 days per calendar year": "Russia (visa-free)",
+    "Russia 90 days": "Russia (visa-free)",
+    "Russia up to 90 days": "Russia (visa-free)",
+    "Russia: visa-free for up to 90 days; confirm the cumulative stay limit before travel.": "Russia: visa-free entry for GCC citizens.",
+    "Russia: visa-free for up to 90 days in a calendar year for permitted visits, under the agreement effective 11 May 2026.": "Russia: visa-free entry under the agreement effective 11 May 2026.",
+    "Russia: Oman is visa-free for up to 30 days per visit and 90 days per calendar year; ordinary Kuwaiti and Bahraini passports require a visa, with e-visas available for eligible visits.": "Russia: visa-free entry for Omani, Kuwaiti and Bahraini citizens.",
+    "Oman/Kuwait/Bahrain green cell": "appended \" · Russia (visa-free)\""
+   }
+  },
+  "cache": "LiteSpeed Purge All done from wp-admin; Cloudflare dashboard session expired (login page) so no edge purge; pages verified with cache-busting query",
+  "rule_applied": "owner decision 4 Oct: all six Gulf states visa-free for Russia, no duration in general statements"
  }
 }
