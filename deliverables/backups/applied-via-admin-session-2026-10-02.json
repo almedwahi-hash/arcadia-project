@@ -2644,7 +2644,7 @@
     "Oman/Kuwait/Bahrain green cell": "appended \" · Russia (visa-free)\""
    }
   },
-  "cache": "LiteSpeed Purge All done from wp-admin; Cloudflare dashboard session expired (login page) so no edge purge; pages verified with cache-busting query",
+  "cache": "LiteSpeed Purge All from wp-admin, then Cloudflare Purge Everything after the owner logged in (toast: Purge request successfully received)",
   "rule_applied": "owner decision 4 Oct: all six Gulf states visa-free for Russia, no duration in general statements"
  }
 }
