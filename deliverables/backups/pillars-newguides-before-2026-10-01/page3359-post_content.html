@@ -1,0 +1,327 @@
+<style>
+/* === CHINA MAIN PAGE CSS === */
+.fade-in{opacity:1!important;transform:none!important}
+.main-hero{background:linear-gradient(135deg,#0D1B2A 0%,#1a3a5c 50%,#0D1B2A 100%);color:#fff;padding:60px 24px 50px;text-align:center;position:relative;overflow:hidden;min-height:auto}
+.hero-deco,.orb,.lantern{display:none}
+.hero-content{max-width:800px;margin:0 auto;position:relative;z-index:1}
+.hero-flag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:6px 16px;font-size:.85rem;margin-bottom:16px}
+.hero-flag .flag{font-size:1.2rem}
+.main-hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;line-height:1.3;margin-bottom:14px;color:#ffffff}
+.main-hero h1 .gold{color:#C9A84C}
+.main-hero > .hero-content > p{color:rgba(255,255,255,.85);font-size:1rem;line-height:1.7;max-width:640px;margin:0 auto 20px}
+.hero-btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:24px}
+.btn-red{background:#C8102E;color:#fff;padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;font-size:.95rem}
+.btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5);padding:12px 28px;border-radius:50px;text-decoration:none;font-weight:700;font-size:.95rem}
+.hero-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.15);padding-top:20px}
+.hero-stat{text-align:center}
+.hero-stat .num{display:block;font-size:1.6rem;font-weight:900;color:#C9A84C}
+.hero-stat .label{font-size:.8rem;color:rgba(255,255,255,.7)}
+.scroll-hint{display:none}
+/* === ABOUT === */
+.about{padding:48px 24px;background:#fff}
+.about .container{max-width:1100px;margin:0 auto}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+@media(max-width:768px){.about-grid{grid-template-columns:1fr}.about-visual{display:none}}
+.section-tag{display:inline-block;background:#FEF5E7;color:#C9A84C;border:1px solid #C9A84C;border-radius:50px;padding:4px 14px;font-size:.8rem;font-weight:700;margin-bottom:12px}
+.about-text h2{font-size:1.6rem;font-weight:900;color:#0D1B2A;margin-bottom:14px;line-height:1.4}
+.about-text h2 .red{color:#C8102E}
+.about-text p{color:#555;font-size:.95rem;line-height:1.8;margin-bottom:10px}
+.about-visual{position:relative}
+.about-card-stack{position:relative;height:260px}
+.acard{position:absolute;background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.acard-1{top:0;right:0;width:70%;border-top:4px solid #C8102E}
+.acard-2{top:80px;right:30px;width:65%;border-top:4px solid #C9A84C;z-index:2}
+.acard-3{top:160px;right:10px;width:60%;border-top:4px solid #1a5276}
+.acard h4{font-size:.9rem;font-weight:800;color:#0D1B2A;margin-bottom:4px}
+.acard p{font-size:.8rem;color:#777}
+.facts-strip{background:#0D1B2A;padding:28px 24px}
+.facts-grid{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;max-width:900px;margin:0 auto}
+.fact-item{text-align:center;color:#fff}
+.fact-icon{font-size:1.4rem;margin-bottom:4px}
+.fact-num{display:block;font-size:1.3rem;font-weight:900;color:#C9A84C}
+.fact-label{font-size:.75rem;color:rgba(255,255,255,.7)}
+/* === WHY ARCADIA === */
+.why-arcadia{padding:48px 24px;background:#f4f6f8}
+.why-arcadia .container{max-width:1100px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:32px}
+.section-header h2{font-size:1.6rem;font-weight:900;color:#0D1B2A;margin-bottom:8px}
+.section-header h2 .red{color:#C8102E}
+.section-header p{color:#666;font-size:.95rem}
+.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:32px}
+.why-item{background:#fff;border-radius:14px;padding:20px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.why-icon{font-size:1.8rem;margin-bottom:10px}
+.why-item h4{font-size:.95rem;font-weight:800;color:#0D1B2A;margin-bottom:6px}
+.why-item p{font-size:.82rem;color:#666;line-height:1.6}
+.contact-bar-inner,.contact-info{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;background:#0D1B2A;border-radius:12px;padding:16px 24px;margin-top:8px}
+.contact-item{display:flex;align-items:center;gap:8px;color:#fff;font-size:.9rem}
+.contact-item a{color:#C9A84C;text-decoration:none}
+.c-icon{font-size:1rem}
+/* === CARDS === */
+.cards-section{padding:40px 20px 60px;background:#fff}
+.cards-title{text-align:center;font-size:1.6rem;font-weight:900;margin-bottom:32px;color:#0D1B2A}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);transition:all .4s;text-decoration:none;color:inherit;display:block}
+.card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.14)}
+.card-img{height:180px;overflow:hidden;position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.card:hover .card-img img{transform:scale(1.05)}
+.card-num{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:#C9A84C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem}
+.card-body{padding:16px}
+.card-body h3{font-size:1rem;font-weight:800;color:#0D1B2A;margin-bottom:6px}
+.card-body p{color:#666;font-size:.85rem;line-height:1.6;margin-bottom:12px}
+.card-link{color:#C9A84C;font-weight:700;font-size:.85rem}
+/* === CTA === */
+.cta{padding:50px 20px;text-align:center;background:linear-gradient(135deg,#1a5276,#0D1B2A)}
+.cta-box{max-width:580px;margin:0 auto}
+.cta-box h2{color:#fff;font-size:1.6rem;font-weight:900;margin-bottom:12px}
+.cta-box p{color:rgba(255,255,255,.85);margin-bottom:24px;font-size:.95rem}
+.whatsapp-btn{display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#fff;padding:13px 28px;border-radius:50px;font-weight:800;text-decoration:none;font-size:.95rem;box-shadow:0 4px 20px rgba(37,211,102,.4)}
+</style>
+<section style="background-image:linear-gradient(rgba(20,15,10,.6),rgba(20,15,10,.6)),url('https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-china-greatwall-1.jpg');background-size:cover;background-position:center;background-repeat:no-repeat;">
+🏮
+🏮
+🏮
+            🇨🇳<br />
+            وجهة جديدة لعام 2026 مع أركاديا
+<h1>السياحة في الصين <br />اكتشف حضارة الخمسة آلاف عام</h1>
+<p>من سور الصين العظيم إلى ناطحات سحاب شنغهاي، ومن معارض قوانغتشو التجارية إلى معابد شيآن العريقة — برامج سياحية وتجارية متكاملة مع مرشدين يتحدثون العربية</p>
+            <a href="#contact">📞 احجز رحلتك الآن</a>
+            <a href="#explore">🗺️ استكشف الوجهات</a>
+                +56<br />
+                موقع تراث عالمي
+                5000+<br />
+                عام من الحضارة
+                350<br />
+                كم/ساعة قطارات
+</section>
+<section>
+🐉 عن الوجهة
+<h2>لماذا الصين وجهتك السياحية القادمة؟</h2>
+<p>تُعد الصين واحدة من أعظم الوجهات السياحية في العالم. دولة تجمع بين تاريخ عريق يمتد لخمسة آلاف عام وحداثة مذهلة تتجلى في مدنها العصرية وبنيتها التحتية المتطورة. تضم الصين أكثر من 56 موقعاً مسجلاً في قائمة التراث العالمي لليونسكو، وتمتلك أكبر شبكة قطارات فائقة السرعة في العالم.</p>
+<p>وتقدّم شركة أركاديا السياحية برامج سياحية وتجارية متكاملة في الصين تشمل الإقامة في فنادق مختارة، الجولات السياحية مع مرشدين يتحدثون العربية، والتنقل بين المدن بالقطارات السريعة والسيارات الخاصة، مع إمكانية تخصيص البرامج حسب احتياجاتك.</p>
+                        🏯
+<h4>حضارة عريقة</h4>
+<p>من المدينة المحرمة إلى جيش التيراكوتا – آثار تروي قصة أعظم إمبراطوريات التاريخ</p>
+                        💼
+<h4>سياحة تجارية</h4>
+<p>معرض كانتون وأسواق ييوو – مركز التجارة العالمي</p>
+                        🚄<br />
+                        قطارات 350 كم/س
+</section>
+                🏛️<br />
+                56<br />
+                موقع تراث عالمي
+                🌆<br />
+                +660<br />
+                مدينة سياحية
+                ✈️<br />
+                240<br />
+                ساعة ترانزيت للفئات المؤهلة
+                🕌<br />
+                +35,000<br />
+                مسجد في الصين
+                🚅<br />
+                45,000<br />
+                كم سكك حديد سريعة
+<section>
+⭐ لماذا أركاديا؟
+<h2>خدماتنا في الصين</h2>
+<p>نقدّم لك كل ما تحتاجه لرحلة مريحة وممتعة بدون أي عناء</p>
+🗣️
+<h4>مرشدون عرب</h4>
+<p>مرشدون سياحيون محترفون يتحدثون العربية في كل مدينة</p>
+🏨
+<h4>فنادق مختارة</h4>
+<p>إقامة في فنادق 4-5 نجوم بمواقع مركزية ومريحة</p>
+🚄
+<h4>تنقلات مريحة</h4>
+<p>قطارات فائقة السرعة وسيارات خاصة مع سائقين</p>
+🍽️
+<h4>وجبات حلال</h4>
+<p>مطاعم حلال مضمونة ومتنوعة في كل محطة</p>
+📋
+<h4>معلومات السفر</h4>
+<p>إرشادات عامة حول متطلبات الدخول، مع الرجوع دائماً إلى الجهات الرسمية المختصة</p>
+🎫
+<h4>تذاكر شاملة</h4>
+<p>دخول جميع المعالم والمتاحف مشمول في البرنامج</p>
+📞
+<h4>دعم 24/7</h4>
+<p>فريق دعم متاح على مدار الساعة طوال رحلتك</p>
+✏️
+<h4>برامج مخصصة</h4>
+<p>تصميم برنامج خاص يناسب اهتماماتك وميزانيتك</p>
+</section>
+<section id="explore">
+<h2>اكتشف كل ما تحتاجه عن الصين</h2>
+<a href="https://arcadia-tour.com/china-overview/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=600" alt="السياحة في الصين" loading="lazy">
+1
+<h3>نظرة عامة عن الصين</h3>
+<p>كل ما تحتاجه عن السياحة في الصين &#8211; برامج متكاملة مع مرافق عربي متخصص</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-cities/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1532236204992-f5e85c024202?w=600" alt="أهم المدن السياحية في الصين" loading="lazy">
+2
+<h3>أهم المدن السياحية</h3>
+<p>بكين، شنغهاي، قوانغتشو — أجمل المدن الصينية التي يجب زيارتها</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-attractions/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1508804052814-cd3ba865a116?w=600" alt="أهم المعالم السياحية في الصين" loading="lazy">
+3
+<h3>أهم المعالم السياحية</h3>
+<p>سور الصين العظيم، المدينة المحرمة، معبد السماء وأكثر من 50 معلماً</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-halal-food/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600" alt="الطعام الحلال في الصين" loading="lazy">
+4
+<h3>الطعام الحلال في الصين</h3>
+<p>دليل المسافر المسلم للمطاعم الحلال في كبرى المدن الصينية</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-programs/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1474690870753-1b92efa1f2d8?w=600" alt="البرامج السياحية في الصين" loading="lazy">
+5
+<h3>البرامج السياحية</h3>
+<p>برامج 7 و10 و15 يوم مصممة خصيصاً للمسافر العربي</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-costs/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="تكلفة السياحة في الصين" loading="lazy">
+6
+<h3>تكلفة السياحة في الصين</h3>
+<p>دليل الميزانية الشامل — الفنادق والتنقل والأكل والتذاكر بالأسعار الحقيقية</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-nature/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=600" alt="الطبيعة والمناظر في الصين" loading="lazy">
+7
+<h3>الطبيعة والمناظر الخلابة</h3>
+<p>جبال هوانغشان، بحيرات جيوتشايقو، الأنهار والمدرجات الأرزية</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-activities/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=600" alt="الأنشطة السياحية في الصين" loading="lazy">
+8
+<h3>الأنشطة السياحية</h3>
+<p>تجارب لا تُنسى — ركوب القوارب، الأسواق الليلية، المهرجانات الثقافية</p>
+اعرف أكثر ←
+</a>
+<a href="https://arcadia-tour.com/china-travel-tips/">
+    <img decoding="async" src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=600" alt="نصائح السفر إلى الصين" loading="lazy">
+9
+<h3>نصائح السفر إلى الصين</h3>
+<p>التأشيرة، التأمين، الإنترنت، العملة وكل ما يحتاجه المسافر العربي</p>
+اعرف أكثر ←
+</a>
+</section>
+<section id="contact">
+<h2>🇨🇳 جاهز لاكتشاف الصين؟</h2>
+<p>تواصل معنا الآن وسنصمم لك رحلة لا تنسى مع مرشد عربي وخدمة متكاملة</p>
+<p><a href="https://wa.me/8618923166757"><br />
+<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><br />
+واتساب: 008618923166757<br />
+</a>
+</section>
+                📞<br />
+                اتصل بنا: <a href="tel:+77064007561" dir="ltr">+7-705-118-1845</a>
+                ✉️<br />
+                البريد: <a href="mailto:info@arcadia-tour.com">info@arcadia-tour.com</a>
+                📍<br />
+                المقر: الصين، قوانزو
+<!-- ARCADIA SEO CONTENT 2026-10-01: START -->
+<style>
+  .ar-seo{max-width:960px;margin:0 auto;padding:56px 20px;line-height:1.95;color:#2C3E50}
+  .ar-seo h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;color:#0D1B2A;margin:40px 0 14px}
+  .ar-seo h3{font-size:1.15rem;font-weight:800;color:#1A2E42;margin:22px 0 8px}
+  .ar-seo p{margin:0 0 14px;font-size:1.05rem}
+  .ar-seo ul{margin:0 0 16px;padding-right:22px}
+  .ar-seo li{margin:6px 0}
+  .ar-seo table{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:.98rem}
+  .ar-seo th,.ar-seo td{border:1px solid #e3e8ee;padding:10px 12px;text-align:right;vertical-align:top}
+  .ar-seo th{background:#F4F6F8;color:#0D1B2A;font-weight:800}
+  .ar-seo .note{background:#FFF8E6;border-right:4px solid #C9A84C;padding:14px 18px;border-radius:10px;margin:14px 0 22px}
+  .ar-seo details{background:#F4F6F8;border-radius:12px;padding:14px 18px;margin:10px 0}
+  .ar-seo summary{font-weight:800;color:#0D1B2A;cursor:pointer}
+  .ar-seo a{color:#9a7520;font-weight:700}
+  .ar-seo .cta-inline{display:inline-block;background:#25D366;color:#fff;padding:12px 28px;border-radius:50px;font-weight:800;text-decoration:none;margin-top:6px}
+</style>
+<section class="ar-seo" dir="rtl">
+  <h2>أفضل وقت للسياحة في الصين</h2>
+  <table>
+    <tr><th>الموسم</th><th>الأشهر</th><th>الطقس في بكين وشنغهاي</th><th>الأنسب لـ</th></tr>
+    <tr><td>الربيع</td><td>أبريل – مايو</td><td>15 إلى 25 درجة</td><td>الموسم الأفضل للعائلات، معرض كانتون في أبريل</td></tr>
+    <tr><td>الصيف</td><td>يونيو – أغسطس</td><td>28 إلى 35 درجة ورطوبة</td><td>الإجازات الطويلة، المدن الجبلية مثل غويلين وتشنغدو</td></tr>
+    <tr><td>الخريف</td><td>سبتمبر – أكتوبر</td><td>15 إلى 25 درجة</td><td>الموسم الأفضل الثاني، معرض كانتون في أكتوبر؛ تجنبوا أسبوع العيد الوطني (1 إلى 7 أكتوبر)</td></tr>
+    <tr><td>الشتاء</td><td>نوفمبر – فبراير</td><td>-5 إلى 10 درجات شمالاً</td><td>أسعار أقل، مهرجان هاربين للجليد، تجنبوا أسبوع السنة الصينية</td></tr>
+  </table>
+
+  <h2>أهم المدن والوجهات في الصين</h2>
+  <h3>بكين</h3>
+  <p>سور الصين العظيم (قسم موتيانيو الأنسب للعائلات)، المدينة المحرمة، معبد السماء، القصر الصيفي، وشارع وانغفوجينغ. 3 إلى 4 أيام. راجع <a href="/china-attractions/">أهم معالم الصين</a>.</p>
+  <h3>شنغهاي</h3>
+  <p>كورنيش البوند وناطحات بودونغ، برج شنغهاي، حديقة يويوان، ديزني لاند شنغهاي للأطفال، والقطار المغناطيسي. يومان إلى ثلاثة. راجع <a href="/shanghai-guide-arab-2026/">دليل شنغهاي 2026</a>.</p>
+  <h3>قوانزو وشنتشن</h3>
+  <p>مركز التجارة والمعارض وأكبر تجمع للمطاعم العربية والحلال في الصين، وشنتشن مدينة التقنية وحدائق «ويندو أوف ذا وورلد». راجع <a href="/guangzhou-guide/">دليل قوانزو الشامل</a>.</p>
+  <h3>وجهات طبيعية</h3>
+  <p>غويلين وأنهار ليجيانغ، تشنغدو وقاعدة الباندا، جبال تشانغجياجيه «أفاتار»، وتشانغ شا. راجع <a href="/china-cities/">مدن الصين السياحية</a> و<a href="/best-china-cities-arab-tourists-2026/">أفضل مدن الصين للعرب</a>.</p>
+
+  <h2>أنشطة لا تفوّتها في الصين</h2>
+  <ul>
+    <li>صعود سور الصين بالتلفريك والنزول بالزلاجة في موتيانيو.</li>
+    <li>عرض الأضواء على نهر هوانغبو في شنغهاي ليلاً.</li>
+    <li>ديزني لاند شنغهاي ويونيفرسال بكين للعائلات.</li>
+    <li>قاعدة الباندا في تشنغدو وجبال «أفاتار» في تشانغجياجيه.</li>
+    <li>القطار الفائق السرعة بين بكين وشنغهاي في 4 ساعات ونصف.</li>
+    <li>أسواق قوانزو وييوو للتسوق بالجملة والهدايا.</li>
+  </ul>
+
+  <h2>برامج أركاديا في الصين والأسعار التقريبية</h2>
+  <p>أسعار تقديرية للشخص في غرفة مزدوجة، تشمل الإقامة والنقل الخاص والقطار السريع والمرافق العربي والجولات، ولا تشمل الطيران الدولي:</p>
+  <table>
+    <tr><th>البرنامج</th><th>المدة</th><th>ما يشمله</th><th>السعر التقريبي</th></tr>
+    <tr><td>بكين وشنغهاي</td><td>8 أيام / 7 ليالٍ</td><td>السور العظيم، المدينة المحرمة، القطار السريع، البوند، ديزني</td><td>من 1,200 دولار</td></tr>
+    <tr><td>الصين الكلاسيكية</td><td>10 أيام / 9 ليالٍ</td><td>بكين، شيان وجيش التيراكوتا، شنغهاي</td><td>من 1,550 دولاراً</td></tr>
+    <tr><td>الصين للعائلات</td><td>9 أيام / 8 ليالٍ</td><td>شنغهاي وديزني، هانغتشو، تشنغدو والباندا</td><td>من 1,450 دولاراً</td></tr>
+    <tr><td>قوانزو للتجار</td><td>6 أيام / 5 ليالٍ</td><td>المعارض، الأسواق، زيارات المصانع، مترجم تجاري</td><td>من 800 دولار</td></tr>
+  </table>
+  <div class="note">التكلفة اليومية في <a href="/china-family-trip-cost-2026/">تكلفة رحلة الصين للعائلات 2026</a>، والبرامج المفصلة في <a href="/china-programs/">برامج سياحية في الصين</a>. وللتجار: <a href="/china-business/">السياحة التجارية في الصين</a>.</div>
+
+  <h2>تأشيرة الصين للخليجيين والعرب</h2>
+  <p>مواطنو الإمارات وقطر يدخلون بدون تأشيرة لمدة 30 يوماً. مواطنو السعودية والكويت والبحرين وعُمان يحتاجون تأشيرة سياحية من السفارة أو مركز التأشيرات، وتصدر عادة خلال 4 إلى 7 أيام عمل بخطاب الدعوة والحجوزات التي نوفّرها، كما يتوفر إعفاء العبور لمدة 240 ساعة عبر المطارات الكبرى. التفاصيل في <a href="/china-visa-guide-2026/">دليل تأشيرة الصين 2026</a>.</p>
+
+  <h2>الطعام الحلال في الصين</h2>
+  <p>الحلال متوفر بسهولة أكبر مما يتوقع كثيرون: مطاعم «تشينغ تشن» الإسلامية في كل مدينة (ابحثوا عن الحروف العربية على الواجهة)، أحياء عربية كاملة في قوانزو ويوو، ومطاعم أويغورية ولانتشو للنودلز في بكين وشنغهاي. المرافق العربي يرافقكم ويختار المطاعم المناسبة. راجع <a href="/china-halal-food/">الطعام الحلال في الصين</a>.</p>
+
+  <h2>نصائح عملية قبل السفر إلى الصين</h2>
+  <ul>
+    <li><strong>الدفع:</strong> الصين تعتمد على الدفع بالهاتف. ثبّتوا Alipay وWeChat Pay واربطوهما ببطاقتكم قبل السفر؛ النقد مقبول لكنه أقل شيوعاً.</li>
+    <li><strong>الإنترنت:</strong> واتساب وجوجل محجوبان؛ اشتركوا في VPN موثوق قبل الوصول أو استخدموا شريحة دولية. راجع <a href="/vpn-china-best-options-2026/">أفضل خيارات VPN في الصين</a> و<a href="/essential-china-apps-wechat-alipay/">تطبيقات الصين الضرورية</a>.</li>
+    <li><strong>الخرائط والمواصلات:</strong> تطبيق Amap للخرائط وDidi للتاكسي، والقطار السريع بين المدن يُحجز مسبقاً بالجواز.</li>
+    <li><strong>اللغة:</strong> الإنجليزية محدودة جداً خارج الفنادق الكبرى؛ لهذا يرافقكم مرافق عربي أو مترجم طوال البرنامج.</li>
+    <li><strong>الكهرباء:</strong> 220 فولت بمقابس من نوع A وI، أحضروا محوّلاً.</li>
+  </ul>
+  <p>المزيد في <a href="/china-overview/">دليل السفر إلى الصين 2026</a> و<a href="/china-travel-tips/">نصائح السفر إلى الصين</a>.</p>
+
+  <h2>كيف تحجز رحلتك إلى الصين مع أركاديا؟</h2>
+  <ul>
+    <li><strong>1. أرسل التاريخ وعدد الأفراد</strong> والمدن التي تهمكم على واتساب، قبل الرحلة بثلاثة أسابيع على الأقل للتأشيرة.</li>
+    <li><strong>2. نرسل برنامجاً يوماً بيوم</strong> مع السعر النهائي ومستندات التأشيرة خلال 24 ساعة.</li>
+    <li><strong>3. تأكيد بعربون</strong> ثم تأكيدات الفنادق والقطارات.</li>
+    <li><strong>4. الاستقبال في المطار</strong> ومتابعة يومية طوال الرحلة.</li>
+  </ul>
+  <p><a class="cta-inline" href="https://wa.me/77064007561?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A3%D8%B1%D9%83%D8%A7%D8%AF%D9%8A%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%D8%A7%D9%8B%20%D9%84%D9%84%D8%B5%D9%8A%D9%86" rel="noopener">اطلب برنامجك على واتساب +7 706 400 7561</a> &nbsp; <a href="/offers-bookings/">أو استعرض العروض الحالية</a></p>
+
+  <h2>أسئلة شائعة عن السياحة في الصين</h2>
+  <details><summary>هل الصين مناسبة للعائلات العربية؟</summary><p>نعم، آمنة جداً، والمواصلات ممتازة، ومدن الألعاب والحدائق كثيرة، والطعام الحلال متوفر بمساعدة المرافق.</p></details>
+  <details><summary>كم تكلفة أسبوع لعائلة من 4 أفراد؟</summary><p>تقريباً من 4,000 إلى 6,000 دولار بدون الطيران حسب المدن والفنادق.</p></details>
+  <details><summary>هل أحتاج VPN؟</summary><p>نعم إن أردتم استخدام واتساب وإنستغرام وجوجل، ويُثبَّت قبل الوصول.</p></details>
+  <details><summary>هل يمكن الجمع بين السياحة والتجارة؟</summary><p>نعم، كثير من عملائنا يضيفون يومين في قوانزو أو ييوو للأسواق والمعارض. راجع <a href="/import-from-china/">الاستيراد من الصين</a>.</p></details>
+  <details><summary>كم يوماً تكفي؟</summary><p>8 أيام لبكين وشنغهاي، و10 إلى 12 يوماً لإضافة شيان أو غويلين أو تشنغدو.</p></details>
+
+</section>
+<!-- ARCADIA SEO CONTENT 2026-10-01: END -->
+<section dir="rtl" style="padding:54px 16px;background:linear-gradient(180deg,#f8fafc,#eef2f7);margin-top:30px;border-radius:18px"><h2 style="text-align:center;color:#16233b;font-size:30px;margin:0 0 8px">أبرز وجهات الصين</h2><p style="text-align:center;color:#5b6472;max-width:640px;margin:0 auto 30px;font-size:16px">من سور الصين العظيم إلى جبال قويلين الساحرة وأسواق قوانزو — برامج متكاملة تجمع بين التاريخ والحداثة والتسوّق مع أركاديا.</p><img src="https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-china-greatwall-1.jpg" alt="بكين وسور الصين الصين" loading="lazy" style="width:100%;height:190px;object-fit:cover;display:block"><h3 style="margin:0;color:#16233b;font-size:20px">بكين وسور الصين</h3><p style="margin:7px 0 0;color:#5b6472;font-size:14px;line-height:1.6">العاصمة التاريخية وأعجوبة العالم الخالدة</p><img src="https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-shanghai-china.jpg" alt="شنغهاي الصين" loading="lazy" style="width:100%;height:190px;object-fit:cover;display:block"><h3 style="margin:0;color:#16233b;font-size:20px">شنغهاي</h3><p style="margin:7px 0 0;color:#5b6472;font-size:14px;line-height:1.6">ناطحات السحاب وأضواء نهر هوانغبو</p><img src="https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-guangzhou-china.jpg" alt="قوانزو الصين" loading="lazy" style="width:100%;height:190px;object-fit:cover;display:block"><h3 style="margin:0;color:#16233b;font-size:20px">قوانزو</h3><p style="margin:7px 0 0;color:#5b6472;font-size:14px;line-height:1.6">عاصمة التجارة وموطن معرض كانتون</p><img src="https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-guilin-china-nature.jpg" alt="قويلين الصين" loading="lazy" style="width:100%;height:190px;object-fit:cover;display:block"><h3 style="margin:0;color:#16233b;font-size:20px">قويلين</h3><p style="margin:7px 0 0;color:#5b6472;font-size:14px;line-height:1.6">جبال كارستية وأنهار تأسر الأنظار</p></section>
