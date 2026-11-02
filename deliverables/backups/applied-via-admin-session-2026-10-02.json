@@ -2791,6 +2791,7 @@
    "caches": "LiteSpeed Purge All + Cloudflare Purge Everything after the title changes",
    "final_crawl": "601 URLs: 600 OK + one transient timeout (UZ hub re-checked 200), 0 PHP errors, hreflang 584 paired / 0 problems, 34 pages with FAQ schema and no duplicates, no leaks, WhatsApp number on all pages; remaining long items are pre-existing (EN Russia 12-day title 68, two EN descriptions at 161)",
    "tooling": "crawl script saved as deliverables/backups/site-crawl-check.py because the scratch folder was purged again"
-  }
+  },
+  "contact_form_email_confirmed_by_owner": "2026-11-02: owner confirmed the test message reached the site inbox (WP Mail SMTP path works)"
  }
 }
