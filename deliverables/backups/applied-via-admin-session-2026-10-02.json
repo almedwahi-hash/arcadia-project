@@ -2750,7 +2750,13 @@
    "Referrer-Policy / X-Frame-Options": "Code Snippets REST create attempted but Chrome froze; header not present yet",
    "LiteSpeed JS defer / browser cache TTL": "settings page opened (JS defer radio state unreadable because Chrome froze); not changed",
    "Search Console re-index requests": "only the EN contact page inspection started; Chrome froze before the request was confirmed",
-   "contact form test": "form filled and submitted from the built-in browser; no confirmation element appeared within 8 s; network check pending"
+   "contact form test": "DONE from the built-in browser: fields typed, submit clicked, confirmation shown (شكرًا لتواصلك مع أركاديا السياحية. تم إرسال رسالتك). Sender name اختبار كلود, sender email = owner address; owner to confirm it reached the inbox (WP Mail SMTP active). Two earlier scripted attempts returned no confirmation and one non-AJAX attempt was rejected (corrupted post data).",
+   "after_crawl": {
+    "robots.txt": "Cloudflare managed content signals block AI-training bots only; User-agent * is Allow: / (my crawler flagged the Disallow lines wrongly)",
+    "titles_over_65_from_this_round": "511 (69), 585 (67), 3339 (78) need shortening when Chrome works again; /en/the-complete-russia-tourism-program-12-days/ (68) pre-existing",
+    "hreflang": "rules 39/40 (EN old KZ posts -> hub) broke reciprocity for two AR posts (كازاخستان الوجهة الصيفية, السياحة في كازاخستان المسافرون العرب, the latter has 205 impressions); plan: delete rules 39 and 40 and keep the two EN posts (the merge gain was tiny)",
+    "desc_161": "/en/kazakhstan-tourism-program-7-days/"
+   }
   },
   "invalid_or_already_done_in_notes": [
    "EN best-time-to-visit-kazakhstan already exists (3 Oct, 12 inbound links)",
@@ -2759,6 +2765,7 @@
    "mobile 360/390/430: menu, switcher, WhatsApp button fine",
    "WP Mail SMTP already active",
    "TTFB ~0.2 s with Cloudflare HIT; the LCP problem is render delay of the hero (unused JS incl. Facebook pixel, long tasks), not the server"
-  ]
+  ],
+  "chrome_state": "Chrome tabs became unresponsive (CDP timeouts) in the second half of the round; owner asked to restart Chrome before the remaining items"
  }
 }
