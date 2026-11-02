@@ -2766,6 +2766,31 @@
    "WP Mail SMTP already active",
    "TTFB ~0.2 s with Cloudflare HIT; the LCP problem is render delay of the hero (unused JS incl. Facebook pixel, long tasks), not the server"
   ],
-  "chrome_state": "Chrome tabs became unresponsive (CDP timeouts) in the second half of the round; owner asked to restart Chrome before the remaining items"
+  "completed_after_chrome_restart_2026-11-02": {
+   "security_headers": "Code Snippets snippet 25 \"Arcadia Security Headers\" (send_headers: Referrer-Policy strict-origin-when-cross-origin, X-Frame-Options SAMEORIGIN) created and active; curl shows all four headers (HSTS, nosniff, referrer, x-frame)",
+   "redirects_39_40_deleted": "the two EN Kazakhstan old posts are live again (hreflang pairs with their AR partners restored); rules 37 and 38 kept",
+   "titles_shortened": {
+    "511": "تكلفة السياحة في بولندا 2026: ميزانية 7 أيام للشخص والعائلة (59)",
+    "585": "مدن بولندا السياحية 2026: أفضل 6 مدن للعوائل ومسار 7 أيام (57)",
+    "3339": "مدن الصين السياحية 2026: أشهر 10 مدن وأيها تناسب رحلتك | أركاديا (64)"
+   },
+   "litespeed": "checked, nothing to change: JS defer already at Delayed (2), JS/CSS/HTML minify on, browser cache on; the remaining mobile LCP lever is third-party scripts (Facebook pixel via GTM), an owner decision",
+   "search_console_requests_10": [
+    "/en/contact-us/",
+    "/تواصل-معنا/",
+    "/offers-bookings/ (request click, no dialog seen)",
+    "/en/offers-and-reservations-en/",
+    "/السياحة-في-روسيا/",
+    "/السياحة-في-بولندا/",
+    "/السياحة-في-كازاخستان/",
+    "/السياحة-في-أوزبكستان/",
+    "/china-cities/",
+    "/السياحة-في-كازاخستان/المدن-في-كازاخستان-…/"
+   ],
+   "search_console_indexed": "606 (581 on 23 Oct)",
+   "caches": "LiteSpeed Purge All + Cloudflare Purge Everything after the title changes",
+   "final_crawl": "601 URLs: 600 OK + one transient timeout (UZ hub re-checked 200), 0 PHP errors, hreflang 584 paired / 0 problems, 34 pages with FAQ schema and no duplicates, no leaks, WhatsApp number on all pages; remaining long items are pre-existing (EN Russia 12-day title 68, two EN descriptions at 161)",
+   "tooling": "crawl script saved as deliverables/backups/site-crawl-check.py because the scratch folder was purged again"
+  }
  }
 }
