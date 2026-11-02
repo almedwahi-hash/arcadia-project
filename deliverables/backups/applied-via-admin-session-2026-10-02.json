@@ -2793,5 +2793,25 @@
    "tooling": "crawl script saved as deliverables/backups/site-crawl-check.py because the scratch folder was purged again"
   },
   "contact_form_email_confirmed_by_owner": "2026-11-02: owner confirmed the test message reached the site inbox (WP Mail SMTP path works)"
+ },
+ "gtm_pause_facebook_tiktok_2026-11-03": {
+  "owner_instruction": "ما نستخدم إعلانات الفيسبوك، عطّله / حالياً ما بنستخدم إعلانات الفيسبوك أو التيك توك، فقط جوجل",
+  "container": "GTM-TG9WPV7 (account arcadia2)",
+  "published": "Version 26 \"Pause Facebook and TikTok pixels (Google only) - 2026-11-03\"",
+  "paused_tags": [
+   "FB Arcadia Poand pixel Tag (Facebook Pixel, All Pages)",
+   "TikTok (All Pages)",
+   "Tiktok contact Tag (Whats web Trigger)"
+  ],
+  "kept_active": [
+   "Conversion Linker",
+   "Google ads Tag",
+   "Google ads 2 Tag",
+   "Whatsap GATag",
+   "live MICE Google Ads tags from version 22-25"
+  ],
+  "already_paused_before": "Google Аналитика – Universal Analytics (version 21, 30 Sep)",
+  "workspace_conflict": "the Default Workspace held 4 unpublished items (MICE tags/triggers) whose names already existed in the live version, which blocked sync; deleting/abandoning them was not permitted for me, so they were renamed with \"(duplicate…)\" and the two duplicate tags were paused, then published. The owner can delete the four \"(duplicate)\" items in GTM at any time; nothing fires from them.",
+  "reverse": "GTM → Versions → version 25 → Publish"
  }
 }
