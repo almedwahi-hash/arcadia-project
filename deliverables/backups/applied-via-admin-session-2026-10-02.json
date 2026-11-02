@@ -2673,5 +2673,92 @@
   "kept": "cards judged fine were left (RU 1,3,4,6,7; PL 2,3,4,5,7; KZ 1,3-6,8,9; UZ hub all 3)",
   "verified": "live HTML with cache bypass shows the new URLs on all three hubs; all 10 image URLs return 200; Russia cards render in the browser; no PHP error, one H1",
   "reverse": "swap each new path back to its old path in content and _elementor_data, then Elementor save"
+ },
+ "owner_notes_review_and_fixes_2026-11-02": {
+  "date": "2026-11-02",
+  "owner_instruction": "نفّذ كل شيء، والأرقام خليها كما في النسخة العربية",
+  "review_of_two_note_sets": "see status section 35; valid items executed, invalid ones documented",
+  "applied": {
+   "visa_wording_7_pages": {
+    "2587 EN offers": [
+     "Visa Assistance block -> Entry Requirements Guidance (visa issuance is not part of our services)",
+     "FAQ answer \"Do you help with visas? Yes…\" -> \"We do not issue or process visas…\""
+    ],
+    "3410 AR China trade fairs": "**استخراج التأشيرات:** نساعدك… -> **معلومات التأشيرة:** … إصدار التأشيرة ليس ضمن خدماتنا",
+    "6644 EN Warsaw/Krakow hotels": "and we help with the visa file -> we provide the booking confirmations your visa application needs (visa issuance is not part of our services)",
+    "580 AR Russia visa": [
+     "old paragraph \"يقدم الفيزا إلى روسيا خدمة تقديم طلبات الفيزا… نحن خبراء… نحن نتعامل مع جميع الإجراءات\" -> informational paragraph (consulates receive applications; Arcadia does not issue visas)",
+     "H1 \"التسجيل وإصدار التأشيرة لدخول روسيا\" -> \"معلومات عن تأشيرة دخول روسيا\""
+    ],
+    "2561 EN Russia visa": "old paragraph \"Visa to Russia provides the service of submitting…\" -> informational paragraph",
+    "785 AR offers (Elementor)": "✓ استخراج تأشيرة -> ✓ إرشاد عن شروط الدخول (content + _elementor_data)"
+   },
+   "trust_figures_2468_EN_home": {
+    "<b>+10</b> Tourist destinations": "<b>5</b>",
+    "<b>1000+</b> Happy clients": "<b>7,546</b>",
+    "rule": "match the Arabic home (7546 عميل، 5 وجهات، +10 سنوات)"
+   },
+   "unsplash_hotlinks_replaced": {
+    "uploaded_media": {
+     "7858": "2026/11/arcadia-about-team.jpg (photo-1469854523086)",
+     "7859": "arcadia-destinations-1.jpg (photo-1513326738677)",
+     "7860": "arcadia-destinations-2.jpg (photo-1519197924294)",
+     "7861": "arcadia-destinations-3.jpg (photo-1508804185872)"
+    },
+    "pages": {
+     "18 home AR (Elementor)": 4,
+     "144 من نحن (Elementor)": 1,
+     "3629 الوجهات (Elementor)": 3,
+     "3760 EN destinations": 3,
+     "2469 EN who-are-we": 1
+    },
+    "method": "fetched in the browser from images.unsplash.com and POSTed to /wp/v2/media (no local download); URLs swapped in content and _elementor_data (plain and \\/ forms); Elementor Tools -> Clear Files & Data regenerated the element cache"
+   },
+   "titles_descriptions": {
+    "568 KZ cities AR": "title \"أكبر مدن كازاخستان 2026: أفضل 9 مدن للسياحة والعائلات | أركاديا\", new description",
+    "3339 China cities AR (Elementor)": "title \"مدن الصين السياحية 2026: أشهر 10 مدن وأيها تناسب رحلتك وبرنامج مقترح | أركاديا\", new description",
+    "585 PL cities AR": "title \"مدن بولندا السياحية 2026: أفضل 6 مدن للعوائل ومسار 7 أيام | أركاديا\"",
+    "511 PL cost guide AR": "title \"تكلفة السياحة في بولندا 2026: ميزانية 7 أيام للشخص والعائلة | أركاديا\"",
+    "2260 PL family cost AR": "title \"تكلفة رحلة بولندا للعائلات 2026: أسعار البرامج العائلية | أركاديا\" + new description (old description was an article excerpt)",
+    "2495 EN Poland tips": "title \"How to Cut Poland Trip Costs 2026: 8 Money-Saving Tips | Arcadia\"",
+    "2677 EN Warsaw halal": "description: removed \"Find halal food near you.\" (source of the near-me impressions), added \"plus how to verify halal\""
+   },
+   "faq_schema_added": {
+    "568": 4,
+    "585": 4,
+    "569 KZ visa": 5,
+    "511": 5,
+    "2680 EN PL family cost": 3,
+    "3339 China cities": "4 new Q&As as an Elementor HTML widget + FAQPage JSON-LD",
+    "2260": "added then removed: the page already had a FAQPage script (duplicate avoided)"
+   },
+   "redirects_301_redirection_plugin": {
+    "38": "/winter-tourism-kazakhstan-2/ -> /winter-tourism-kazakhstan/",
+    "37": "/best-china-cities-arab-tourists-2026/ -> /best-chinese-cities-guide/ (canonical target)",
+    "39": "/en/kazakhstan-the-summer-destination-that-every-gulf-arab-is-looking-for/ -> /en/tourism-in-kazakhstan/",
+    "40": "/en/tourism-in-kazakhstan-arab-travelers-as-you-have-never-known-it-before/ -> /en/tourism-in-kazakhstan/",
+    "note": "rules only fire on the exact URL (query strings excluded), verified 301 after purge"
+   },
+   "cloudflare": {
+    "HSTS": "enabled, max-age 10368000, no subdomains, no preload",
+    "nosniff": "X-Content-Type-Options: nosniff enabled in the HSTS dialog",
+    "verified": "curl shows both headers"
+   },
+   "caches": "Elementor Clear Files & Data, LiteSpeed Purge All, Cloudflare Purge Everything"
+  },
+  "not_done_or_pending": {
+   "Referrer-Policy / X-Frame-Options": "Code Snippets REST create attempted but Chrome froze; header not present yet",
+   "LiteSpeed JS defer / browser cache TTL": "settings page opened (JS defer radio state unreadable because Chrome froze); not changed",
+   "Search Console re-index requests": "only the EN contact page inspection started; Chrome froze before the request was confirmed",
+   "contact form test": "form filled and submitted from the built-in browser; no confirmation element appeared within 8 s; network check pending"
+  },
+  "invalid_or_already_done_in_notes": [
+   "EN best-time-to-visit-kazakhstan already exists (3 Oct, 12 inbound links)",
+   "hreflang: 584 pairs, no problems",
+   "broken links: none; redirects single hop",
+   "mobile 360/390/430: menu, switcher, WhatsApp button fine",
+   "WP Mail SMTP already active",
+   "TTFB ~0.2 s with Cloudflare HIT; the LCP problem is render delay of the hero (unused JS incl. Facebook pixel, long tasks), not the server"
+  ]
  }
 }
