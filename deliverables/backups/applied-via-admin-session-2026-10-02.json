@@ -2813,5 +2813,24 @@
   "already_paused_before": "Google Аналитика – Universal Analytics (version 21, 30 Sep)",
   "workspace_conflict": "the Default Workspace held 4 unpublished items (MICE tags/triggers) whose names already existed in the live version, which blocked sync; deleting/abandoning them was not permitted for me, so they were renamed with \"(duplicate…)\" and the two duplicate tags were paused, then published. The owner can delete the four \"(duplicate)\" items in GTM at any time; nothing fires from them.",
   "reverse": "GTM → Versions → version 25 → Publish"
+ },
+ "merchant_center_review_2026-11-04": {
+  "trigger": "Google email: some product images smaller than 500x500; affected products may stop showing from 31 Jan 2027",
+  "account": "5713962879 \"شركه اركاديا السياحيه | كازاخستان\"",
+  "findings": {
+   "data_sources": [
+    "auto-crawl of arcadia-tour.com: 0 products",
+    "manual Merchant Center source, feed label EG, language Russian: 19 products"
+   ],
+   "products": "legacy Russian-language tours from the Ukraine era (Тур в Бали, Тур в Шарм, Солнечный Шарм из Одессы, Анталия из Одессы, Аркадия…) — not current offerings",
+   "issues": [
+    "online store URL mismatch: 12 products (63%)",
+    "product page not available: 3 products",
+    "image smaller than 500x500 (the email)",
+    "15 products flagged in total; none can show on Google as they stand"
+   ],
+   "recommendation": "delete the 19 legacy products / the manual source instead of fixing images; keep the account (domain verified) for possible future listing of real programmes",
+   "status": "awaiting owner decision (deletion)"
+  }
  }
 }
