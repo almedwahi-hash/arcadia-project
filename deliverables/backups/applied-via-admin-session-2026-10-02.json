@@ -2832,5 +2832,27 @@
    "recommendation": "delete the 19 legacy products / the manual source instead of fixing images; keep the account (domain verified) for possible future listing of real programmes",
    "status": "awaiting owner decision (deletion)"
   }
+ },
+ "content_round_2026-11-04": {
+  "owner_instruction": "راجع الموقع بشكل عام كامل … مقالات تحتاج إضافة … الموقع دائماً في حياة وحركة",
+  "review": "crawl clean (601 URLs); last post was 16 Oct (19 days); Search Console gaps: \"السياحة في بولندا للعوائل\" 228 impressions at position 26.7 with no dedicated page; no New Year 2027 content",
+  "published": {
+   "7882 AR": "/poland-for-families-guide/ — السياحة في بولندا للعوائل (cats 19,21; featured 2247; FAQ schema)",
+   "7884 EN": "/en/poland-for-families/ — Poland for Families (cats 255,267; linked as translation of 7882)",
+   "7883 AR": "/new-year-2027-family-trips/ — رأس السنة 2027 للعائلات: موسكو أم وارسو أم ألماتي؟ (cats 16,19,15,21; featured 5996)",
+   "7886 EN": "/en/new-year-2027-family-trips-en/ — New Year 2027 for Gulf Families (cats 259,255,263,267; translation of 7883)"
+  },
+  "sources_html": "deliverables/articles-2026-11-04/*.html",
+  "inbound_links_added": [
+   "AR: poland-for-saudis-2026, best-time-visit-poland-2026, poland-family-trip-cost, russia-for-saudis-2026, kazakhstan-for-saudis-2026, winter-tourism-kazakhstan, moscow-3-days-itinerary, warsaw-3-days-itinerary",
+   "EN: poland-for-saudi-travellers, best-time-to-visit-poland, cost-of-a-poland-trip-for-families…, russia-for-saudi-travellers, kazakhstan-for-saudi-travellers, moscow-in-3-days, warsaw-in-3-days"
+  ],
+  "facts_used": "prices reuse the owner-approved family figures (Poland 2,600–3,900 USD summer week; Russia family 3,070–3,500 USD base +15–25% New Year; Kazakhstan family 1,820–2,600 USD) marked approximate; GCC visa-free Russia and Kazakhstan (30 days); Schengen for Poland with UAE exempt; New Year 2027 is a Friday",
+  "small_fixes": {
+   "/en/the-complete-russia-tourism-program-12-days/": "title shortened to 66 → \"Russia 12-Day Programme: Moscow, Saint Petersburg and Kazan | Arcadia\"",
+   "/en/kazakhstan-tourism-program-7-days/": "description trimmed to 146 chars"
+  },
+  "caches": "LiteSpeed Purge All + Cloudflare Purge Everything",
+  "search_console": "indexing requested for the four new URLs (see status section)"
  }
 }
