@@ -1,0 +1,482 @@
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --dark: #0D1B2A;
+    --white: #FFFFFF;
+    --gray: #F4F6F8;
+    --text: #2C3E50;
+    --green: #25D366;
+  }</p>
+<p>  * { margin: 0; padding: 0; box-sizing: border-box; }</p>
+<p>  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    color: var(--text);
+    background: var(--gray);
+  }</p>
+<p>  .hero {
+    background: linear-gradient(135deg, #0D3B6E 0%, #1565C0 100%);
+    padding: 80px 20px 60px;
+    text-align: center;
+    color: white;
+  }</p>
+<p>  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    margin-bottom: 16px;
+  }</p>
+<p>  .hero p {
+    font-size: 1.3rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }</p>
+<p>  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+  }</p>
+<p>  .offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+  }</p>
+<p>  .offer-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+  }</p>
+<p>  .offer-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }</p>
+<p>  .offer-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--gold);
+    color: var(--dark);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    z-index: 10;
+  }</p>
+<p>  .offer-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }</p>
+<p>  .offer-content {
+    padding: 30px;
+  }</p>
+<p>  .offer-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 12px;
+  }</p>
+<p>  .offer-subtitle {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }</p>
+<p>  .offer-features {
+    list-style: none;
+    margin-bottom: 24px;
+  }</p>
+<p>  .offer-features li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+  }</p>
+<p>  .offer-features li:last-child {
+    border-bottom: none;
+  }</p>
+<p>  .offer-features li::before {
+    content: "✓";
+    color: var(--gold);
+    font-weight: 900;
+    margin-left: 12px;
+    font-size: 1.1rem;
+  }</p>
+<p>  .offer-pricing {
+    background: var(--gray);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }</p>
+<p>  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }</p>
+<p>  .price-row:last-child {
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 2px solid var(--gold);
+  }</p>
+<p>  .price-label {
+    font-size: 0.9rem;
+    color: #666;
+  }</p>
+<p>  .price-value {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--dark);
+  }</p>
+<p>  .price-value.highlight {
+    font-size: 1.6rem;
+    color: var(--gold);
+  }</p>
+<p>  .offer-note {
+    font-size: 0.85rem;
+    color: #999;
+    text-align: center;
+    margin-bottom: 20px;
+    font-style: italic;
+  }</p>
+<p>  .offer-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }</p>
+<p>  .btn {
+    padding: 14px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }</p>
+<p>  .btn-whatsapp {
+    background: var(--green);
+    color: white;
+  }</p>
+<p>  .btn-whatsapp:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+  }</p>
+<p>  .btn-details {
+    background: var(--gold);
+    color: var(--dark);
+  }</p>
+<p>  .btn-details:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }</p>
+<p>  .info-banner {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    margin-top: 60px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+  }</p>
+<p>  .info-banner h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 20px;
+    text-align: center;
+  }</p>
+<p>  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 30px;
+  }</p>
+<p>  .info-item {
+    text-align: center;
+    padding: 20px;
+  }</p>
+<p>  .info-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }</p>
+<p>  .info-text {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+  }</p>
+<p>  @media (max-width: 768px) {
+    .offers-grid {
+      grid-template-columns: 1fr;
+    }</p>
+<p>    .offer-buttons {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+<div class="hero">
+<h1>🌟 العروض السياحية المميزة</h1>
+<p>عروض حصرية بأسعار لا تُقاوم &#8211; احجز الآن ووفّر حتى 20%!</p>
+</div>
+<div class="container">
+<div class="offers-grid">
+<p>    <!-- عرض 1: كازاخستان 5 أيام --></p>
+<div class="offer-card">
+<div class="offer-badge">🔥 الأكثر مبيعاً</div>
+<p>      <img decoding="async" class="offer-image" src="https://arcadia-tour.com/wp-content/uploads/2026/03/arcadia-kazakhstan-offer.jpg" alt="ألماتي كازاخستان" style="max-width:100%;height:auto;display:block;margin:10px auto"></p>
+<div class="offer-content">
+<h3 class="offer-title">🇰🇿 كازاخستان &#8211; ألماتي</h3>
+<p class="offer-subtitle">5 أيام / 4 ليالي &#8211; رحلة استكشافية</p>
+<ul class="offer-features">
+<li>إقامة 4 ليالي في فندق 4 نجوم</li>
+<li>وجبة إفطار يومية</li>
+<li>المواصلات من وإلى المطار</li>
+<li>جولات سياحية مع دعم عربي متوفر</li>
+<li>زيارة جبل كوك توبي وبحيرة Big Almaty</li>
+</ul>
+<div class="offer-pricing">
+<div class="price-row">
+            <span class="price-label">شخص واحد:</span><br />
+            <span class="price-value">$580</span>
+          </div>
+<div class="price-row">
+            <span class="price-label">شخصين:</span><br />
+            <span class="price-value highlight">$450 للشخص</span>
+          </div>
+</p>
+</div>
+<p class="offer-note">💡 وفّر $130 عند الحجز لشخصين!</p>
+<div class="offer-buttons">
+          <a href="https://wa.me/77064007561?text=مرحباً، أريد الاستفسار عن عرض كازاخستان 5 أيام" class="btn btn-whatsapp" target="_blank"><br />
+            📞 واتساب<br />
+          </a><br />
+          <a href="https://arcadia-tour.com/السياحة-في-كازاخستان/" class="btn btn-details"><br />
+            📋 التفاصيل<br />
+          </a>
+        </div>
+</p>
+</div>
+</div>
+<p>    <!-- عرض 2: كازاخستان 7 أيام --></p>
+<div class="offer-card">
+<div class="offer-badge">⭐ الأفضل قيمة</div>
+<p>      <img decoding="async" class="offer-image" src="https://arcadia-tour.com/wp-content/uploads/2026/03/arcadia-switzerland-east.jpg" alt="أستانا كازاخستان" style="max-width:100%;height:auto;display:block;margin:10px auto"></p>
+<div class="offer-content">
+<h3 class="offer-title">🇰🇿 كازاخستان &#8211; ألماتي كامل</h3>
+<p class="offer-subtitle">7 أيام / 6 ليالي &#8211; تجربة شاملة</p>
+<ul class="offer-features">
+<li>إقامة 6 ليالي في فندق 4 نجوم</li>
+<li>وجبة إفطار يومية</li>
+<li>جميع المواصلات الداخلية</li>
+<li>جولات يومية مع دعم عربي متوفر</li>
+<li>زيارة جميع المعالم السياحية</li>
+<li>رحلة إلى وادي Charyn Canyon</li>
+</ul>
+<div class="offer-pricing">
+<div class="price-row">
+            <span class="price-label">شخص واحد:</span><br />
+            <span class="price-value">$780</span>
+          </div>
+<div class="price-row">
+            <span class="price-label">شخصين:</span><br />
+            <span class="price-value highlight">$620 للشخص</span>
+          </div>
+</p>
+</div>
+<p class="offer-note">💡 وفّر $160 عند الحجز لشخصين!</p>
+<div class="offer-buttons">
+          <a href="https://wa.me/77064007561?text=مرحباً، أريد الاستفسار عن عرض كازاخستان 7 أيام" class="btn btn-whatsapp" target="_blank"><br />
+            📞 واتساب<br />
+          </a><br />
+          <a href="https://arcadia-tour.com/السياحة-في-كازاخستان/" class="btn btn-details"><br />
+            📋 التفاصيل<br />
+          </a>
+        </div>
+</p>
+</div>
+</div>
+<p>    <!-- عرض 3: روسيا - موسكو 5 أيام --></p>
+<div class="offer-card">
+      <img decoding="async" class="offer-image" src="https://arcadia-tour.com/wp-content/uploads/2026/03/arcadia-moscow-winter.jpg" alt="موسكو روسيا" style="max-width:100%;height:auto;display:block;margin:10px auto"></p>
+<div class="offer-content">
+<h3 class="offer-title">🇷🇺 روسيا &#8211; موسكو</h3>
+<p class="offer-subtitle">5 أيام / 4 ليالي &#8211; عاصمة الثقافة</p>
+<ul class="offer-features">
+<li>إقامة 4 ليالي في فندق 4 نجوم</li>
+<li>وجبة إفطار يومية</li>
+<li>المواصلات من وإلى المطار</li>
+<li>جولات في الكرملين والميدان الأحمر</li>
+<li>زيارة كاتدرائية سانت باسيل</li>
+<li>دعم سياحي متاح بالعربية</li>
+</ul>
+<div class="offer-pricing">
+<div class="price-row">
+            <span class="price-label">شخص واحد:</span><br />
+            <span class="price-value">$650</span>
+          </div>
+<div class="price-row">
+            <span class="price-label">شخصين:</span><br />
+            <span class="price-value highlight">$520 للشخص</span>
+          </div>
+</p>
+</div>
+<p class="offer-note">💡 وفّر $130 عند الحجز لشخصين!</p>
+<div class="offer-buttons">
+          <a href="https://wa.me/77064007561?text=مرحباً، أريد الاستفسار عن عرض موسكو 5 أيام" class="btn btn-whatsapp" target="_blank"><br />
+            📞 واتساب<br />
+          </a><br />
+          <a href="https://arcadia-tour.com/السياحة-في-روسيا/" class="btn btn-details"><br />
+            📋 التفاصيل<br />
+          </a>
+        </div>
+</p>
+</div>
+</div>
+<p>    <!-- عرض 4: روسيا - موسكو + سانت 9 أيام --></p>
+<div class="offer-card">
+<div class="offer-badge">🎁 عرض خاص</div>
+<p>      <img decoding="async" class="offer-image" src="https://arcadia-tour.com/wp-content/uploads/2026/03/arcadia-russia-correct.jpg" alt="سانت بطرسبرغ" style="max-width:100%;height:auto;display:block;margin:10px auto"></p>
+<div class="offer-content">
+<h3 class="offer-title">🇷🇺 روسيا &#8211; موسكو + سانت</h3>
+<p class="offer-subtitle">9 أيام / 8 ليالي &#8211; رحلة كاملة</p>
+<ul class="offer-features">
+<li>إقامة 8 ليالي (4 موسكو + 4 سانت بطرسبرغ)</li>
+<li>وجبة إفطار يومية</li>
+<li>قطار سريع بين المدينتين</li>
+<li>جميع المواصلات الداخلية</li>
+<li>زيارة قصر الشتاء ومتحف الهيرميتاج</li>
+<li>جولات شاملة مع دعم عربي متوفر</li>
+</ul>
+<div class="offer-pricing">
+<div class="price-row">
+            <span class="price-label">شخص واحد:</span><br />
+            <span class="price-value">$1,150</span>
+          </div>
+<div class="price-row">
+            <span class="price-label">شخصين:</span><br />
+            <span class="price-value highlight">$920 للشخص</span>
+          </div>
+</p>
+</div>
+<p class="offer-note">💡 وفّر $230 عند الحجز لشخصين!</p>
+<div class="offer-buttons">
+          <a href="https://wa.me/77064007561?text=مرحباً، أريد الاستفسار عن عرض روسيا الشامل 9 أيام" class="btn btn-whatsapp" target="_blank"><br />
+            📞 واتساب<br />
+          </a><br />
+          <a href="https://arcadia-tour.com/السياحة-في-روسيا/" class="btn btn-details"><br />
+            📋 التفاصيل<br />
+          </a>
+        </div>
+</p>
+</div>
+</div>
+<p>    <!-- عرض 5: بولندا 7 أيام --></p>
+<div class="offer-card">
+      <img decoding="async" class="offer-image" src="https://arcadia-tour.com/wp-content/uploads/2026/03/arcadia-poland-krakow-winter.jpg" alt="كراكوف بولندا" style="max-width:100%;height:auto;display:block;margin:10px auto"></p>
+<div class="offer-content">
+<h3 class="offer-title">🇵🇱 بولندا &#8211; كراكوف + زاكوباني</h3>
+<p class="offer-subtitle">7 أيام / 6 ليالي &#8211; سحر أوروبا</p>
+<ul class="offer-features">
+<li>إقامة 6 ليالي (4 كراكوف + 2 زاكوباني)</li>
+<li>وجبة إفطار يومية</li>
+<li>المواصلات بين المدن</li>
+<li>زيارة البلدة القديمة في كراكوف</li>
+<li>رحلة إلى جبال Tatra</li>
+<li>دعم سياحي متاح بالعربية</li>
+</ul>
+<div class="offer-pricing">
+<div class="price-row">
+            <span class="price-label">شخص واحد:</span><br />
+            <span class="price-value">$1,050</span>
+          </div>
+<div class="price-row">
+            <span class="price-label">شخصين:</span><br />
+            <span class="price-value highlight">$850 للشخص</span>
+          </div>
+</p>
+</div>
+<p class="offer-note">💡 وفّر $200 عند الحجز لشخصين!</p>
+<div class="offer-buttons">
+          <a href="https://wa.me/77064007561?text=مرحباً، أريد الاستفسار عن عرض بولندا 7 أيام" class="btn btn-whatsapp" target="_blank"><br />
+            📞 واتساب<br />
+          </a><br />
+          <a href="https://arcadia-tour.com/السياحة-في-بولندا/" class="btn btn-details"><br />
+            📋 التفاصيل<br />
+          </a>
+        </div>
+</p>
+</div>
+</div>
+<p>    <!-- عرض 6: أوزبكستان 6 أيام --></p>
+<div class="offer-card">
+<div class="offer-badge">🆕 جديد</div>
+<p>      <img decoding="async" class="offer-image" src="https://arcadia-tour.com/wp-content/uploads/2026/03/arcadia-uzbekistan-correct.jpg" alt="سمرقند أوزبكستان" style="max-width:100%;height:auto;display:block;margin:10px auto"></p>
+<div class="offer-content">
+<h3 class="offer-title">🇺🇿 أوزبكستان &#8211; سمرقند + بخارى</h3>
+<p class="offer-subtitle">6 أيام / 5 ليالي &#8211; طريق الحرير</p>
+<ul class="offer-features">
+<li>إقامة 5 ليالي (3 سمرقند + 2 بخارى)</li>
+<li>وجبة إفطار يومية</li>
+<li>قطار سريع بين المدن</li>
+<li>زيارة ميدان ريجستان الشهير</li>
+<li>جولة في مدينة بخارى القديمة</li>
+<li>دعم سياحي متاح بالعربية</li>
+</ul>
+<div class="offer-pricing">
+<div class="price-row">
+            <span class="price-label">شخص واحد:</span><br />
+            <span class="price-value">$780</span>
+          </div>
+<div class="price-row">
+            <span class="price-label">شخصين:</span><br />
+            <span class="price-value highlight">$630 للشخص</span>
+          </div>
+</p>
+</div>
+<p class="offer-note">💡 وفّر $150 عند الحجز لشخصين!</p>
+<div class="offer-buttons">
+          <a href="https://wa.me/77064007561?text=مرحباً، أريد الاستفسار عن عرض أوزبكستان 6 أيام" class="btn btn-whatsapp" target="_blank"><br />
+            📞 واتساب<br />
+          </a><br />
+          <a href="https://arcadia-tour.com/%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9-%D9%81%D9%8A-%D8%A3%D9%88%D8%B2%D8%A8%D9%83%D8%B3%D8%AA%D8%A7%D9%86//" class="btn btn-details"><br />
+            📋 التفاصيل<br />
+          </a>
+        </div>
+</p>
+</div>
+</div>
+</div>
+<p>  <!-- معلومات إضافية --></p>
+<div class="info-banner">
+<h2>✨ ما يميز عروضنا</h2>
+<div class="info-grid">
+<div class="info-item">
+<div class="info-icon">💳</div>
+<p class="info-text"><strong>دفع مرن:</strong><br />ادفع 30% عند الحجز والباقي عند الوصول</p>
+</p>
+</div>
+<div class="info-item">
+<div class="info-icon">🎓</div>
+<p class="info-text"><strong>مرشدون عرب:</strong><br />جميع الجولات مع مرشدين ناطقين بالعربية</p>
+</p>
+</div>
+<div class="info-item">
+<div class="info-icon">📞</div>
+<p class="info-text"><strong>دعم 24/7:</strong><br />فريقنا متاح لخدمتك طوال الرحلة</p>
+</p>
+</div>
+<div class="info-item">
+<div class="info-icon">✅</div>
+<p class="info-text"><strong>أسعار شاملة:</strong><br />جميع الأسعار شاملة الضرائب والرسوم</p>
+</p>
+</div>
+</div>
+</div>
+</div>

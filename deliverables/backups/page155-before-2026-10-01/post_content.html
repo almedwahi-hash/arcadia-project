@@ -1,0 +1,133 @@
+<style>
+  :root { --gold: #C9A84C; --gold-light: #E8C97A; --dark: #0D1B2A; --white: #FFFFFF; --gray: #F4F6F8; --text: #2C3E50; --poland-red: #DC143C; --poland-dark: #8B0000; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Tajawal', sans-serif; direction: rtl; color: var(--text); background: var(--white); }
+  .hero { min-height: 60vh; background: linear-gradient(135deg, #1a0010 0%, var(--poland-dark) 50%, var(--poland-red) 100%); display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; padding: 80px 20px; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: url('https://arcadia-tour.com/wp-content/uploads/2026/03/pl-warsaw.jpg') center/cover no-repeat; opacity: 0.2; }
+  .hero-content { position: relative; z-index: 2; max-width: 800px; }
+  .hero-badge { display: inline-block; background: rgba(255,215,0,0.2); border: 1px solid rgba(255,215,0,0.5); color: #FFD700; padding: 8px 24px; border-radius: 50px; font-size: 14px; margin-bottom: 20px; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; color: var(--white); margin-bottom: 16px; }
+  .hero p { font-size: 1.15rem; color: rgba(255,255,255,0.85); max-width: 650px; margin: 0 auto 32px; line-height: 1.9; }
+  .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-gold { background: var(--gold); color: var(--dark); padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: var(--white); padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; border: 2px solid rgba(255,255,255,0.4); transition: all 0.3s; }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .intro { padding: 80px 20px; max-width: 900px; margin: 0 auto; text-align: center; }
+  .section-tag { display: inline-block; color: var(--gold); font-size: 14px; font-weight: 700; letter-spacing: 3px; margin-bottom: 12px; }
+  .intro h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: var(--dark); margin-bottom: 20px; }
+  .intro p { color: #555; font-size: 1.05rem; line-height: 1.9; }
+  .cards-section { padding: 20px 20px 80px; background: var(--gray); }
+  .cards-title { text-align: center; font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; color: var(--dark); margin-bottom: 48px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1200px; margin: 0 auto; }
+  .card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: all 0.4s; text-decoration: none; color: inherit; display: block; }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
+  .card-img { height: 200px; overflow: hidden; position: relative; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+  .card:hover .card-img img { transform: scale(1.05); }
+  .card-num { position: absolute; top: 16px; right: 16px; background: var(--poland-red); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; }
+  .card-body { padding: 24px; }
+  .card-body h3 { font-size: 1.15rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; line-height: 1.4; }
+  .card-body p { color: #666; font-size: 0.95rem; line-height: 1.7; margin-bottom: 20px; }
+  .card-link { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
+  .cta { padding: 80px 20px; text-align: center; }
+  .cta-box { max-width: 700px; margin: 0 auto; background: linear-gradient(135deg, var(--poland-dark) 0%, #3D0010 100%); border-radius: 24px; padding: 60px 40px; color: white; }
+  .cta-box h2 { font-size: 2rem; font-weight: 900; margin-bottom: 16px; }
+  .cta-box p { color: rgba(255,255,255,0.7); margin-bottom: 32px; font-size: 1.05rem; }
+  .whatsapp-btn { background: #25D366; color: white; padding: 14px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; }
+  .whatsapp-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37,211,102,0.4); }
+  @media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } .cta-box { padding: 40px 24px; } }
+</style>
+<section style="background-image:linear-gradient(rgba(15,23,42,.6),rgba(15,23,42,.6)),url('https://arcadia-tour.com/wp-content/uploads/2026/06/arcadia-poland-krakow-1.jpg');background-size:cover;background-position:center;background-repeat:no-repeat;">
+    🇵🇱 جوهرة أوروبا الوسطى
+    <h1>السياحة في بولندا</h1>
+    <p>من تاريخها الغني وتراثها الثقافي إلى مناظرها الطبيعية الخلابة — اكتشف وارسو وكراكوف وزاكوباني مع خدماتنا المتميزة</p>
+      <a href="https://wa.me/77064007561">💬 احجز رحلتك الآن</a>
+      <a href="/العروض-والحجوزات">🌍 استعرض العروض</a>
+</section>
+<section>
+  عن الوجهة
+  <h2>لماذا بولندا؟</h2>
+  <p>مرحباً بكم في وجهتكم المثالية لاكتشاف جمال وروعة بولندا. نهدف لتقديم أفضل الرحلات السياحية التي تتيح لكم تجربة فريدة وممتعة في هذه البلاد الرائعة. اكتشفوا معنا المدن الساحرة مثل وارسو وكراكوف وزاكوباني، واستمتعوا بالمناظر الطبيعية في جبال تاترا وبحيرة ماسوريا.</p>
+</section>
+<section>
+  <h2>اكتشف كل ما تحتاجه عن السياحة في بولندا</h2>
+    <a href="/السياحة-في-بولندا-1/بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-warsaw.jpg" alt="بولندا" loading="lazy">
+        1
+        <h3>السياحة في بولندا</h3>
+        <p>السياحة في بولندا فرصة رائعة لاكتشاف إحدى الدول الأوروبية الساحرة ذات الجمال المخفي عن العيون في أوروبا الوسطى</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/المدن-في-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-krakow.jpg" alt="المدن في بولندا" loading="lazy">
+        2
+        <h3>المدن في بولندا</h3>
+        <p>استكشف جمال مدن بولندا — أدق التفاصيل حول المدن والأماكن التي تستحق الزيارة مع نصائح وإرشادات مخصصة</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/العروض-السياحيه-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-offers.jpg" alt="العروض السياحية بولندا" loading="lazy">
+        3
+        <h3>العروض السياحية في بولندا</h3>
+        <p>باقات شاملة تشمل الإقامة والنقل والجولات السياحية لأهم المعالم — تجربة سفر لا تُنسى في بولندا</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/سياحة-الأكواخ-في-زاكوباني">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-zakopane.jpg" alt="سياحة الأكواخ في زاكوباني" loading="lazy">
+        4
+        <h3>سياحة الأكواخ في زاكوباني</h3>
+        <p>مغامرة فريدة في أحضان الطبيعة — أكواخ زاكوباني مجهزة للمجموعات والعائلات والمسافر الباحث عن الهدوء</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/الفيزا-او-التاشيره-الى-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-visa.jpg" alt="تأشيرة بولندا" loading="lazy">
+        5
+        <h3>الفيزا والتأشيرة إلى بولندا</h3>
+        <p>معلومات تأشيرة بولندا (شنغن): تعرف على المتطلبات والمستندات ومدة المعالجة في دليلنا الإرشادي قبل التخطيط لرحلتك</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/شتاء-كراكوف-زاكوباني">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-winter.jpg" alt="السياحة الشتوية في بولندا" loading="lazy">
+        6
+        <h3>السياحة بمذاق أوروبي في شتاء كراكوف وزاكوباني</h3>
+        <p>مشاهد أسطورية يشكلها الجليد — مزيج من التاريخ والثقافة والفنون ودفء الشعب البولندي بزوّاره</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/الرحلات-الجماعية-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-group.jpg" alt="الرحلات الجماعية إلى بولندا" loading="lazy">
+        7
+        <h3>تنظيم الرحلات الجماعية إلى بولندا</h3>
+        <p>تجربة فريدة للمسافرين — تخطيط شامل للرحلة وحجز الفنادق والتنسيق مع الجولات السياحية المحلية</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/حجوزات-الفنادق">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-hotel.jpg" alt="حجوزات الفنادق في بولندا" loading="lazy">
+        8
+        <h3>حجوزات الفنادق في بولندا</h3>
+        <p>أفضل العروض وأفضل الأسعار لحجوزات الفنادق في بولندا مع ضمان الحصول على حجوزات مؤكدة</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/الدراسه-في-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/featured-592.jpg?w=600" alt="الدراسة في بولندا" loading="lazy">
+        9
+        <h3>الدراسة في بولندا</h3>
+        <p>فرصة مميزة للطلاب للاستفادة من التعليم العالي ذي الجودة العالية في واحدة من أبرز الدول الأوروبية</p>
+        اعرف أكثر ←
+    </a>
+    <a href="/السياحة-في-بولندا-1/برامج-سياحيه-في-بولندا">
+        <img src="https://arcadia-tour.com/wp-content/uploads/2026/03/pl-offers.jpg" alt="برامج سياحية في بولندا" loading="lazy">
+        10
+        <h3>برامج سياحية في بولندا</h3>
+        <p>جولات سياحية مخصصة لاستكشاف أجمل المعالم السياحية والطبيعية في بولندا مع أركاديا السياحية</p>
+        اعرف أكثر ←
+    </a>
+</section>
+<section>
+    <h2>🇵🇱 جاهز لاكتشاف بولندا؟</h2>
+    <p>تواصل معنا الآن وسنصمم لك رحلة لا تنسى في قلب أوروبا</p>
+    <a href="https://wa.me/77064007561">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      واتساب: 77064007561
+    </a>
+</section>
